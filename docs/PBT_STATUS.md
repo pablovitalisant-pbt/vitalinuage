@@ -1,9 +1,9 @@
 # Tablero de Estado PBT-IA - Vitalinuage
 
 ## Métricas Globales
-* **Progreso:** 80%
+* **Progreso:** 92%
 * **Slices Totales (estimados):** 5
-* **Slices Completados:** 4
+* **Slices Completados:** 5
 
 ## Registro de Slices (Fase 2: Multitenancy)
 
@@ -13,7 +13,9 @@
 | 02 | Persistencia Multitenancy (DB & RLS) | Completado | 2 |
 | 03 | Frontend Tenant Awareness (Dashboard) | Completado | 2 |
 | 04 | Smoke Test E2E & Feature Flag Activation | Completado | 2 |
-| 05 | Generación de Recetas Médicas (PDF Engine) | Pendiente | 4 |
+| 05.1 | Auth Polish & Persistence | Completado | 1 |
+| 05.2 | Patient Registry UI & API Feedback | Pendiente | 2 |
+| 06 | Generación de Recetas Médicas (PDF Engine) | Pendiente | 4 |
 
 ## Infraestructura & DevOps
 | ID | Componente | Estado | Notas |

@@ -40,7 +40,7 @@ const defaultPreferences: PrintPreferences = {
     templateId: 'classic'
 };
 
-const DoctorContext = createContext<DoctorContextType | undefined>(undefined);
+export const DoctorContext = createContext<DoctorContextType | undefined>(undefined);
 
 export function DoctorProvider({ children }: { children: ReactNode }) {
     const [profile, setProfile] = useState<DoctorProfile>(defaultProfile);

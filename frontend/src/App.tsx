@@ -10,6 +10,8 @@ import TalonarioSettings from './pages/TalonarioSettings';
 import ProtectedLayout from './layouts/ProtectedLayout';
 import { DoctorProvider } from './context/DoctorContext';
 
+import ProtectedRoute from './components/layout/ProtectedRoute';
+
 function App() {
     return (
         <DoctorProvider>
@@ -19,7 +21,11 @@ function App() {
                     <Route path="/v/:token" element={<PublicValidation />} />
 
                     {/* Protected Routes */}
-                    <Route element={<ProtectedLayout />}>
+                    <Route element={
+                        <ProtectedRoute>
+                            <ProtectedLayout />
+                        </ProtectedRoute>
+                    }>
                         <Route path="/search" element={<SearchPage />} />
                         <Route path="/register" element={<RegisterPatient />} />
                         <Route path="/patient/:id" element={<PatientProfile />} />
