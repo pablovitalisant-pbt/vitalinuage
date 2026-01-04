@@ -1,7 +1,7 @@
 ﻿from sqlalchemy.orm import Session
-import backend.models as models
-import backend.schemas as schemas
-import backend.auth as auth
+import models
+import schemas
+import auth
 
 def get_user_by_email(db: Session, email: str):
     return db.query(models.User).filter(models.User.email == email).first()

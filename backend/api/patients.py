@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-import backend.models as models
-import backend.schemas.patients_schema as schemas
-from backend.database import get_db
+import models
+import schemas.patients_schema as schemas
+from database import get_db
 
 router = APIRouter(
     prefix="/api/pacientes",
@@ -11,9 +11,9 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-from backend.dependencies import get_current_user
-import backend.crud as crud
-import backend.schemas as schemas_auth
+from dependencies import get_current_user
+import crud
+import schemas as schemas_auth
 
 @router.post("", response_model=schemas.Patient)
 def create_patient(

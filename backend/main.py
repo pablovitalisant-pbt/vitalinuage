@@ -5,18 +5,18 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 import os
 
-import backend.models as models
-import backend.schemas as schemas
-import backend.crud as crud
-import backend.auth as auth
-from backend.database import SessionLocal, engine, get_db
+import models
+import schemas
+import crud
+import auth
+from database import SessionLocal, engine, get_db
 # Create Tables
 # Create Tables
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Vitalinuage API")
 
-from backend.api import patients
+from api import patients
 app.include_router(patients.router)
 
 # CORS Configuration for Production and Development
@@ -42,7 +42,7 @@ app.add_middleware(
 # Dependency
 
 
-from backend.dependencies import get_current_user
+from dependencies import get_current_user
 
 @app.get("/")
 def read_root():
