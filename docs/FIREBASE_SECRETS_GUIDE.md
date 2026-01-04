@@ -4,7 +4,7 @@ Para que el despliegue automático funcione, necesitas cargar el secreto `FIREBA
 
 ## Pasos para obtener la Key:
 1.  Ve a la [Consola de Firebase](https://console.firebase.google.com/).
-2.  Selecciona tu proyecto **vitalinuage-app**.
+2.  Selecciona tu proyecto **vitalinuage**.
 3.  Ve a **Configuración del Proyecto** (rueda dentada) > **Cuentas de servicio**.
 4.  Haz clic en **"Generar nueva clave privada"**.
 5.  Se descargará un archivo `.json` en tu computadora.
