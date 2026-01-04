@@ -30,7 +30,7 @@ class PatientBase(BaseModel):
     observaciones: Optional[str] = None
     
     # Multitenancy
-    owner_id: str
+    owner_id: Optional[str] = None
 
     model_config = ConfigDict(populate_by_name=True)
 
