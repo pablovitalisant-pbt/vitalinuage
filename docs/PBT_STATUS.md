@@ -15,6 +15,11 @@
 | 04 | Smoke Test E2E & Feature Flag Activation | Completado | 2 |
 | 05 | Generación de Recetas Médicas (PDF Engine) | Pendiente | 4 |
 
+## Infraestructura & DevOps
+| ID | Componente | Estado | Notas |
+| :--- | :--- | :--- | :--- |
+| INF-01 | Firebase CD (GitHub Actions) | Verif. Secretos | Config committed |
+
 ## Histórico (Fase 1: MVP)
 * 10 Slices completados (Login, Registro, Recetas, etc.) - Ver historial git.
 
