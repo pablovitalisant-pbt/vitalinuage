@@ -14,7 +14,7 @@
 | 03 | Frontend Tenant Awareness (Dashboard) | Completado | 2 |
 | 04 | Smoke Test E2E & Feature Flag Activation | Completado | 2 |
 | 05.1 | Auth Polish & Persistence | Completado | 1 |
-| 05.2 | Patient Registry UI & API Feedback | Pendiente | 2 |
+| 05.2 | Patient Registry UI & API Feedback | Completado | 1 |
 | 06 | Generación de Recetas Médicas (PDF Engine) | Pendiente | 4 |
 
 ## Infraestructura & DevOps
