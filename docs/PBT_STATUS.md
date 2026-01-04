@@ -1,9 +1,9 @@
 # Tablero de Estado PBT-IA - Vitalinuage
 
 ## Métricas Globales
-* **Progreso:** 40%
+* **Progreso:** 60%
 * **Slices Totales (estimados):** 5
-* **Slices Completados:** 2
+* **Slices Completados:** 3
 
 ## Registro de Slices (Fase 2: Multitenancy)
 
@@ -11,8 +11,8 @@
 | :--- | :--- | :--- | :--- |
 | 01 | Multitenancy Contracts (Schemas/Specs) | Completado | 1 |
 | 02 | Persistencia Multitenancy (DB & RLS) | Completado | 2 |
-| 03 | Frontend Tenant Awareness (Dashboard) | Pendiente | 2 |
-| 04 | Doctor-Patient Filtering | Pendiente | 2 |
+| 03 | Frontend Tenant Awareness (Dashboard) | Completado | 2 |
+| 04 | Smoke Test E2E & Feature Flag Activation | Pendiente | 2 |
 | 05 | Security Audit & Verification | Pendiente | 1 |
 
 ## Histórico (Fase 1: MVP)

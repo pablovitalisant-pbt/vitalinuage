@@ -1,0 +1,19 @@
+ts-jest[config] (WARN) message TS151001: If you have issues related to imports, you should consider setting `esModuleInterop` to `true` in your TypeScript configuration file (usually `tsconfig.json`). See https://blogs.msdn.microsoft.com/typescript/2018/01/31/announcing-typescript-2-7/#easier-ecmascript-module-interoperability for more information.
+FAIL src/context/DoctorContext.test.tsx
+  ÔùÅ Test suite failed to run
+
+    src/context/DoctorContext.test.tsx:6:8 - error TS1259: Module '"C:/Users/pablo/Documents/Vitalinuage/frontend/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+
+    6 import React from 'react';
+             ~~~~~
+
+      node_modules/@types/react/index.d.ts:47:1
+        47 export = React;
+           ~~~~~~~~~~~~~~~
+        This module is declared with 'export =', and can only be used with a default import when using the 'esModuleInterop' flag.
+
+Test Suites: 1 failed, 1 total
+Tests:       0 total
+Snapshots:   0 total
+Time:        6.492 s
+Ran all test suites matching src/context/DoctorContext.test.tsx.

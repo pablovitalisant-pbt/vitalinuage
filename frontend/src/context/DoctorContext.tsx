@@ -20,6 +20,9 @@ interface PrintPreferences {
 interface DoctorContextType {
     profile: DoctorProfile;
     preferences: PrintPreferences;
+    token: string | null;
+    login: (token: string) => void;
+    logout: () => void;
     updateProfile: (newProfile: Partial<DoctorProfile>) => void;
     updatePreferences: (newPrefs: Partial<PrintPreferences>) => Promise<void>;
     refreshProfile: () => Promise<void>;
@@ -43,14 +46,14 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
     const [profile, setProfile] = useState<DoctorProfile>(defaultProfile);
     const [preferences, setPreferences] = useState<PrintPreferences>(defaultPreferences);
 
+    const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+
     const refreshProfile = async () => {
         try {
-            // Parallel fetch for profile and preferences
             const [profileRes, prefsRes] = await Promise.all([
                 fetch('/api/doctor/profile'),
                 fetch('/api/doctor/preferences')
             ]);
-
             if (profileRes.ok) {
                 const data = await profileRes.json();
                 setProfile({
@@ -60,7 +63,6 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
                     phone: data.phone || ""
                 });
             }
-
             if (prefsRes.ok) {
                 const data = await prefsRes.json();
                 setPreferences({
@@ -73,13 +75,11 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
                     secondaryColor: data.secondary_color || "#64748b"
                 });
             }
-
         } catch (error) {
-            console.error("Failed to fetch doctor data", error);
+            console.error(error);
         }
     };
 
-    // Load on mount
     useEffect(() => {
         refreshProfile();
     }, []);
@@ -89,33 +89,39 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
     };
 
     const updatePreferences = async (newPrefs: Partial<PrintPreferences>) => {
-        // Optimistic update
         setPreferences(prev => ({ ...prev, ...newPrefs }));
-
-        // Send backend update
         try {
-            const payload = {
-                paper_size: newPrefs.paperSize,
-                template_id: newPrefs.templateId,
-                header_text: newPrefs.headerText,
-                footer_text: newPrefs.footerText,
-                primary_color: newPrefs.primaryColor,
-                secondary_color: newPrefs.secondaryColor
-            };
-
             await fetch('/api/doctor/preferences', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({
+                    paper_size: newPrefs.paperSize,
+                    template_id: newPrefs.templateId,
+                    header_text: newPrefs.headerText,
+                    footer_text: newPrefs.footerText,
+                    primary_color: newPrefs.primaryColor,
+                    secondary_color: newPrefs.secondaryColor
+                })
             });
-            // We could re-fetch to confirm, but optimistic is fine for now
         } catch (err) {
-            console.error("Failed to save preferences", err);
+            console.error(err);
         }
     };
 
+    const login = (newToken: string) => {
+        setToken(newToken);
+        localStorage.setItem('token', newToken);
+        refreshProfile();
+    };
+
+    const logout = () => {
+        setToken(null);
+        localStorage.removeItem('token');
+        setProfile(defaultProfile);
+    };
+
     return (
-        <DoctorContext.Provider value={{ profile, preferences, updateProfile, updatePreferences, refreshProfile }}>
+        <DoctorContext.Provider value={{ profile, preferences, updateProfile, updatePreferences, refreshProfile, token, login, logout }}>
             {children}
         </DoctorContext.Provider>
     );
