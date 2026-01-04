@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        @page {
+            size: a5 portrait;
+            margin: 40px;
+        }
+
+        body {
+            font-family: "Times New Roman", serif;
+            color: #000;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .doc-name {
+            font-size: 18pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .doc-sub {
+            font-size: 11pt;
+            font-style: italic;
+            margin-top: 5px;
+        }
+
+        .meta-table {
+            width: 100%;
+            margin-bottom: 30px;
+            border-bottom: 1px dotted #ccc;
+            padding-bottom: 10px;
+        }
+
+        .label {
+            font-weight: bold;
+            font-size: 10pt;
+        }
+
+        .value {
+            font-size: 11pt;
+            border-bottom: 1px dotted #999;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .content-box {
+            margin-top: 20px;
+        }
+
+        .box-title {
+            font-weight: bold;
+            text-decoration: underline;
+            margin-bottom: 10px;
+            font-size: 12pt;
+        }
+
+        .text-body {
+            font-size: 11pt;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .signature-line {
+            margin-top: 80px;
+            margin-left: 50%;
+            border-top: 1px solid #000;
+            text-align: center;
+            padding-top: 5px;
+            font-size: 10pt;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 9pt;
+            border-top: 1px solid #000;
+            padding-top: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        {% if logo_path %}
+        <img src="{{ logo_path }}" style="height: 60px; margin-bottom: 10px;">
+        <br>
+        {% endif %}
+        <div class="doc-name">{{ doctor.professional_name }}</div>
+        <div class="doc-sub">{{ doctor.specialty }}</div>
+        <div style="font-size: 9pt; margin-top: 5px;">{{ doctor.address }} | {{ doctor.phone }}</div>
+    </div>
+
+    <table class="meta-table">
+        <tr>
+            <td width="10%"><span class="label">Paciente:</span></td>
+            <td width="50%">{{ patient.nombre }} {{ patient.apellido_paterno }}</td>
+            <td width="10%"><span class="label">Fecha:</span></td>
+            <td width="30%">{{ date }}</td>
+        </tr>
+    </table>
+
+    <div class="content-box">
+        <div class="box-title">Diagnóstico</div>
+        <div class="text-body">{{ consultation.diagnosis }}</div>
+    </div>
+
+    <div class="content-box">
+        <div class="box-title">Rp/ Tratamiento</div>
+        <div class="text-body">{{ consultation.treatment }}</div>
+    </div>
+
+    {% if consultation.notes %}
+    <div class="content-box">
+        <div class="box-title">Observaciones</div>
+        <div class="text-body">{{ consultation.notes }}</div>
+    </div>
+    {% endif %}
+
+    <div class="signature-line">
+        Firma del Médico
+    </div>
+
+    {% if preferences.footer_text %}
+    <div class="footer">
+        {{ preferences.footer_text }}
+    </div>
+    {% endif %}
+</body>
+
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        @page {
+            size: {
+                    {
+                    paper_size | lower
+                }
+            }
+
+            portrait;
+            margin: 20px;
+        }
+
+        body {
+            font-family: Helvetica, sans-serif;
+            color: #111827;
+        }
+
+        .sidebar {
+            background-color: #0f172a;
+            /* Slate-900 */
+            color: white;
+            width: 30%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .main-content {
+            margin-left: 35%;
+            /* Right of sidebar */
+            padding-top: 20px;
+        }
+
+        .logo-img {
+            width: 80px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+        }
+
+        .doc-name {
+            font-size: 16pt;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #38bdf8;
+            /* Sky-400 */
+        }
+
+        .doc-details {
+            font-size: 9pt;
+            color: #94a3b8;
+            margin-bottom: 30px;
+        }
+
+        .rx-symbol {
+            font-size: 40pt;
+            font-weight: bold;
+            color: #e2e8f0;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+        }
+
+        .patient-info {
+            border-bottom: 2px solid #0f172a;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        .label {
+            font-weight: bold;
+            color: #64748b;
+            font-size: 9pt;
+            text-transform: uppercase;
+        }
+
+        .big-text {
+            font-size: 14pt;
+        }
+
+        .section-title {
+            background-color: #f1f5f9;
+            padding: 5px 10px;
+            font-weight: bold;
+            color: #0f172a;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #0f172a;
+        }
+
+        .content {
+            font-size: 10pt;
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        {% if logo_path %}
+        <img src="{{ logo_path }}" class="logo-img">
+        {% endif %}
+        <div class="doc-name">{{ doctor.professional_name }}</div>
+        <div class="doc-details">
+            {{ doctor.specialty }}<br /><br />
+            {{ doctor.address }}<br />
+            {{ doctor.phone }}
+        </div>
+
+        <div style="margin-top: 50px; border-top: 1px solid #334155; padding-top: 20px;">
+            <div style="font-size: 8pt; color: #64748b;">FECHA</div>
+            <div style="font-size: 12pt;">{{ date }}</div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="rx-symbol">Rx</div>
+
+        <div class="patient-info">
+            <div class="label">Para</div>
+            <div class="big-text">{{ patient.nombre }} {{ patient.apellido_paterno }}</div>
+            <div style="font-size: 10pt; color: #64748b;">DNI: {{ patient.dni }}</div>
+        </div>
+
+        <div class="section-title">DIAGNÓSTICO</div>
+        <div class="content">{{ consultation.diagnosis }}</div>
+
+        <div class="section-title">TRATAMIENTO</div>
+        <div class="content">{{ consultation.treatment }}</div>
+
+        {% if consultation.notes %}
+        <div class="section-title">OBSERVACIONES</div>
+        <div class="content">{{ consultation.notes }}</div>
+        {% endif %}
+
+        {% if preferences.footer_text %}
+        <div style="margin-top: 50px; font-size: 8pt; color: #94a3b8; text-align: center;">
+            {{ preferences.footer_text }}
+        </div>
+        {% endif %}
+    </div>
+</body>
+
+</html>

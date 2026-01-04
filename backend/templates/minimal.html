@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        @page {
+            size: {
+                    {
+                    paper_size | lower
+                }
+            }
+
+            portrait;
+            margin: 0;
+        }
+
+        body {
+            font-family: Helvetica, sans-serif;
+            color: #334155;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header-bg {
+            background-color: #3b82f6;
+            /* Blue-500 */
+            height: 80px;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .header-content {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            right: 30px;
+        }
+
+        .logo-img {
+            width: 60px;
+            height: auto;
+            vertical-align: middle;
+        }
+
+        .doc-title {
+            color: white;
+            font-size: 20pt;
+            font-weight: bold;
+            display: inline-block;
+            margin-left: 15px;
+            vertical-align: middle;
+        }
+
+        .container {
+            margin-top: 100px;
+            /* Push below header */
+            margin-left: 30px;
+            margin-right: 30px;
+            margin-bottom: 50px;
+        }
+
+        .patient-card {
+            border-left: 4px solid #3b82f6;
+            background-color: #eff6ff;
+            padding: 15px;
+            margin-bottom: 25px;
+        }
+
+        .label {
+            font-size: 8pt;
+            color: #64748b;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .value {
+            font-size: 11pt;
+            margin-bottom: 5px;
+        }
+
+        .section-header {
+            color: #1e3a8a;
+            font-size: 14pt;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 5px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .content-body {
+            font-size: 10pt;
+            line-height: 1.5;
+            text-align: justify;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0px;
+            left: 0px;
+            right: 0px;
+            height: 40px;
+            background-color: #f1f5f9;
+            text-align: center;
+            padding-top: 15px;
+            font-size: 8pt;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header-bg"></div>
+    <div class="header-content">
+        {% if logo_path %}
+        <img src="{{ logo_path }}" class="logo-img">
+        {% endif %}
+        <div class="doc-title">{{ doctor.professional_name }}</div>
+        <div style="color: #bfdbfe; font-size: 10pt; margin-left: 80px;">{{ doctor.specialty }}</div>
+    </div>
+
+    <div class="container">
+        <div class="patient-card">
+            <div class="label">PACIENTE</div>
+            <div class="value" style="font-size: 12pt; font-weight: bold;">{{ patient.nombre }} {{
+                patient.apellido_paterno }}</div>
+
+            <table width="100%">
+                <tr>
+                    <td>
+                        <div class="label">DNI</div>
+                        <div class="value">{{ patient.dni }}</div>
+                    </td>
+                    <td>
+                        <div class="label">FECHA</div>
+                        <div class="value">{{ date }}</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section-header">Diagnóstico</div>
+        <div class="content-body">{{ consultation.diagnosis }}</div>
+
+        <div class="section-header">Tratamiento / Indicaciones</div>
+        <div class="content-body">{{ consultation.treatment }}</div>
+
+        {% if consultation.notes %}
+        <div class="section-header">Notas Adicionales</div>
+        <div class="content-body">{{ consultation.notes }}</div>
+        {% endif %}
+    </div>
+
+    <div class="footer">
+        {{ preferences.footer_text or doctor.address + " | " + doctor.phone }}
+    </div>
+</body>
+
+</html>

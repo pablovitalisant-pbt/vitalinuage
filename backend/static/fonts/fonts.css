@@ -1,0 +1,64 @@
+/* Fuentes locales para WeasyPrint - Generado automáticamente */
+
+@font-face {
+    font-family: 'Arial';
+    src: url('arial.ttf');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Arial';
+    src: url('arialbd.ttf');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Arial';
+    src: url('ariali.ttf');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Arial';
+    src: url('arialbi.ttf');
+    font-weight: bold;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Georgia';
+    src: url('georgia.ttf');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Georgia';
+    src: url('georgiab.ttf');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Georgia';
+    src: url('georgiai.ttf');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Georgia';
+    src: url('georgiaz.ttf');
+    font-weight: bold;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Helvetica';
+    src: url('calibri.ttf');
+    font-weight: normal;
+    font-style: normal;
+}

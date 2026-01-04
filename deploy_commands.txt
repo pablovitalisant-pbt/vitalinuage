@@ -1,0 +1,40 @@
+# ======================================================
+# DEPLOYMENT COMMANDS - VITALINUAGE PRODUCTION
+# ======================================================
+
+# --- BACKEND COMMANDS (Cloud Run) ---
+# Replace PROJECT_ID with your actual Google Cloud Project ID
+
+# 1. Build and push context to Google Container Registry (or Artifact Registry)
+# Ensure you have 'gcloud' installed and authenticated
+gcloud builds submit --tag gcr.io/vitalinuage-cloud/vitalinuage-backend ./backend
+
+# 2. Deploy to Cloud Run (Injecting Secrets & Config)
+# Note: In a real CI/CD pipeline, use Secret Manager. For MVP, Env Vars are acceptable.
+gcloud run deploy vitalinuage-backend \
+  --image gcr.io/vitalinuage-cloud/vitalinuage-backend \
+  --platform managed \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --port 8080 \
+  --set-env-vars DATABASE_URL="postgresql://neondb_owner:npg_7SILaeFMuf2i@ep-billowing-wave-ac7gg2nq-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require" \
+  --set-env-vars SECRET_KEY="SUPER_SECRET_KEY_PRODUCTION_ONLY_CHANGE_ME" \
+  --memory 1Gi
+
+# --- FRONTEND COMMANDS (Firebase Hosting) ---
+
+# 1. Build React App (Vite)
+cd frontend
+npm install
+npm run build
+cd ..
+
+# 2. Deploy to Firebase
+firebase deploy --only hosting
+
+# ======================================================
+# POST-DEPLOYMENT CHECKS
+# ======================================================
+# 1. Visit the Cloud Run URL (provided in output) -> Append /docs to verify Swagger UI.
+# 2. Visit the Firebase Hosting URL -> Verify Login Page loads.
+# 3. Test "Generate Recipe" flow to ensure WeasyPrint works in cloud environment.

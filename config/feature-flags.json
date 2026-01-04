@@ -1,0 +1,11 @@
+{
+    "auth_login": true,
+    "registro_pacientes": true,
+    "busqueda_pacientes": true,
+    "registro_consultas": true,
+    "generacion_recetas": true,
+    "notificaciones_push": true,
+    "importacion_datos": true,
+    "new_consultation_flow": true,
+    "enable_multitenancy": false
+}
