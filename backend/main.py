@@ -19,22 +19,24 @@ app = FastAPI(title="Vitalinuage API")
 from backend.api import patients
 app.include_router(patients.router)
 
-# CORS for Production
+# CORS Configuration for Production and Development
 origins = [
+    # Development
     "http://localhost:5173",
     "http://localhost:4173",
+    "http://localhost:3000",
+    "http://127.0.0.1:5173",
+    # Production Firebase Hosting
     "https://vitalinuage.web.app",
-    "https://vitalinuage-app.web.app",
-    "https://vitalinuage-app.firebaseapp.com",
-    "*" # Keep wildcard for dev if needed, or remove for strict security
+    "https://vitalinuage.firebaseapp.com",
 ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "Accept"],
 )
 
 # Dependency
