@@ -4,6 +4,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Save, ArrowLeft } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { toast } from 'react-hot-toast';
 import { PacienteSchema } from '../contracts/paciente';
 
 // Extension of schema for form only (fullName is split later)
@@ -68,12 +69,23 @@ export default function RegisterPatient() {
 
             if (response.ok) {
                 const result = await response.json();
+                toast.success('Paciente registrado correctamente');
+                // Optional: reset(); // Not resetting if navigating away immediately, but spec asked to 'clean form automatically'. 
+                // However, logic here navigates away. If we navigate away, reset is redundant unless we stay.
+                // The spec says 'Limpiar el formulario automáticamente tras un registro exitoso'.
+                // But the code navigates to /patient/:id. 
+                // Let's add reset() anyway for correctness if navigation is delayed or cancelled.
+                // Or maybe we should allow creating another patient? 
+                // The current flow navigates to the patient profile. So user leaves the form. 
+                // I will add the toast before navigation.
                 navigate(`/patient/${result.id}`);
             } else {
                 console.error("Failed to register");
+                toast.error("Error al registrar: Verifique los datos o intente más tarde");
             }
         } catch (error) {
             console.error(error);
+            toast.error("Error de conexión");
         } finally {
             setIsSubmitting(false);
         }

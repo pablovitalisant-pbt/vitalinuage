@@ -12,10 +12,13 @@ import { DoctorProvider } from './context/DoctorContext';
 
 import ProtectedRoute from './components/layout/ProtectedRoute';
 
+import { Toaster } from 'react-hot-toast';
+
 function App() {
     return (
         <DoctorProvider>
             <BrowserRouter>
+                <Toaster position="top-right" />
                 <Routes>
                     <Route path="/" element={<Login />} />
                     <Route path="/v/:token" element={<PublicValidation />} />
