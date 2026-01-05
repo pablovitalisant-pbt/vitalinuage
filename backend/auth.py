@@ -4,6 +4,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 import os
 import secrets
+import hashlib
 
 # CONFIG - Production-grade SECRET_KEY
 SECRET_KEY = os.getenv("SECRET_KEY", secrets.token_urlsafe(32))
@@ -13,11 +14,25 @@ ACCESS_TOKEN_EXPIRE_DAYS = 30
 # SECURITY: Use bcrypt as the standard hashing algorithm
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+def _prehash_password(password: str) -> str:
+    """
+    Pre-hash password with SHA-256 to bypass bcrypt's 72-byte limit.
+    This allows passwords of any length while maintaining security.
+    """
+    # Convert password to bytes and hash with SHA-256
+    password_bytes = password.encode('utf-8')
+    sha256_hash = hashlib.sha256(password_bytes).hexdigest()
+    return sha256_hash
 
-def get_password_hash(password):
-    return pwd_context.hash(password)
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verify password using SHA-256 pre-hashing + bcrypt"""
+    prehashed = _prehash_password(plain_password)
+    return pwd_context.verify(prehashed, hashed_password)
+
+def get_password_hash(password: str) -> str:
+    """Hash password using SHA-256 pre-hashing + bcrypt"""
+    prehashed = _prehash_password(password)
+    return pwd_context.hash(prehashed)
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
