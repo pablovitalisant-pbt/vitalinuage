@@ -14,7 +14,7 @@ const Login: React.FC = () => {
     const endpoint = isRegister ? '/register' : '/login';
 
     try {
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
       const url = `${baseUrl}${endpoint}`;
 
       const response = await fetch(url, {

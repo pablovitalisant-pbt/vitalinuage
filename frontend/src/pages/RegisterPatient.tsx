@@ -5,6 +5,7 @@ import { Save, ArrowLeft } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'react-hot-toast';
+import { getApiUrl } from '../config/api';
 import { PacienteSchema } from '../contracts/paciente';
 
 // Extension of schema for form only (fullName is split later)
@@ -61,7 +62,7 @@ export default function RegisterPatient() {
                 imc: 0
             };
 
-            const response = await fetch('/api/pacientes', {
+            const response = await fetch(getApiUrl('/api/pacientes'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
