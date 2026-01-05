@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
+import VerifyEmail from './pages/VerifyEmail';
 import PublicValidation from './pages/PublicValidation';
 import SearchPage from './pages/Search';
 import PatientProfile from './pages/PatientProfile';
@@ -21,6 +22,7 @@ function App() {
                 <Toaster position="top-right" />
                 <Routes>
                     <Route path="/" element={<Login />} />
+                    <Route path="/verify" element={<VerifyEmail />} />
                     <Route path="/v/:token" element={<PublicValidation />} />
 
                     {/* Protected Routes */}

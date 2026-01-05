@@ -1,0 +1,331 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.8, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\Users\pablo\Documents\Vitalinuage
+plugins: anyio-4.12.0
+collected 3 items
+
+backend\tests\test_dashboard_slice_08.py F                               [ 33%]
+backend\tests\test_patients_search.py ..                                 [100%]
+
+================================== FAILURES ===================================
+______________________ test_get_doctor_profile_structure ______________________
+
+self = <sqlalchemy.engine.base.Connection object at 0x0000029FFBBEB650>
+dialect = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x0000029FFBAB7250>
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x0000029FFBBCAB30>
+statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x0000029FFBB6F550>
+parameters = [('doc_d9e735be-9b48-4532-96a1-ed39ef92dcaa@vital.com', 1, 0)]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+.venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x0000029FFBAB7250>
+cursor = <sqlite3.Cursor object at 0x0000029FFBC1E440>
+statement = 'SELECT users.id AS users_id, users.email AS users_email, users.hashed_password AS users_hashed_password, users.is_ver...cialty, users.registration_number AS users_registration_number \nFROM users \nWHERE users.email = ?\n LIMIT ? OFFSET ?'
+parameters = ('doc_d9e735be-9b48-4532-96a1-ed39ef92dcaa@vital.com', 1, 0)
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x0000029FFBBCAB30>
+
+    def do_execute(self, cursor, statement, parameters, context=None):
+>       cursor.execute(statement, parameters)
+E       sqlite3.OperationalError: no such table: users
+
+.venv\Lib\site-packages\sqlalchemy\engine\default.py:952: OperationalError
+
+The above exception was the direct cause of the following exception:
+
+client = <starlette.testclient.TestClient object at 0x0000029FFBB79940>
+db_session = <sqlalchemy.orm.session.Session object at 0x0000029FFBB7A510>
+
+    def test_get_doctor_profile_structure(client, db_session):
+        """
+        Test Integration 1 (Doctor): Verify GET /api/doctor/profile returns DoctorProfile structure.
+        Expected: 404 Not Found (initially) or 200 with valid schema once implemented.
+        """
+        # 1. Setup Auth
+        email = f"doc_{uuid.uuid4()}@vital.com"
+        # We need to register/create user in DB to have a valid user, otherwise get_current_user might fail on DB lookup?
+        # Actually dependencies.py checks crud.get_user_by_email.
+        # So we MUST create the user in DB first.
+        from models import User
+        hashed = "hashed_secret" # Mock hash
+        user = User(email=email, hashed_password=hashed, is_verified=True)
+        db_session.add(user)
+        db_session.commit()
+    
+        # 2. Generate Token
+        # We need the SECRET_KEY used by the app. Main app loads from env.
+        # The client fixture typically points to app which has the config.
+        # Let's import auth from backend.
+        import auth
+        access_token = auth.create_access_token(data={"sub": email})
+    
+        headers = {"Authorization": f"Bearer {access_token}"}
+    
+        # 3. Request
+>       response = client.get("/api/doctor/profile", headers=headers)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\test_dashboard_slice_08.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\starlette\testclient.py:473: in get
+    return super().get(
+.venv\Lib\site-packages\httpx\_client.py:1053: in get
+    return self.request(
+.venv\Lib\site-packages\starlette\testclient.py:445: in request
+    return super().request(
+.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\starlette\testclient.py:348: in handle_request
+    raise exc
+.venv\Lib\site-packages\starlette\testclient.py:345: in handle_request
+    portal.call(self.app, scope, receive, send)
+.venv\Lib\site-packages\anyio\from_thread.py:326: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python313\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+.venv\Lib\site-packages\anyio\from_thread.py:257: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\fastapi\applications.py:1135: in __call__
+    await super().__call__(scope, receive, send)
+.venv\Lib\site-packages\starlette\applications.py:107: in __call__
+    await self.middleware_stack(scope, receive, send)
+.venv\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+.venv\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+.venv\Lib\site-packages\starlette\middleware\cors.py:85: in __call__
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+.venv\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+.venv\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+.venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\starlette\routing.py:716: in __call__
+    await self.middleware_stack(scope, receive, send)
+.venv\Lib\site-packages\starlette\routing.py:736: in app
+    await route.handle(scope, receive, send)
+.venv\Lib\site-packages\starlette\routing.py:290: in handle
+    await self.app(scope, receive, send)
+.venv\Lib\site-packages\fastapi\routing.py:115: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+.venv\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+.venv\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+.venv\Lib\site-packages\fastapi\routing.py:101: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\fastapi\routing.py:345: in app
+    solved_result = await solve_dependencies(
+.venv\Lib\site-packages\fastapi\dependencies\utils.py:643: in solve_dependencies
+    solved = await call(**solved_result.values)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\dependencies.py:25: in get_current_user
+    user = crud.get_user_by_email(db, email=email)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\crud.py:7: in get_user_by_email
+    return db.query(models.User).filter(models.User.email == email).first()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\sqlalchemy\orm\query.py:2759: in first
+    return self.limit(1)._iter().first()  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\sqlalchemy\orm\query.py:2857: in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+.venv\Lib\site-packages\sqlalchemy\orm\session.py:2351: in execute
+    return self._execute_internal(
+.venv\Lib\site-packages\sqlalchemy\orm\session.py:2249: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+.venv\Lib\site-packages\sqlalchemy\orm\context.py:306: in orm_execute_statement
+    result = conn.execute(
+.venv\Lib\site-packages\sqlalchemy\engine\base.py:1419: in execute
+    return meth(
+.venv\Lib\site-packages\sqlalchemy\sql\elements.py:527: in _execute_on_connection
+    return connection._execute_clauseelement(
+.venv\Lib\site-packages\sqlalchemy\engine\base.py:1641: in _execute_clauseelement
+    ret = self._execute_context(
+.venv\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_single_context(
+.venv\Lib\site-packages\sqlalchemy\engine\base.py:1986: in _exec_single_context
+    self._handle_dbapi_exception(
+.venv\Lib\site-packages\sqlalchemy\engine\base.py:2363: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+.venv\Lib\site-packages\sqlalchemy\engine\base.py:1967: in _exec_single_context
+    self.dialect.do_execute(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x0000029FFBAB7250>
+cursor = <sqlite3.Cursor object at 0x0000029FFBC1E440>
+statement = 'SELECT users.id AS users_id, users.email AS users_email, users.hashed_password AS users_hashed_password, users.is_ver...cialty, users.registration_number AS users_registration_number \nFROM users \nWHERE users.email = ?\n LIMIT ? OFFSET ?'
+parameters = ('doc_d9e735be-9b48-4532-96a1-ed39ef92dcaa@vital.com', 1, 0)
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x0000029FFBBCAB30>
+
+    def do_execute(self, cursor, statement, parameters, context=None):
+>       cursor.execute(statement, parameters)
+E       sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: users
+E       [SQL: SELECT users.id AS users_id, users.email AS users_email, users.hashed_password AS users_hashed_password, users.is_verified AS users_is_verified, users.verification_token AS users_verification_token, users.verification_token_expires_at AS users_verification_token_expires_at, users.professional_name AS users_professional_name, users.specialty AS users_specialty, users.registration_number AS users_registration_number 
+E       FROM users 
+E       WHERE users.email = ?
+E        LIMIT ? OFFSET ?]
+E       [parameters: ('doc_d9e735be-9b48-4532-96a1-ed39ef92dcaa@vital.com', 1, 0)]
+E       (Background on this error at: https://sqlalche.me/e/20/e3q8)
+
+.venv\Lib\site-packages\sqlalchemy\engine\default.py:952: OperationalError
+============================== warnings summary ===============================
+backend\database.py:14
+  C:\Users\pablo\Documents\Vitalinuage\backend\database.py:14: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+backend\main.py:69
+  C:\Users\pablo\Documents\Vitalinuage\backend\main.py:69: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    BUILD_TIME = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+
+backend/tests/test_dashboard_slice_08.py::test_get_doctor_profile_structure
+backend/tests/test_patients_search.py::test_patient_search_integration
+backend/tests/test_patients_search.py::test_smoke_e2e_search_flow
+  C:\Users\pablo\Documents\Vitalinuage\backend\auth.py:80: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    expire = datetime.utcnow() + timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED backend/tests/test_dashboard_slice_08.py::test_get_doctor_profile_structure
+=================== 1 failed, 2 passed, 5 warnings in 2.85s ===================

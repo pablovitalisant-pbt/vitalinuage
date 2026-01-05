@@ -1,0 +1,74 @@
+
+> vitalinuage-frontend@0.0.0 test
+> jest src/context/DoctorContext.test.tsx src/components/Search.test.tsx
+
+FAIL src/context/DoctorContext.test.tsx
+  ÔùÅ Test suite failed to run
+
+    Jest encountered an unexpected token
+
+    Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+
+    Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+
+    By default "node_modules" folder is ignored by transformers.
+
+    Here's what you can do:
+     ÔÇó If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+     ÔÇó If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+     ÔÇó To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+     ÔÇó If you need a custom transformation, specify a "transform" option in your config.
+     ÔÇó If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+
+    You'll find more details and examples of these config options in the docs:
+    https://jestjs.io/docs/configuration
+    For information about custom transformations, see:
+    https://jestjs.io/docs/code-transformation
+
+    Details:
+
+    C:\Users\pablo\Documents\Vitalinuage\frontend\src\config\api.ts:5
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+                                ^^^^
+
+    SyntaxError: Cannot use 'import.meta' outside a module
+
+      1 | import { createContext, useState, ReactNode } from 'react';
+    > 2 | import { getApiUrl } from '../config/api';
+        | ^
+      3 |
+      4 | export interface DoctorProfile {
+      5 |     professionalName: string;
+
+      at Runtime.createScriptFromCode (node_modules/jest-runtime/build/index.js:1318:40)
+      at Object.<anonymous> (src/context/DoctorContext.tsx:2:1)
+      at Object.<anonymous> (src/context/DoctorContext.test.tsx:3:1)
+
+FAIL src/components/Search.test.tsx
+  ÔùÅ Test suite failed to run
+
+    Cannot find module './Search' from 'src/components/Search.test.tsx'
+
+    However, Jest was able to find:
+    	'./Search.test.tsx'
+
+    You might want to include a file extension in your import, or update your 'moduleFileExtensions', which is currently ['js', 'mjs', 'cjs', 'jsx', 'ts', 'mts', 'cts', 'tsx', 'json', 'node'].
+
+    See https://jestjs.io/docs/configuration#modulefileextensions-arraystring
+
+      1 | import React from 'react';
+      2 | import { render, fireEvent, waitFor, screen } from '@testing-library/react';
+    > 3 | import Search from './Search';
+        | ^
+      4 | import '@testing-library/jest-dom';
+      5 |
+      6 | global.fetch = jest.fn();
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (src/components/Search.test.tsx:3:1)
+
+Test Suites: 2 failed, 2 total
+Tests:       0 total
+Snapshots:   0 total
+Time:        3.165 s
+Ran all test suites matching src/context/DoctorContext.test.tsx|src/components/Search.test.tsx.

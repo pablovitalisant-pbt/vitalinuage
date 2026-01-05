@@ -3,6 +3,8 @@ import { FilePlus, ArrowLeft, History, User, Printer, Settings } from 'lucide-re
 import { useEffect, useState } from 'react';
 import { PrintSettingsModal } from '../components/PrintSettingsModal';
 import PrescriptionDelivery from '../components/PrescriptionDelivery';
+import MedicalBackgroundManager from '../components/MedicalBackgroundManager';
+import ConsultationManager from '../components/ConsultationManager';
 
 // Simplified interface for view
 interface PatientData {
@@ -32,6 +34,9 @@ export default function PatientProfile() {
     const [editForm, setEditForm] = useState<any>(null);
     const [showPrintSettings, setShowPrintSettings] = useState(false);
 
+    // Moved import to top of file
+    // import MedicalBackgroundManager from '../components/MedicalBackgroundManager';
+
     const handleSave = async () => {
         if (!selectedConsultation || !editForm) return;
 
@@ -59,6 +64,9 @@ export default function PatientProfile() {
             console.error("Failed to update consultation", err);
         }
     };
+
+    // Tab State
+    const [activeTab, setActiveTab] = useState<'consultations' | 'background'>('consultations');
 
     useEffect(() => {
         if (!id) return;
@@ -140,86 +148,88 @@ export default function PatientProfile() {
                     </button>
                 </div>
 
-                {/* Dashboard Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            </div>
 
-                    {/* Timeline / History */}
-                    <div className="md:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100 p-6">
-                        <div className="flex items-center gap-2 mb-4">
-                            <History className="h-5 w-5 text-slate-400" />
-                            <h2 className="text-lg font-semibold text-slate-800">Historial de Consultas</h2>
+            {/* Tabs Navigation */}
+            <div className="flex border-b border-slate-200 gap-6">
+                <button
+                    onClick={() => setActiveTab('consultations')}
+                    className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeTab === 'consultations' ? 'border-[#1e3a8a] text-[#1e3a8a]' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+                >
+                    Consultas & Historial
+                </button>
+                <button
+                    onClick={() => setActiveTab('background')}
+                    className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeTab === 'background' ? 'border-[#1e3a8a] text-[#1e3a8a]' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+                >
+                    Antecedentes
+                </button>
+                <button
+                    disabled
+                    className="pb-3 text-sm font-medium text-slate-300 cursor-not-allowed border-b-2 border-transparent"
+                >
+                    Recetas (Próximamente)
+                </button>
+            </div>
+
+            {/* Content Area */}
+            <div className="min-h-[400px]">
+                {activeTab === 'consultations' && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in duration-300">
+                        {/* Evolution / History - REPLACED OLD HISTORY */}
+                        <div className="md:col-span-2">
+                            <ConsultationManager patientId={parseInt(id || "0")} />
                         </div>
 
-                        {consultations.length === 0 ? (
-                            <div className="text-slate-400 text-sm italic p-4 text-center bg-slate-50 rounded-lg">
-                                No hay consultas registradas.
+                        {/* Quick Actions Card */}
+                        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 h-fit">
+                            <h2 className="text-lg font-semibold text-slate-800 mb-4">Acciones Rápidas</h2>
+                            <div className="space-y-3">
+                                <button
+                                    onClick={() => navigate(`/patient/${id}/new-consultation`)}
+                                    className="w-full flex items-center justify-center gap-2 bg-[#1e3a8a] hover:bg-blue-900 text-white font-medium py-3 px-4 rounded-lg transition-all shadow-sm hover:shadow-md"
+                                >
+                                    <FilePlus className="h-5 w-5" />
+                                    Nueva Consulta
+                                </button>
+                                <button className="w-full flex items-center justify-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium py-3 px-4 rounded-lg transition-colors">
+                                    Editar Datos
+                                </button>
                             </div>
-                        ) : (
-                            <div className="space-y-4">
-                                {consultations.map((cons) => (
-                                    <div
-                                        key={cons.id}
-                                        onClick={() => {
-                                            setSelectedConsultation(cons);
-                                            setIsEditing(false);
-                                            setEditForm(null); // Will load in Modal
-                                        }}
-                                        className="bg-slate-50 rounded-lg p-4 border border-slate-100 hover:shadow-md hover:border-blue-200 transition-all cursor-pointer group"
-                                    >
-                                        <div className="flex justify-between items-start mb-2">
-                                            <p className="text-sm font-semibold text-[#1e3a8a] group-hover:text-blue-700">{new Date(cons.date).toLocaleDateString()}</p>
-                                            <span className="text-xs text-slate-400 group-hover:text-blue-400">Ver detalle &rarr;</span>
-                                        </div>
-                                        <p className="font-medium text-slate-800 mb-1">{cons.reason}</p>
-                                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-1">Diagnóstico: {cons.diagnosis}</p>
-                                        <div className="text-sm text-slate-600 mt-2 bg-white p-2 rounded border border-slate-100 text-ellipsis overflow-hidden whitespace-nowrap">
-                                            {cons.treatment}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Quick Actions Card */}
-                    <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
-                        <h2 className="text-lg font-semibold text-slate-800 mb-4">Acciones Rápidas</h2>
-                        <div className="space-y-3">
-                            <button
-                                onClick={() => navigate(`/patient/${id}/new-consultation`)}
-                                className="w-full flex items-center justify-center gap-2 bg-[#1e3a8a] hover:bg-blue-900 text-white font-medium py-3 px-4 rounded-lg transition-all shadow-sm hover:shadow-md"
-                            >
-                                <FilePlus className="h-5 w-5" />
-                                Nueva Consulta
-                            </button>
-                            <button className="w-full flex items-center justify-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium py-3 px-4 rounded-lg transition-colors">
-                                Editar Datos
-                            </button>
                         </div>
+
                     </div>
+                )}
 
-                </div>
-
+                {activeTab === 'background' && (
+                    <div className="animate-in fade-in slide-in-from-left-4 duration-300">
+                        <MedicalBackgroundManager patientId={parseInt(id || "0")} />
+                    </div>
+                )}
             </div>
 
             {/* Print Settings Modal */}
-            {showPrintSettings && (
-                <PrintSettingsModal onClose={() => setShowPrintSettings(false)} />
-            )}
+            {
+                showPrintSettings && (
+                    <PrintSettingsModal onClose={() => setShowPrintSettings(false)} />
+                )
+            }
 
             {/* Detail/Edit Modal */}
-            {selectedConsultation && (
-                <ConsultationModal
-                    consultation={selectedConsultation}
-                    isEditing={isEditing}
-                    onClose={() => setSelectedConsultation(null)}
-                    onEdit={() => setIsEditing(true)}
-                    onSave={handleSave}
-                    editForm={editForm}
-                    setEditForm={setEditForm}
-                    patientEmail={patient.email}
-                />
-            )}
+            {
+                selectedConsultation && (
+                    <ConsultationModal
+                        consultation={selectedConsultation}
+                        isEditing={isEditing}
+                        onClose={() => setSelectedConsultation(null)}
+                        onEdit={() => setIsEditing(true)}
+                        onSave={handleSave}
+                        editForm={editForm}
+                        setEditForm={setEditForm}
+                        patientEmail={patient.email}
+                    />
+                )
+            }
         </div>
     );
 }

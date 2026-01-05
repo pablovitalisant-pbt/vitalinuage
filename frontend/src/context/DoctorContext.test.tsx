@@ -1,45 +1,87 @@
-/**
- * @jest-environment jsdom
- */
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import { DoctorProvider, useDoctor } from './DoctorContext';
 import React from 'react';
+import { render, waitFor, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
 
-// Mock fetch
-global.fetch = jest.fn(() =>
-    Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({})
-    })
-) as jest.Mock;
+// 1. Mock the API config to avoid import.meta syntax error during Jest execution
+jest.mock('../config/api', () => ({
+    getApiUrl: (path: string) => `http://test-api${path}`,
+    API_BASE_URL: 'http://test-api'
+}));
 
-// Setup Mock Component to consume context
-const TestConsumer = () => {
-    const { token, setToken } = useDoctor();
+// Feature Flags are now enabled in config/feature-flags.json, so we rely on the real file.
+
+// 2. Mock Global Fetch
+global.fetch = jest.fn();
+
+// Import Context (now safe from import.meta)
+import { DoctorProvider, useDoctor } from './DoctorContext';
+
+const TestComponent = () => {
+    const { profile } = useDoctor();
     return (
         <div>
-            <span data-testid="token-value">{token || "NO_TOKEN"}</span>
-            <button onClick={() => setToken("new-token")}>Set Token</button>
+            <span data-testid="prof-name">{profile.professionalName}</span>
+            <span data-testid="prof-spec">{profile.specialty}</span>
         </div>
     );
 };
 
-describe('DoctorContext', () => {
+describe('DoctorContext Integration', () => {
     beforeEach(() => {
+        jest.clearAllMocks();
+        // Ensure Token exists for Logic to proceed
+        localStorage.setItem('token', 'test-token');
+
+        // Reset fetch to return success by default
+        (global.fetch as jest.Mock).mockResolvedValue({
+            ok: true,
+            json: async () => ({
+                professional_name: 'Dr. Real API',
+                specialty: 'Cardiology',
+                registration_number: '12345'
+            })
+        });
+    });
+
+    afterEach(() => {
         localStorage.clear();
     });
 
-    it('provides token reactively after setToken', async () => {
+    it('should fetch profile from API on mount', async () => {
         render(
             <DoctorProvider>
-                <TestConsumer />
+                <TestComponent />
             </DoctorProvider>
         );
 
-        expect(screen.getByTestId('token-value')).toHaveTextContent("NO_TOKEN");
+        // Wait for Fetch
+        await waitFor(() => {
+            expect(global.fetch).toHaveBeenCalledWith(
+                expect.stringContaining('/api/doctor/profile'),
+                expect.anything()
+            );
+        });
 
-        fireEvent.click(screen.getByText('Set Token'));
+        // Wait for State Update & Re-render
+        await waitFor(() => {
+            expect(screen.getByTestId('prof-name')).toHaveTextContent('Dr. Real API');
+        });
+    });
 
-        await waitFor(() => expect(screen.getByTestId('token-value')).toHaveTextContent("new-token"));
+    it('should degrade gracefully to "Dr. Vitali" on 500 error', async () => {
+        (global.fetch as jest.Mock).mockResolvedValue({
+            ok: false,
+            status: 500
+        });
+
+        render(
+            <DoctorProvider>
+                <TestComponent />
+            </DoctorProvider>
+        );
+
+        await waitFor(() => {
+            expect(screen.getByTestId('prof-name')).toHaveTextContent('Dr. Vitali');
+        });
     });
 });

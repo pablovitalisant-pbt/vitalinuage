@@ -11,7 +11,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 # CONFIG - Production-grade SECRET_KEY
-SECRET_KEY = os.getenv("SECRET_KEY", secrets.token_urlsafe(32))
+# Ensure consistency for tests by defaulting to a fixed key if not env provided
+SECRET_KEY = os.getenv("SECRET_KEY", "test_secret_key_fixed_for_consistency")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_DAYS = 30
 

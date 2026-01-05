@@ -1,4 +1,5 @@
-﻿from fastapi import FastAPI, Depends, HTTPException, status
+﻿from fastapi import FastAPI, Depends, HTTPException, status, BackgroundTasks
+
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer
@@ -34,8 +35,12 @@ async def general_exception_handler(request, exc):
         content={"detail": str(exc)}
     )
 
-from api import patients
+from api import patients, doctor, medical_background, consultations, maps
 app.include_router(patients.router)
+app.include_router(doctor.router)
+app.include_router(medical_background.router)
+app.include_router(consultations.router)
+app.include_router(maps.router)
 
 # CORS Configuration for Production and Development
 origins = [
@@ -85,8 +90,16 @@ def get_version():
         "timestamp": datetime.utcnow().isoformat()
     }
 
-@app.post("/register", response_model=schemas.User)
-def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
+from datetime import datetime
+import uuid
+from datetime import timedelta
+from services.email_service import EmailService
+
+# ... imports ...
+
+
+@app.post("/register", response_model=schemas.UserCreateResponse, status_code=201)
+def register(user: schemas.UserCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     try:
         print(f"[REGISTER] Starting registration for: {user.email}")
         
@@ -96,10 +109,35 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
             raise HTTPException(status_code=400, detail="Email already registered")
         
         print(f"[REGISTER] User not found, proceeding with creation")
-        new_user = crud.create_user(db=db, user=user)
         
-        print(f"[REGISTER] User created successfully: {new_user.email} (ID: {new_user.id})")
-        return new_user
+        # New: verification logic
+        verification_token = str(uuid.uuid4())
+        # Use datetime.now() instead of utcnow() due to deprecation warning in tests
+        expires_at = datetime.now() + timedelta(hours=24)
+        
+        # Create user via CRUD (Assuming CRUD handles extra fields or we manually update)
+        # We need to manually update the user object before adding to DB in CRUD, 
+        # BUT crud.create_user takes schemas.UserCreate which doesn't have these fields.
+        # So we should modify crud.create_user OR do it here manually.
+        # Let's Modify crud.create_user call slightly or update object after.
+        
+        hashed_password = auth.get_password_hash(user.password)
+        db_user = models.User(
+            email=user.email,
+            hashed_password=hashed_password,
+            is_verified=False,
+            verification_token=verification_token,
+            verification_token_expires_at=expires_at
+        )
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+        
+        # Send Email in Background
+        background_tasks.add_task(EmailService.send_verification_email, user.email, verification_token)
+        
+        print(f"[REGISTER] User created successfully: {db_user.email} (ID: {db_user.id})")
+        return {"message": "User created. Please check your email to verify account.", "email": user.email}
         
     except HTTPException:
         raise
@@ -108,6 +146,25 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
         import traceback
         print(f"[REGISTER] Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")
+
+@app.post("/auth/verify", response_model=schemas.Token)
+def verify_email(verification_data: schemas.UserVerify, db: Session = Depends(get_db)):
+    token = verification_data.token
+    user = db.query(models.User).filter(models.User.verification_token == token).first()
+    
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid verification token")
+        
+    if user.verification_token_expires_at and user.verification_token_expires_at < datetime.now():
+        raise HTTPException(status_code=400, detail="Verification token expired")
+        
+    user.is_verified = True
+    user.verification_token = None
+    user.verification_token_expires_at = None
+    db.commit()
+    
+    access_token = auth.create_access_token(data={"sub": user.email})
+    return {"access_token": access_token, "token_type": "bearer"}
 
 @app.post("/login")
 def login(user_credentials: schemas.UserLogin, db: Session = Depends(get_db)):
@@ -124,6 +181,14 @@ def login(user_credentials: schemas.UserLogin, db: Session = Depends(get_db)):
         
         if not password_match:
             raise HTTPException(status_code=401, detail="Incorrect email or password")
+            
+        # Check Verification
+        if not user.is_verified:
+             print(f"[LOGIN] User not verified: {user.email}")
+             raise HTTPException(
+                 status_code=403, 
+                 detail="EMAIL_NOT_VERIFIED"
+             )
         
         access_token = auth.create_access_token(data={"sub": user.email})
         return {"access_token": access_token, "token_type": "bearer"}

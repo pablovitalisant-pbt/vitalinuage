@@ -1,16 +1,22 @@
 ﻿import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDoctor } from '../context/DoctorContext';
 
 const Login: React.FC = () => {
   const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { setToken } = useDoctor();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLoading) return;
+
     setError('');
+    setIsLoading(true);
     const endpoint = isRegister ? '/register' : '/login';
 
     try {
@@ -33,15 +39,19 @@ const Login: React.FC = () => {
 
       const data = await response.json();
       if (!isRegister) {
-        localStorage.setItem('token', data.access_token);
-        console.log('[LOGIN] Token saved, redirecting to dashboard...');
+        const token = data.access_token;
+        localStorage.setItem('token', token);
+        setToken(token);
+        console.log('[LOGIN] Token saved to localStorage and context, redirecting to dashboard...');
         navigate('/dashboard');
       } else {
-        alert('Cuenta creada. Ahora puedes ingresar.');
+        alert('Cuenta creada. Por favor, verifica tu email para activar tu acceso.');
         setIsRegister(false);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error de conexión o datos inválidos');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -56,14 +66,34 @@ const Login: React.FC = () => {
         <form onSubmit={handleSubmit}>
           <div style={{ textAlign: 'left', marginBottom: '1rem' }}>
             <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>Correo Electrónico</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ width: '100%', padding: '0.5rem', border: '1px solid #e2e8f0', borderRadius: '4px' }} placeholder="nombre@vitalinuage.com" required />
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={isLoading}
+              style={{ width: '100%', padding: '0.5rem', border: '1px solid #e2e8f0', borderRadius: '4px', opacity: isLoading ? 0.7 : 1 }}
+              placeholder="nombre@vitalinuage.com"
+              required
+            />
           </div>
           <div style={{ textAlign: 'left', marginBottom: '1.5rem' }}>
             <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>Contraseña</label>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} style={{ width: '100%', padding: '0.5rem', border: '1px solid #e2e8f0', borderRadius: '4px' }} placeholder="********" required />
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading}
+              style={{ width: '100%', padding: '0.5rem', border: '1px solid #e2e8f0', borderRadius: '4px', opacity: isLoading ? 0.7 : 1 }}
+              placeholder="********"
+              required
+            />
           </div>
-          <button type="submit" style={{ width: '100%', padding: '0.75rem', backgroundColor: '#2c5282', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
-            {isRegister ? 'Crear Cuenta' : 'Ingresar'}
+          <button
+            type="submit"
+            disabled={isLoading}
+            style={{ width: '100%', padding: '0.75rem', backgroundColor: isLoading ? '#718096' : '#2c5282', color: '#fff', border: 'none', borderRadius: '4px', cursor: isLoading ? 'not-allowed' : 'pointer', fontWeight: 'bold', transition: 'background-color 0.2s' }}
+          >
+            {isLoading ? 'Procesando...' : (isRegister ? 'Crear Cuenta' : 'Ingresar')}
           </button>
         </form>
 

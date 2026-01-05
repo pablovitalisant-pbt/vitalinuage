@@ -1,0 +1,55 @@
+
+> vitalinuage-frontend@0.0.0 test
+> jest src/context/DoctorContext.test.tsx
+
+FAIL src/context/DoctorContext.test.tsx
+  DoctorContext Integration
+    ├ù should fetch profile from API on mount (1050 ms)
+    ÔêÜ should degrade gracefully to "Dr. Vitali" on 500 error (23 ms)
+
+  ÔùÅ DoctorContext Integration ÔÇ║ should fetch profile from API on mount
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: StringContaining "/api/doctor/profile", Anything
+
+    Number of calls: 0
+
+    Ignored nodes: comments, script, style
+    <html>
+      <head />
+      <body>
+        <div>
+          <div>
+            <span
+              data-testid="prof-name"
+            >
+              Dr. Vitali
+            </span>
+            <span
+              data-testid="prof-spec"
+            />
+          </div>
+        </div>
+      </body>
+    </html>
+
+      53 |
+      54 |         await waitFor(() => {
+    > 55 |             expect(global.fetch).toHaveBeenCalledWith(
+         |                                  ^
+      56 |                 expect.stringContaining('/api/doctor/profile'),
+      57 |                 expect.anything()
+      58 |             );
+
+      at src/context/DoctorContext.test.tsx:55:34
+      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 1 passed, 2 total
+Snapshots:   0 total
+Time:        3.228 s
+Ran all test suites matching src/context/DoctorContext.test.tsx.

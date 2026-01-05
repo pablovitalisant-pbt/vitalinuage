@@ -19,10 +19,21 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception
-    except JWTError:
+    except JWTError as e:
+        print(f"[AUTH TEST DEBUG] JWT Error: {str(e)}")
+        print(f"[AUTH TEST DEBUG] Token used: {token}")
+        print(f"[AUTH TEST DEBUG] Key used: {auth.SECRET_KEY}")
         raise credentials_exception
     
     user = crud.get_user_by_email(db, email=email)
     if user is None:
         raise credentials_exception
+        
+    # Global Verification Block
+    if not user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="EMAIL_NOT_VERIFIED"
+        )
+        
     return user

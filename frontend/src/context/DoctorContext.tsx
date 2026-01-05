@@ -1,11 +1,14 @@
-import { createContext, useState, ReactNode } from 'react';
+import React, { createContext, useState, ReactNode, useContext, useEffect } from 'react';
 import { getApiUrl } from '../config/api';
+import { DoctorProfile as DoctorProfileDTO } from '../contracts/dashboard';
+import featureFlags from '../../../config/feature-flags.json';
 
 export interface DoctorProfile {
     professionalName: string;
     specialty: string;
     address: string;
     phone: string;
+    registrationNumber?: string;
 }
 
 export interface PrintPreferences {
@@ -50,10 +53,13 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
     const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
 
     const refreshProfile = async () => {
-        // Only fetch if we have a token
-        if (!token) {
+        // Feature Flag Check
+        if (!featureFlags.identity_search_v1) {
+            setProfile(defaultProfile);
             return;
         }
+
+        if (!token) return;
 
         try {
             const [profileRes, prefsRes] = await Promise.all([
@@ -66,14 +72,18 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
             ]);
 
             if (profileRes.ok) {
-                const data = await profileRes.json();
+                const data = (await profileRes.json()) as DoctorProfileDTO;
                 setProfile({
                     professionalName: data.professional_name || "Dr. Vitali",
                     specialty: data.specialty || "",
-                    address: data.address || "",
-                    phone: data.phone || ""
+                    address: "",
+                    phone: "",
+                    registrationNumber: data.registration_number || ""
                 });
+            } else if (profileRes.status !== 401) {
+                setProfile(defaultProfile);
             }
+
             if (prefsRes.ok) {
                 const data = await prefsRes.json();
                 setPreferences({
@@ -85,9 +95,14 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
             }
         } catch (error) {
             console.error('Error refreshing profile:', error);
-            // Silently fail - use default values
+            setProfile(defaultProfile);
         }
     };
+
+    // Auto-refresh on mount/token change
+    useEffect(() => {
+        refreshProfile();
+    }, [token]);
 
     const updateProfile = (newData: Partial<DoctorProfile>) => {
         setProfile(prev => ({ ...prev, ...newData }));
@@ -134,11 +149,9 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
 }
 
 export function useDoctor() {
-    const context = React.useContext(DoctorContext);
+    const context = useContext(DoctorContext);
     if (!context) {
         throw new Error('useDoctor must be used within DoctorProvider');
     }
     return context;
 }
-
-import React from 'react';

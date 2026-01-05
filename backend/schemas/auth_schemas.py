@@ -17,3 +17,10 @@ class User(UserBase):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+class UserVerify(BaseModel):
+    token: str
+
+class UserCreateResponse(BaseModel):
+    message: str
+    email: EmailStr

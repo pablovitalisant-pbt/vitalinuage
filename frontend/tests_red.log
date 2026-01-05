@@ -1,0 +1,132 @@
+
+> vitalinuage-frontend@0.0.0 test
+> jest src/context/DoctorContext.test.tsx src/components/Search.test.tsx
+
+FAIL src/components/Search.test.tsx
+  ÔùÅ Test suite failed to run
+
+    Jest encountered an unexpected token
+
+    Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+
+    Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+
+    By default "node_modules" folder is ignored by transformers.
+
+    Here's what you can do:
+     ÔÇó If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+     ÔÇó If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+     ÔÇó To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+     ÔÇó If you need a custom transformation, specify a "transform" option in your config.
+     ÔÇó If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+
+    You'll find more details and examples of these config options in the docs:
+    https://jestjs.io/docs/configuration
+    For information about custom transformations, see:
+    https://jestjs.io/docs/code-transformation
+
+    Details:
+
+    C:\Users\pablo\Documents\Vitalinuage\frontend\src\config\api.ts:5
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+                                ^^^^
+
+    SyntaxError: Cannot use 'import.meta' outside a module
+
+      1 | import { createContext, useState, ReactNode } from 'react';
+    > 2 | import { getApiUrl } from '../config/api';
+        | ^
+      3 |
+      4 | export interface DoctorProfile {
+      5 |     professionalName: string;
+
+      at Runtime.createScriptFromCode (node_modules/jest-runtime/build/index.js:1318:40)
+      at Object.<anonymous> (src/context/DoctorContext.tsx:2:1)
+      at Object.<anonymous> (src/pages/Search.tsx:16:1)
+      at Object.<anonymous> (src/components/Search.test.tsx:4:1)
+
+FAIL src/context/DoctorContext.test.tsx
+  ÔùÅ DoctorContext Integration ÔÇ║ should fetch profile from API on mount
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: StringContaining "/api/doctor/profile", Anything
+
+    Number of calls: 0
+
+    Ignored nodes: comments, script, style
+    <html>
+      <head />
+      <body>
+        <div>
+          <div>
+            <span
+              data-testid="prof-name"
+            />
+            <span
+              data-testid="prof-spec"
+            />
+          </div>
+        </div>
+      </body>
+    </html>
+
+      48 |         // Red Phase: Expects API call (currently not implemented in component)
+      49 |         await waitFor(() => {
+    > 50 |             expect(global.fetch).toHaveBeenCalledWith(
+         |                                  ^
+      51 |                 expect.stringContaining('/api/doctor/profile'),
+      52 |                 expect.anything()
+      53 |             );
+
+      at src/context/DoctorContext.test.tsx:50:34
+      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+  ÔùÅ DoctorContext Integration ÔÇ║ should degrade gracefully to "Dr. Vitali" on 500 error
+
+    expect(element).toHaveTextContent()
+
+    Expected element to have text content:
+      Dr. Vitali
+    Received:
+
+
+    Ignored nodes: comments, script, style
+    <html>
+      <head />
+      <body>
+        <div>
+          <div>
+            <span
+              data-testid="prof-name"
+            />
+            <span
+              data-testid="prof-spec"
+            />
+          </div>
+        </div>
+      </body>
+    </html>
+
+      74 |         await waitFor(() => {
+      75 |             // In Red Phase, just ensuring it renders 
+    > 76 |             expect(screen.getByTestId('prof-name')).toHaveTextContent('Dr. Vitali');
+         |                                                     ^
+      77 |         });
+      78 |     });
+      79 | });
+
+      at src/context/DoctorContext.test.tsx:76:53
+      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+Test Suites: 2 failed, 2 total
+Tests:       2 failed, 2 total
+Snapshots:   0 total
+Time:        5.546 s
+Ran all test suites matching src/context/DoctorContext.test.tsx|src/components/Search.test.tsx.

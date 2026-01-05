@@ -4,16 +4,16 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PatientSearchSchema, PatientSearchQuery } from '../contracts/paciente_busqueda';
-
+import { useDoctor } from '../context/DoctorContext';
+import { getApiUrl } from '../config/api';
+import featureFlags from '../../../config/feature-flags.json';
 
 interface PatientResult {
-    id: string;
+    id: number;
     nombre_completo: string;
     dni: string;
     imc: number;
 }
-
-import { useDoctor } from '../context/DoctorContext';
 
 export default function SearchPage() {
     const navigate = useNavigate();
@@ -22,6 +22,7 @@ export default function SearchPage() {
     const [hasSearched, setHasSearched] = useState(false);
     const [searchError, setSearchError] = useState<string | null>(null);
     const [lastQuery, setLastQuery] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
     const getTimeBasedGreeting = () => {
         const hour = new Date().getHours();
@@ -37,13 +38,26 @@ export default function SearchPage() {
     const onSubmit = async (data: PatientSearchQuery) => {
         setSearchError(null);
         setResults(null);
+        setHasSearched(false);
+        setIsLoading(false);
+
+        // Feature Flag Check - Requirement 1
+        if (!featureFlags.identity_search_v1) {
+            setSearchError("La búsqueda está deshabilitada temporalmente.");
+            return;
+        }
+
+        // Min Length Check - Requirement 3
+        if (data.query.length < 3) {
+            return;
+        }
+
         setHasSearched(true);
         setLastQuery(data.query);
+        setIsLoading(true);
 
         try {
-            // Construct URL manually to avoid URLSearchParams encoding issues if any 
-            // (though URLSearchParams is generally safer, keeping it simple as requested)
-            const response = await fetch(`/api/pacientes/search?q=${encodeURIComponent(data.query)}`);
+            const response = await fetch(getApiUrl(`/api/pacientes/search?q=${encodeURIComponent(data.query)}`));
 
             if (response.status === 503) {
                 setSearchError("El servicio de búsqueda no está disponible momentáneamente.");
@@ -51,9 +65,6 @@ export default function SearchPage() {
             }
 
             if (!response.ok) {
-                // If 404 it means no results generally in our API logic for search? 
-                // Actually Slice 03 returns 404 if no patients found OR empty list.
-                // Let's assume 200 OK with empty list or 404 means "Not Found".
                 setResults([]);
                 return;
             }
@@ -63,6 +74,8 @@ export default function SearchPage() {
 
         } catch (err) {
             setSearchError("Error de conexión al buscar pacientes.");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -86,20 +99,24 @@ export default function SearchPage() {
                         placeholder="Buscar paciente por nombre o DNI..."
                         className="w-full pl-12 pr-4 py-3.5 rounded-full border border-gray-200 shadow-sm focus:shadow-md focus:border-transparent focus:ring-2 focus:ring-blue-100 outline-none transition-all text-gray-800 text-lg"
                     />
-                    {/* Hidden submit button to allow Enter key submission */}
                     <button type="submit" className="hidden" />
                 </form>
             </div>
 
             {/* Results Area */}
             <div className="w-full max-w-2xl mt-8">
-                {searchError && (
+                {/* Loading State - Requirement 4 */}
+                {isLoading && (
+                    <div className="text-center text-slate-500 py-4">Buscando...</div>
+                )}
+
+                {searchError && !isLoading && (
                     <div className="p-4 bg-red-50 text-red-700 rounded-md border border-red-100 text-center">
                         {searchError}
                     </div>
                 )}
 
-                {hasSearched && !searchError && results && results.length > 0 && (
+                {hasSearched && !isLoading && !searchError && results && results.length > 0 && (
                     <div className="bg-white rounded-lg border border-gray-100 shadow-sm overflow-hidden">
                         <div className="px-4 py-3 border-b border-gray-50 bg-gray-50/50">
                             <p className="text-sm text-gray-500">Resultados para <span className="font-semibold text-gray-700">"{lastQuery}"</span></p>
@@ -129,7 +146,7 @@ export default function SearchPage() {
                     </div>
                 )}
 
-                {hasSearched && !searchError && results && results.length === 0 && (
+                {hasSearched && !isLoading && !searchError && results && results.length === 0 && (
                     <div className="text-center mt-8">
                         <p className="text-gray-600 mb-4">No se encontró a <span className="font-semibold">"{lastQuery}"</span>.</p>
                         <button
