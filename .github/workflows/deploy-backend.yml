@@ -47,6 +47,7 @@ jobs:
           docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/vitalinuage/${{ env.SERVICE_NAME }}:latest
 
       - name: Deploy to Cloud Run
+        id: deploy
         run: |
           gcloud run deploy ${{ env.SERVICE_NAME }} \
             --image ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/vitalinuage/${{ env.SERVICE_NAME }}:${{ github.sha }} \
@@ -58,7 +59,10 @@ jobs:
             --cpu 1 \
             --min-instances 0 \
             --max-instances 10 \
-            --set-env-vars "ENVIRONMENT=production"
+            --timeout 300 \
+            --service-account="${{ env.PROJECT_ID }}-compute@developer.gserviceaccount.com" \
+            --set-env-vars "ENVIRONMENT=production" \
+            --quiet
 
       - name: Show deployment URL
         run: |
