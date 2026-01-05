@@ -1,9 +1,9 @@
 # Tablero de Estado PBT-IA - Vitalinuage
 
 ## Métricas Globales
-* **Progreso:** 70%
-* **Slices Totales (estimados):** 12
-* **Slices Completados:** 12
+* **Progreso:** 80%
+* **Slices Totales (estimados):** 14
+* **Slices Completados:** 14
 
 ## Registro de Slices (Fase 2: Multitenancy)
 
@@ -18,6 +18,8 @@
 | 06.1 | Mapas de Coordenadas (Backend API) | Completado | 2 |
 | 06.2 | Editor Visual de Mapas (Frontend) | Completado | 3 |
 | 06.3 | Integración PDF con Coordenadas | Completado | 4 |
+| 06.4 | Sistema de Verificación QR | Completado | 4 |
+| 07.1 | Envío de Receta por WhatsApp | Completado | 4 |
 | 08.1 | Identidad y Búsqueda (Backend) | Completado | 2 |
 | 08.2 | Identidad y Búsqueda (UI Integración) | Completado | 2 |
 | 09.1 | Antecedentes Médicos (Backend & UI) | Completado | 2 |

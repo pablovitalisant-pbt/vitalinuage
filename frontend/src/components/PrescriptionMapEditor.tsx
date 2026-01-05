@@ -22,6 +22,7 @@ const DEFAULT_FIELDS: FieldConfig[] = [
     { field_key: 'diagnosis', label: 'Diagnóstico', x_mm: 20, y_mm: 60, font_size_pt: 12, max_width_mm: 110 },
     { field_key: 'treatment', label: 'Tratamiento', x_mm: 20, y_mm: 90, font_size_pt: 12, max_width_mm: 110 },
     { field_key: 'doctor_signature', label: 'Firma y Sello', x_mm: 80, y_mm: 150, font_size_pt: 12, max_width_mm: 50 },
+    { field_key: 'qr_code', label: 'Código QR', x_mm: 120, y_mm: 180, font_size_pt: 0, max_width_mm: 25 },
 ];
 
 const PrescriptionMapEditor: React.FC = () => {
@@ -364,7 +365,13 @@ const PrescriptionMapEditor: React.FC = () => {
                         ${selectedField === field.field_key ? 'border-blue-600 bg-blue-100/50 text-blue-800 z-10' : 'border-gray-400 bg-white/50 text-gray-600'}
                     `}
                         >
-                            {field.label}
+                            {field.field_key === 'qr_code' ? (
+                                <div className="w-full h-full flex items-center justify-center text-gray-500 font-bold">
+                                    QR
+                                </div>
+                            ) : (
+                                field.label
+                            )}
                             <div
                                 className="absolute bottom-0 right-0 w-2 h-2 bg-black opacity-20 cursor-se-resize"
                                 onMouseDown={(e) => {

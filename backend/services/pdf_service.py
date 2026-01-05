@@ -75,7 +75,8 @@ class PDFService:
         cls,
         consultation: models.ClinicalConsultation,
         prescription_map: models.PrescriptionMap,
-        output_path: str
+        output_path: str,
+        db: Session = None
     ) -> bytes:
         """
         Genera PDF usando ReportLab con coordenadas exactas.
@@ -84,10 +85,16 @@ class PDFService:
             consultation: Datos de la consulta clínica
             prescription_map: Configuración de coordenadas
             output_path: Ruta temporal para el PDF
+            db: Sesión de base de datos (para crear verificaciones QR)
         
         Returns:
             bytes: Contenido del PDF generado
         """
+        from reportlab.lib.utils import ImageReader
+        from services.qr_service import generate_qr_image
+        import uuid as uuid_lib
+        import datetime
+        
         # 1. Crear canvas con dimensiones del mapa
         width_pt = cls.mm_to_points(prescription_map.canvas_width_mm)
         height_pt = cls.mm_to_points(prescription_map.canvas_height_mm)
@@ -101,21 +108,59 @@ class PDFService:
         
         # 3. Iterar sobre fields_config y posicionar cada campo
         for field_config in prescription_map.fields_config:
-            # Extraer valor del campo
-            field_value = cls.extract_field_value(consultation, field_config['field_key'])
-            
-            # Convertir coordenadas mm → puntos
-            x_pt = cls.mm_to_points(field_config['x_mm'])
-            # IMPORTANTE: ReportLab usa origen en esquina inferior izquierda
-            # Invertir Y: y_pdf = height - y_mm
-            y_pt = height_pt - cls.mm_to_points(field_config['y_mm'])
-            
-            # Configurar fuente
-            font_size = field_config.get('font_size_pt', 10)
-            c.setFont("Helvetica", font_size)
-            
-            # Dibujar texto
-            c.drawString(x_pt, y_pt, field_value)
+            if field_config['field_key'] == 'qr_code' and db:
+                # Get doctor info
+                doctor = db.query(models.User).filter(
+                    models.User.email == consultation.owner_id
+                ).first()
+                doctor_name = doctor.professional_name if doctor and doctor.professional_name else "Dr. Vitalinuage"
+                
+                # Generar registro de verificación
+                verification_uuid = str(uuid_lib.uuid4())
+                verification = models.PrescriptionVerification(
+                    uuid=verification_uuid,
+                    consultation_id=consultation.id,
+                    doctor_email=consultation.owner_id,
+                    doctor_name=doctor_name,
+                    issue_date=datetime.datetime.utcnow()
+                )
+                db.add(verification)
+                db.commit()
+                
+                # Generar QR
+                qr_url = f"https://vitalinuage.com/v/{verification_uuid}"
+                qr_image = generate_qr_image(qr_url, field_config.get('max_width_mm', 25.0))
+                
+                # Posicionar en canvas
+                x_pt = cls.mm_to_points(field_config['x_mm'])
+                y_pt = height_pt - cls.mm_to_points(field_config['y_mm'])
+                size_pt = cls.mm_to_points(field_config.get('max_width_mm', 25.0))
+                
+                # Dibujar imagen
+                c.drawImage(
+                    ImageReader(qr_image),
+                    x_pt,
+                    y_pt - size_pt,  # Ajuste para alineación
+                    width=size_pt,
+                    height=size_pt,
+                    preserveAspectRatio=True
+                )
+            else:
+                # Lógica existente para campos de texto
+                field_value = cls.extract_field_value(consultation, field_config['field_key'])
+                
+                # Convertir coordenadas mm → puntos
+                x_pt = cls.mm_to_points(field_config['x_mm'])
+                # IMPORTANTE: ReportLab usa origen en esquina inferior izquierda
+                # Invertir Y: y_pdf = height - y_mm
+                y_pt = height_pt - cls.mm_to_points(field_config['y_mm'])
+                
+                # Configurar fuente
+                font_size = field_config.get('font_size_pt', 10)
+                c.setFont("Helvetica", font_size)
+                
+                # Dibujar texto
+                c.drawString(x_pt, y_pt, field_value)
         
         # 4. Finalizar y guardar
         c.save()
@@ -218,7 +263,8 @@ class PDFService:
                 pdf_bytes = cls.generate_with_coordinates(
                     consultation, 
                     prescription_map, 
-                    tmp.name
+                    tmp.name,
+                    db=db  # Pass db session for QR verification
                 )
                 # Cleanup temp file
                 try:

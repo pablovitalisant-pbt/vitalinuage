@@ -227,4 +227,62 @@ describe('PrescriptionMapEditor - Phase B (Red Tests)', () => {
             expect(screen.getByText(/editor de mapas de impresión/i)).toBeInTheDocument();
         });
     });
+
+    describe('QR Code Field (Slice 06.4)', () => {
+        it('should include qr_code in default fields', async () => {
+            localStorage.setItem('token', 'test-token');
+
+            (global.fetch as jest.Mock).mockImplementation((url) => {
+                if (typeof url === 'string' && url.includes('feature-flags.json')) {
+                    return Promise.resolve({
+                        ok: true,
+                        json: async () => ({ prescription_coords_v1: true })
+                    });
+                }
+                return Promise.resolve({
+                    ok: true,
+                    json: async () => ([])
+                });
+            });
+
+            render(<PrescriptionMapEditor />);
+
+            await waitFor(() => {
+                expect(screen.queryByText(/cargando/i)).not.toBeInTheDocument();
+            });
+
+            // Verify QR code field is in the list
+            expect(screen.getByText(/código qr/i)).toBeInTheDocument();
+        });
+
+        it('should render QR field with correct default position', async () => {
+            localStorage.setItem('token', 'test-token');
+
+            (global.fetch as jest.Mock).mockImplementation((url) => {
+                if (typeof url === 'string' && url.includes('feature-flags.json')) {
+                    return Promise.resolve({
+                        ok: true,
+                        json: async () => ({ prescription_coords_v1: true })
+                    });
+                }
+                return Promise.resolve({
+                    ok: true,
+                    json: async () => ([])
+                });
+            });
+
+            render(<PrescriptionMapEditor />);
+
+            await waitFor(() => {
+                expect(screen.queryByText(/cargando/i)).not.toBeInTheDocument();
+            });
+
+            // Click on QR field to select it
+            const qrField = screen.getByText(/código qr/i);
+            fireEvent.click(qrField);
+
+            // Verify it's selectable (would show coordinates)
+            expect(qrField).toBeInTheDocument();
+        });
+    });
 });

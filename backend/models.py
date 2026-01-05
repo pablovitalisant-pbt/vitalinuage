@@ -117,3 +117,23 @@ class PrescriptionMap(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
+
+class PrescriptionVerification(Base):
+    __tablename__ = "prescription_verifications"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    uuid = Column(String, unique=True, index=True, nullable=False)
+    consultation_id = Column(Integer, ForeignKey("clinical_consultations.id"), nullable=False)
+    doctor_email = Column(String, index=True, nullable=False)
+    
+    # Public data (visible when scanned)
+    doctor_name = Column(String, nullable=False)
+    issue_date = Column(DateTime, nullable=False)
+    
+    # Audit
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    scanned_count = Column(Integer, default=0)
+    last_scanned_at = Column(DateTime, nullable=True)
+    
+    # Relationships
+    consultation = relationship("ClinicalConsultation")

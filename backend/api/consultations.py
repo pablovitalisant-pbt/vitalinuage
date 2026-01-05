@@ -77,3 +77,60 @@ def list_consultations(
     ).order_by(desc(models.ClinicalConsultation.created_at)).all()
 
     return consultations
+
+
+# New router for consultation-level operations (not patient-scoped)
+verification_router = APIRouter(
+    prefix="/api/consultas",
+    tags=["consultas"]
+)
+
+@verification_router.post("/{consultation_id}/create-verification")
+async def create_verification(
+    consultation_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """
+    Crea un registro de verificación para una consulta.
+    Reutiliza si ya existe (idempotente).
+    
+    - **consultation_id**: ID de la consulta
+    - **Requiere autenticación**: Solo el médico dueño
+    
+    Returns:
+        {"uuid": "..."}
+    """
+    import uuid as uuid_lib
+    import datetime
+    
+    # Verificar autorización
+    consultation = db.query(models.ClinicalConsultation).filter(
+        models.ClinicalConsultation.id == consultation_id,
+        models.ClinicalConsultation.owner_id == current_user.email
+    ).first()
+    
+    if not consultation:
+        raise HTTPException(status_code=404, detail="Consultation not found")
+    
+    # Buscar verificación existente
+    verification = db.query(models.PrescriptionVerification).filter(
+        models.PrescriptionVerification.consultation_id == consultation_id
+    ).first()
+    
+    if verification:
+        # Retornar UUID existente (idempotente)
+        return {"uuid": verification.uuid}
+    
+    # Crear nueva verificación
+    verification = models.PrescriptionVerification(
+        uuid=str(uuid_lib.uuid4()),
+        consultation_id=consultation_id,
+        doctor_email=current_user.email,
+        doctor_name=current_user.professional_name or "Dr. Vitalinuage",
+        issue_date=datetime.datetime.utcnow()
+    )
+    db.add(verification)
+    db.commit()
+    
+    return {"uuid": verification.uuid}

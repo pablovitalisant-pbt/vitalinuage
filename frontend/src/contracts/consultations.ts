@@ -8,6 +8,12 @@ export interface ClinicalConsultation {
     proxima_cita?: string;
     created_at?: string;
     updated_at?: string;
+    patient?: {
+        nombre: string;
+        apellido_paterno: string;
+        apellido_materno?: string;
+        telefono?: string;
+    };
 }
 
 export interface ConsultationForm {

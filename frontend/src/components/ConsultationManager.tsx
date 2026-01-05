@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Plus, History, Calendar, Stethoscope, Activity, ClipboardCheck, ArrowRight, FileText } from 'lucide-react';
+import { Plus, History, Calendar, Stethoscope, Activity, ClipboardCheck, ArrowRight, FileText, MessageCircle } from 'lucide-react';
 import { ClinicalConsultation, ConsultationForm } from '../contracts/consultations';
+import { isMobileDevice } from '../utils/device';
+import toast from 'react-hot-toast';
 
 interface Props {
     patientId: number;
@@ -77,6 +79,74 @@ export default function ConsultationManager({ patientId }: Props) {
 
         // Open PDF in new tab with authorization
         window.open(pdfUrl, '_blank');
+    };
+
+    const handleSendWhatsApp = async (consultation: ClinicalConsultation) => {
+        try {
+            const token = localStorage.getItem('token');
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+            // 1. Get or create verification UUID
+            const verificationRes = await fetch(`${apiUrl}/api/consultas/${consultation.id}/create-verification`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!verificationRes.ok) {
+                toast.error('Error al generar el enlace de verificación');
+                return;
+            }
+
+            const { uuid } = await verificationRes.json();
+
+            // 2. Build public PDF URL
+            const pdfUrl = `${apiUrl}/v/${uuid}/pdf`;
+
+            // 3. Get patient data
+            const patientName = `${consultation.patient.nombre} ${consultation.patient.apellido_paterno}`;
+            const doctorName = "Dr. Vitalinuage"; // TODO: Get from context
+
+            // 4. Build message
+            const message = `Hola ${patientName}, el ${doctorName} le envía su receta médica de Vitalinuage. Puede verla aquí: ${pdfUrl}`;
+
+            // 5. Clean phone number (only digits)
+            const phone = consultation.patient.telefono?.replace(/\D/g, '');
+
+            if (!phone) {
+                toast.error('El paciente no tiene teléfono registrado');
+                return;
+            }
+
+            // 6. Encode message
+            const encodedMessage = encodeURIComponent(message);
+
+            // 7. Detect device and build URL
+            const isMobile = isMobileDevice();
+            const whatsappUrl = isMobile
+                ? `https://wa.me/${phone}?text=${encodedMessage}`
+                : `https://web.whatsapp.com/send?phone=${phone}&text=${encodedMessage}`;
+
+            // 8. Show toast for desktop users
+            if (!isMobile) {
+                toast('Asegúrate de tener WhatsApp Web abierto en otra pestaña', {
+                    duration: 3000,
+                    icon: 'ℹ️',
+                });
+
+                // Wait 1.5 seconds before opening
+                setTimeout(() => {
+                    window.open(whatsappUrl, '_blank');
+                }, 1500);
+            } else {
+                // Mobile: open immediately
+                window.open(whatsappUrl, '_blank');
+            }
+        } catch (err) {
+            console.error('Error sending WhatsApp:', err);
+            toast.error('Error al enviar por WhatsApp');
+        }
     };
 
     if (loading) return <div className="p-8 text-center text-slate-400">Cargando historial...</div>;
@@ -184,6 +254,14 @@ export default function ConsultationManager({ patientId }: Props) {
                         history.map(c => (
                             <div key={c.id} className="group border border-slate-100 rounded-lg p-5 hover:shadow-md transition-all bg-white relative">
                                 <div className="absolute top-5 right-5 flex items-center gap-3">
+                                    <button
+                                        onClick={() => handleSendWhatsApp(c)}
+                                        className="flex items-center gap-1 px-3 py-1.5 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors text-xs font-medium shadow-sm"
+                                        title="Enviar por WhatsApp"
+                                    >
+                                        <MessageCircle className="w-3.5 h-3.5" />
+                                        WhatsApp
+                                    </button>
                                     <button
                                         onClick={() => handleDownloadPDF(c.id)}
                                         className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-xs font-medium shadow-sm"
