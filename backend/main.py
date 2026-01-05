@@ -94,20 +94,38 @@ def login(user_credentials: schemas.UserLogin, db: Session = Depends(get_db)):
     except HTTPException:
         raise
     except Exception as e:
-        print(f"Login error: {str(e)}")
+        print(f"[LOGIN] Unexpected error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 @app.get("/users/me", response_model=schemas.User)
 def read_users_me(current_user: schemas.User = Depends(get_current_user)):
     return current_user
 
-# TEMPORARY: Password reset for debugging
-@app.post("/admin/reset-password")
-def reset_password(email: str, new_password: str, db: Session = Depends(get_db)):
+# TEMPORARY: Emergency password reset - GET endpoint for browser access
+@app.get("/admin/reset-password")
+def reset_password_emergency(db: Session = Depends(get_db)):
+    """
+    Emergency password reset endpoint.
+    Visit this URL to reset password for pablovitalisant@gmail.com
+    """
+    email = "pablovitalisant@gmail.com"
+    new_password = "Vitali2026!"
+    
     user = crud.get_user_by_email(db, email=email)
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    user.hashed_password = auth.get_password_hash(new_password)
+        return {"status": "ERROR", "message": f"User {email} not found in database"}
+    
+    # Use the SAME hashing function as registration
+    new_hashed_password = auth.get_password_hash(new_password)
+    user.hashed_password = new_hashed_password
     db.commit()
-    print(f"[RESET] Password reset for {email}")
-    return {"message": "Password reset successfully"}
+    
+    print(f"[RESET] Password reset successful for {email}")
+    print(f"[RESET] New hash: {new_hashed_password[:30]}...")
+    
+    return {
+        "status": "SUCCESS",
+        "message": f"Password reset successfully for {email}",
+        "new_password": new_password,
+        "instructions": "You can now login with this password at https://vitalinuage.web.app"
+    }
