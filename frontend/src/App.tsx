@@ -29,6 +29,7 @@ function App() {
                             <ProtectedLayout />
                         </ProtectedRoute>
                     }>
+                        <Route path="/dashboard" element={<SearchPage />} />
                         <Route path="/search" element={<SearchPage />} />
                         <Route path="/register" element={<RegisterPatient />} />
                         <Route path="/patient/:id" element={<PatientProfile />} />
