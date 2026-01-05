@@ -31,8 +31,13 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def get_password_hash(password: str) -> str:
     """Hash password using SHA-256 pre-hashing + bcrypt"""
+    print(f"[AUTH] Original password length: {len(password)} bytes")
     prehashed = _prehash_password(password)
-    return pwd_context.hash(prehashed)
+    print(f"[AUTH] After SHA-256 prehash length: {len(prehashed)} bytes (should be 64)")
+    print(f"[AUTH] Prehashed value: {prehashed[:20]}...")
+    bcrypt_hash = pwd_context.hash(prehashed)
+    print(f"[AUTH] Bcrypt hash created successfully")
+    return bcrypt_hash
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
