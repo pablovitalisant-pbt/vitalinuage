@@ -16,6 +16,24 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Vitalinuage API")
 
+# Global exception handlers to ensure JSON responses
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    return JSONResponse(
+        status_code=422,
+        content={"detail": exc.errors(), "body": exc.body}
+    )
+
+@app.exception_handler(Exception)
+async def general_exception_handler(request, exc):
+    return JSONResponse(
+        status_code=500,
+        content={"detail": str(exc)}
+    )
+
 from api import patients
 app.include_router(patients.router)
 
