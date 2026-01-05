@@ -62,7 +62,7 @@ export function PrintSettingsModal({ onClose }: PrintSettingsModalProps) {
                     <div>
                         <label className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3 block">Formato de Papel</label>
                         <div className="grid grid-cols-2 gap-4">
-                            {(['A4', 'A5'] as const).map((size) => (
+                            {(['A4', 'Letter'] as const).map((size) => (
                                 <button
                                     key={size}
                                     onClick={() => updatePreferences({ paperSize: size })}
@@ -72,7 +72,7 @@ export function PrintSettingsModal({ onClose }: PrintSettingsModalProps) {
                                             : 'border-slate-100 hover:border-slate-300 text-slate-600'
                                         }`}
                                 >
-                                    <FileText className={`h-6 w-6 ${size === 'A5' ? 'scale-75' : 'scale-100'}`} />
+                                    <FileText className={`h-6 w-6 ${size === 'Letter' ? 'scale-75' : 'scale-100'}`} />
                                     <span className="font-bold">{size}</span>
                                     {preferences.paperSize === size && (
                                         <div className="absolute top-2 right-2 bg-[#1e3a8a] text-white rounded-full p-0.5">
@@ -125,7 +125,7 @@ export function PrintSettingsModal({ onClose }: PrintSettingsModalProps) {
                             </div>
 
                             <div className="flex-1">
-                                <p className="text-xs text-slate-500 mb-3">Sube tu logo en formato PNG o JPG. Se mostrará en la cabecera de tus recetas A5.</p>
+                                <p className="text-xs text-slate-500 mb-3">Sube tu logo en formato PNG o JPG. Se mostrará en la cabecera de tus recetas.</p>
                                 <button
                                     onClick={() => fileInputRef.current?.click()}
                                     disabled={uploading}
@@ -201,3 +201,4 @@ export function PrintSettingsModal({ onClose }: PrintSettingsModalProps) {
         </div>
     );
 }
+
