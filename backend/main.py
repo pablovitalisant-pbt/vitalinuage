@@ -73,17 +73,23 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Email already registered")
     return crud.create_user(db=db, user=user)
 
-@app.post("/login", response_model=schemas.Token)
+@app.post("/login")
 def login(user_credentials: schemas.UserLogin, db: Session = Depends(get_db)):
-    user = crud.get_user_by_email(db, email=user_credentials.email)
-    if not user:
-        raise HTTPException(status_code=400, detail="Incorrect email or password")
-    
-    if not auth.verify_password(user_credentials.password, user.hashed_password):
-        raise HTTPException(status_code=400, detail="Incorrect email or password")
-    
-    access_token = auth.create_access_token(data={"sub": user.email})
-    return {"access_token": access_token, "token_type": "bearer"}
+    try:
+        user = crud.get_user_by_email(db, email=user_credentials.email)
+        if not user:
+            raise HTTPException(status_code=401, detail="Incorrect email or password")
+        
+        if not auth.verify_password(user_credentials.password, user.hashed_password):
+            raise HTTPException(status_code=401, detail="Incorrect email or password")
+        
+        access_token = auth.create_access_token(data={"sub": user.email})
+        return {"access_token": access_token, "token_type": "bearer"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Login error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 @app.get("/users/me", response_model=schemas.User)
 def read_users_me(current_user: schemas.User = Depends(get_current_user)):
