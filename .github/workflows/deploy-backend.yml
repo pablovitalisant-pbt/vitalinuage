@@ -60,7 +60,6 @@ jobs:
             --min-instances 0 \
             --max-instances 10 \
             --timeout 300 \
-            --service-account="${{ env.PROJECT_ID }}-compute@developer.gserviceaccount.com" \
             --set-env-vars "ENVIRONMENT=production" \
             --quiet
 
