@@ -3,13 +3,15 @@ from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 import os
+import secrets
 
-# CONFIG
-SECRET_KEY = os.getenv("SECRET_KEY", "super-secret-key-change-me")
+# CONFIG - Production-grade SECRET_KEY
+SECRET_KEY = os.getenv("SECRET_KEY", secrets.token_urlsafe(32))
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_DAYS = 30
 
-pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
+# SECURITY: Use bcrypt as the standard hashing algorithm
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
