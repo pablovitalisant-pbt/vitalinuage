@@ -15,17 +15,21 @@ global.fetch = jest.fn(() =>
 
 // Setup Mock Component to consume context
 const TestConsumer = () => {
-    const { token, login } = useDoctor();
+    const { token, setToken } = useDoctor();
     return (
         <div>
             <span data-testid="token-value">{token || "NO_TOKEN"}</span>
-            <button onClick={() => login("new-token")}>Login</button>
+            <button onClick={() => setToken("new-token")}>Set Token</button>
         </div>
     );
 };
 
 describe('DoctorContext', () => {
-    it('provides token reactively after login', async () => {
+    beforeEach(() => {
+        localStorage.clear();
+    });
+
+    it('provides token reactively after setToken', async () => {
         render(
             <DoctorProvider>
                 <TestConsumer />
@@ -34,7 +38,7 @@ describe('DoctorContext', () => {
 
         expect(screen.getByTestId('token-value')).toHaveTextContent("NO_TOKEN");
 
-        fireEvent.click(screen.getByText('Login'));
+        fireEvent.click(screen.getByText('Set Token'));
 
         await waitFor(() => expect(screen.getByTestId('token-value')).toHaveTextContent("new-token"));
     });

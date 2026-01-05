@@ -12,14 +12,13 @@ describe('ProtectedRoute', () => {
         profile: { professionalName: "Dr. Test", specialty: "GP", address: "", phone: "" },
         preferences: { paperSize: 'A4' as const, templateId: 'classic' as const },
         token: null,
-        login: jest.fn(),
-        logout: jest.fn(),
+        setToken: jest.fn(),
         updateProfile: jest.fn(),
         updatePreferences: jest.fn(),
         refreshProfile: jest.fn()
     };
 
-    it('redirects to /login if token is missing', () => {
+    it('redirects to / if token is missing', () => {
         render(
             <MemoryRouter initialEntries={['/protected']}>
                 <DoctorContext.Provider value={{ ...defaultContext, token: null }}>
