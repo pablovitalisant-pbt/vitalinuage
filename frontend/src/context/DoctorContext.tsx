@@ -1,18 +1,20 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useState, ReactNode } from 'react';
+import { getApiUrl } from '../config/api';
 
-interface DoctorProfile {
+export interface DoctorProfile {
     professionalName: string;
     specialty: string;
     address: string;
     phone: string;
 }
 
-interface PrintPreferences {
-    paperSize: 'A4' | 'A5';
-    templateId: 'minimal' | 'modern' | 'classic';
+export interface PrintPreferences {
+    paperSize: 'A4' | 'Letter';
+    templateId: 'classic' | 'modern' | 'minimal';
+    logoUrl?: string | null;
+    signatureUrl?: string | null;
     headerText?: string;
     footerText?: string;
-    logoUrl?: string; // URL to the uploaded logo
     primaryColor?: string;
     secondaryColor?: string;
 }
@@ -20,17 +22,16 @@ interface PrintPreferences {
 interface DoctorContextType {
     profile: DoctorProfile;
     preferences: PrintPreferences;
-    token: string | null;
-    login: (token: string) => void;
-    logout: () => void;
-    updateProfile: (newProfile: Partial<DoctorProfile>) => void;
+    updateProfile: (newData: Partial<DoctorProfile>) => void;
     updatePreferences: (newPrefs: Partial<PrintPreferences>) => Promise<void>;
     refreshProfile: () => Promise<void>;
+    token: string | null;
+    setToken: (token: string | null) => void;
 }
 
 const defaultProfile: DoctorProfile = {
     professionalName: "Dr. Vitali",
-    specialty: "Medicina General",
+    specialty: "",
     address: "",
     phone: ""
 };
@@ -49,11 +50,21 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
     const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
 
     const refreshProfile = async () => {
+        // Only fetch if we have a token
+        if (!token) {
+            return;
+        }
+
         try {
             const [profileRes, prefsRes] = await Promise.all([
-                fetch('/api/doctor/profile'),
-                fetch('/api/doctor/preferences')
+                fetch(getApiUrl('/api/doctor/profile'), {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                }).catch(() => ({ ok: false } as Response)),
+                fetch(getApiUrl('/api/doctor/preferences'), {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                }).catch(() => ({ ok: false } as Response))
             ]);
+
             if (profileRes.ok) {
                 const data = await profileRes.json();
                 setProfile({
@@ -68,21 +79,15 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
                 setPreferences({
                     paperSize: data.paper_size || 'A4',
                     templateId: data.template_id || 'classic',
-                    headerText: data.header_text,
-                    footerText: data.footer_text,
-                    logoUrl: data.logo_url,
-                    primaryColor: data.primary_color || "#1e3a8a",
-                    secondaryColor: data.secondary_color || "#64748b"
+                    logoUrl: data.logo_url || null,
+                    signatureUrl: data.signature_url || null
                 });
             }
         } catch (error) {
-            console.error(error);
+            console.error('Error refreshing profile:', error);
+            // Silently fail - use default values
         }
     };
-
-    useEffect(() => {
-        refreshProfile();
-    }, []);
 
     const updateProfile = (newData: Partial<DoctorProfile>) => {
         setProfile(prev => ({ ...prev, ...newData }));
@@ -90,10 +95,15 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
 
     const updatePreferences = async (newPrefs: Partial<PrintPreferences>) => {
         setPreferences(prev => ({ ...prev, ...newPrefs }));
+        if (!token) return;
+
         try {
-            await fetch('/api/doctor/preferences', {
+            await fetch(getApiUrl('/api/doctor/preferences'), {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
                 body: JSON.stringify({
                     paper_size: newPrefs.paperSize,
                     template_id: newPrefs.templateId,
@@ -108,29 +118,27 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    const login = (newToken: string) => {
-        setToken(newToken);
-        localStorage.setItem('token', newToken);
-        refreshProfile();
-    };
-
-    const logout = () => {
-        setToken(null);
-        localStorage.removeItem('token');
-        setProfile(defaultProfile);
-    };
-
     return (
-        <DoctorContext.Provider value={{ profile, preferences, updateProfile, updatePreferences, refreshProfile, token, login, logout }}>
+        <DoctorContext.Provider value={{
+            profile,
+            preferences,
+            updateProfile,
+            updatePreferences,
+            refreshProfile,
+            token,
+            setToken
+        }}>
             {children}
         </DoctorContext.Provider>
     );
 }
 
 export function useDoctor() {
-    const context = useContext(DoctorContext);
+    const context = React.useContext(DoctorContext);
     if (!context) {
-        throw new Error('useDoctor must be used within a DoctorProvider');
+        throw new Error('useDoctor must be used within DoctorProvider');
     }
     return context;
 }
+
+import React from 'react';
