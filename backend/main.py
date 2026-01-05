@@ -76,11 +76,17 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
 @app.post("/login")
 def login(user_credentials: schemas.UserLogin, db: Session = Depends(get_db)):
     try:
+        print(f"[LOGIN] Attempting login for: {user_credentials.email}")
         user = crud.get_user_by_email(db, email=user_credentials.email)
         if not user:
+            print(f"[LOGIN] User not found: {user_credentials.email}")
             raise HTTPException(status_code=401, detail="Incorrect email or password")
         
-        if not auth.verify_password(user_credentials.password, user.hashed_password):
+        print(f"[LOGIN] User found: {user.email}")
+        password_match = auth.verify_password(user_credentials.password, user.hashed_password)
+        print(f"[LOGIN] Password match: {password_match}")
+        
+        if not password_match:
             raise HTTPException(status_code=401, detail="Incorrect email or password")
         
         access_token = auth.create_access_token(data={"sub": user.email})
@@ -94,3 +100,14 @@ def login(user_credentials: schemas.UserLogin, db: Session = Depends(get_db)):
 @app.get("/users/me", response_model=schemas.User)
 def read_users_me(current_user: schemas.User = Depends(get_current_user)):
     return current_user
+
+# TEMPORARY: Password reset for debugging
+@app.post("/admin/reset-password")
+def reset_password(email: str, new_password: str, db: Session = Depends(get_db)):
+    user = crud.get_user_by_email(db, email=email)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    user.hashed_password = auth.get_password_hash(new_password)
+    db.commit()
+    print(f"[RESET] Password reset for {email}")
+    return {"message": "Password reset successfully"}
