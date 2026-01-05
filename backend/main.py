@@ -36,11 +36,13 @@ async def general_exception_handler(request, exc):
     )
 
 from api import patients, doctor, medical_background, consultations, maps
+from api import print as print_api
 app.include_router(patients.router)
 app.include_router(doctor.router)
 app.include_router(medical_background.router)
 app.include_router(consultations.router)
 app.include_router(maps.router)
+app.include_router(print_api.router)
 
 # CORS Configuration for Production and Development
 origins = [

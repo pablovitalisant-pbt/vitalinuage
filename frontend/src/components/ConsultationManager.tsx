@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, History, Calendar, Stethoscope, Activity, ClipboardCheck, ArrowRight } from 'lucide-react';
+import { Plus, History, Calendar, Stethoscope, Activity, ClipboardCheck, ArrowRight, FileText } from 'lucide-react';
 import { ClinicalConsultation, ConsultationForm } from '../contracts/consultations';
 
 interface Props {
@@ -68,6 +68,15 @@ export default function ConsultationManager({ patientId }: Props) {
         } finally {
             setSubmitting(false);
         }
+    };
+
+    const handleDownloadPDF = (consultationId: number) => {
+        const token = localStorage.getItem('token');
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+        const pdfUrl = `${apiUrl}/api/consultas/${consultationId}/pdf`;
+
+        // Open PDF in new tab with authorization
+        window.open(pdfUrl, '_blank');
     };
 
     if (loading) return <div className="p-8 text-center text-slate-400">Cargando historial...</div>;
@@ -174,9 +183,19 @@ export default function ConsultationManager({ patientId }: Props) {
                     ) : (
                         history.map(c => (
                             <div key={c.id} className="group border border-slate-100 rounded-lg p-5 hover:shadow-md transition-all bg-white relative">
-                                <div className="absolute top-5 right-5 text-xs text-slate-400 flex items-center gap-1">
-                                    <Calendar className="w-3 h-3" />
-                                    {c.created_at ? new Date(c.created_at).toLocaleDateString() : 'Fecha desc.'}
+                                <div className="absolute top-5 right-5 flex items-center gap-3">
+                                    <button
+                                        onClick={() => handleDownloadPDF(c.id)}
+                                        className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-xs font-medium shadow-sm"
+                                        title="Descargar Receta PDF"
+                                    >
+                                        <FileText className="w-3.5 h-3.5" />
+                                        Receta PDF
+                                    </button>
+                                    <div className="text-xs text-slate-400 flex items-center gap-1">
+                                        <Calendar className="w-3 h-3" />
+                                        {c.created_at ? new Date(c.created_at).toLocaleDateString() : 'Fecha desc.'}
+                                    </div>
                                 </div>
 
                                 <h3 className="text-md font-semibold text-[#1e3a8a] mb-1">{c.motivo_consulta}</h3>

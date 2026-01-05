@@ -1,9 +1,9 @@
 # Tablero de Estado PBT-IA - Vitalinuage
 
 ## Métricas Globales
-* **Progreso:** 65%
+* **Progreso:** 70%
 * **Slices Totales (estimados):** 12
-* **Slices Completados:** 11
+* **Slices Completados:** 12
 
 ## Registro de Slices (Fase 2: Multitenancy)
 
@@ -17,7 +17,7 @@
 | 05.2 | Patient Registry UI & API Feedback | Completado | 1 |
 | 06.1 | Mapas de Coordenadas (Backend API) | Completado | 2 |
 | 06.2 | Editor Visual de Mapas (Frontend) | Completado | 3 |
-| 06.3 | Integración PDF con Coordenadas | Pendiente | 3 |
+| 06.3 | Integración PDF con Coordenadas | Completado | 4 |
 | 08.1 | Identidad y Búsqueda (Backend) | Completado | 2 |
 | 08.2 | Identidad y Búsqueda (UI Integración) | Completado | 2 |
 | 09.1 | Antecedentes Médicos (Backend & UI) | Completado | 2 |
