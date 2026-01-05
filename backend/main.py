@@ -61,10 +61,29 @@ app.add_middleware(
 
 
 from dependencies import get_current_user
+from datetime import datetime
+
+# Build timestamp for version tracking
+BUILD_TIME = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+VERSION = "1.1.0-sha256-prehash"
 
 @app.get("/")
 def read_root():
-    return {"status": "Vitalinuage Online v1.0"}
+    return {
+        "status": "Vitalinuage Online",
+        "version": VERSION,
+        "build_time": BUILD_TIME,
+        "features": ["SHA-256 pre-hashing", "bcrypt", "JWT auth"]
+    }
+
+@app.get("/version")
+def get_version():
+    return {
+        "version": VERSION,
+        "build_time": BUILD_TIME,
+        "auth_method": "SHA-256 + bcrypt",
+        "timestamp": datetime.utcnow().isoformat()
+    }
 
 @app.post("/register", response_model=schemas.User)
 def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
