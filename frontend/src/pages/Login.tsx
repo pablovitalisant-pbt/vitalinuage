@@ -23,7 +23,13 @@ const Login: React.FC = () => {
         body: JSON.stringify({ email, password }),
       });
 
-      if (!response.ok) throw new Error('Credenciales o datos incorrectos');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ detail: 'Error desconocido' }));
+        const errorMessage = typeof errorData.detail === 'string'
+          ? errorData.detail
+          : 'Credenciales o datos incorrectos';
+        throw new Error(errorMessage);
+      }
 
       const data = await response.json();
       if (!isRegister) {
@@ -34,7 +40,7 @@ const Login: React.FC = () => {
         setIsRegister(false);
       }
     } catch (err) {
-      setError('Error de conexión o datos inválidos');
+      setError(err instanceof Error ? err.message : 'Error de conexión o datos inválidos');
     }
   };
 
