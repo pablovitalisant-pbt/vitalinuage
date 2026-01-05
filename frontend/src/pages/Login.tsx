@@ -34,7 +34,8 @@ const Login: React.FC = () => {
       const data = await response.json();
       if (!isRegister) {
         localStorage.setItem('token', data.access_token);
-        navigate('/');
+        console.log('[LOGIN] Token saved, redirecting to dashboard...');
+        navigate('/dashboard');
       } else {
         alert('Cuenta creada. Ahora puedes ingresar.');
         setIsRegister(false);
