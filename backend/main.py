@@ -68,10 +68,27 @@ def read_root():
 
 @app.post("/register", response_model=schemas.User)
 def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = crud.get_user_by_email(db, email=user.email)
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    return crud.create_user(db=db, user=user)
+    try:
+        print(f"[REGISTER] Starting registration for: {user.email}")
+        
+        db_user = crud.get_user_by_email(db, email=user.email)
+        if db_user:
+            print(f"[REGISTER] User already exists: {user.email}")
+            raise HTTPException(status_code=400, detail="Email already registered")
+        
+        print(f"[REGISTER] User not found, proceeding with creation")
+        new_user = crud.create_user(db=db, user=user)
+        
+        print(f"[REGISTER] User created successfully: {new_user.email} (ID: {new_user.id})")
+        return new_user
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[REGISTER] ERROR: {type(e).__name__}: {str(e)}")
+        import traceback
+        print(f"[REGISTER] Traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")
 
 @app.post("/login")
 def login(user_credentials: schemas.UserLogin, db: Session = Depends(get_db)):
