@@ -1,9 +1,9 @@
-# Tablero de Estado PBT-IA - Vitalinuage
+﻿# Tablero de Estado PBT-IA - Vitalinuage
 
-## Métricas Globales
-* **Progreso:** 80%
-* **Slices Totales (estimados):** 14
-* **Slices Completados:** 14
+## MÃ©tricas Globales
+* **Progreso:** 85%
+* **Slices Totales (estimados):** 16
+* **Slices Completados:** 16
 
 ## Registro de Slices (Fase 2: Multitenancy)
 
@@ -17,28 +17,33 @@
 | 05.2 | Patient Registry UI & API Feedback | Completado | 1 |
 | 06.1 | Mapas de Coordenadas (Backend API) | Completado | 2 |
 | 06.2 | Editor Visual de Mapas (Frontend) | Completado | 3 |
-| 06.3 | Integración PDF con Coordenadas | Completado | 4 |
-| 06.4 | Sistema de Verificación QR | Completado | 4 |
-| 07.1 | Envío de Receta por WhatsApp | Completado | 4 |
-| 08.1 | Identidad y Búsqueda (Backend) | Completado | 2 |
-| 08.2 | Identidad y Búsqueda (UI Integración) | Completado | 2 |
-| 09.1 | Antecedentes Médicos (Backend & UI) | Completado | 2 |
-| 09.2 | Consultas Clínicas (Evolución) | Completado | 2 |
+| 06.3 | IntegraciÃ³n PDF con Coordenadas | Completado | 4 |
+| 06.4 | Sistema de VerificaciÃ³n QR | Completado | 4 |
+| 07.1 | EnvÃ­o de Receta por WhatsApp | Completado | 4 |
+| 07.2 | EnvÃ­o de Receta por Email | Completado | 3 |
+| 07.3 | Tracking de Despacho (Email/WA) | Completado | 2 |
+| 08.1 | Identidad y BÃºsqueda (Backend) | Completado | 2 |
+| 08.2 | Identidad y BÃºsqueda (UI IntegraciÃ³n) | Completado | 2 |
+| 09.1 | Antecedentes MÃ©dicos (Backend & UI) | Completado | 2 |
+| 09.2 | Consultas ClÃ­nicas (EvoluciÃ³n) | Completado | 2 |
 
 ## Infraestructura & DevOps
 | ID | Componente | Estado | Notas |
 | :--- | :--- | :--- | :--- |
 | INF-01 | Firebase CD (GitHub Actions) | Verif. Secretos | Config committed |
 
-## Histórico (Fase 1: MVP)
+## HistÃ³rico (Fase 1: MVP)
 * 10 Slices completados (Login, Registro, Recetas, etc.) - Ver historial git.
 
 ## RAID Log
 ### Riesgos
-- Impacto en consultas existentes si no se migran los datos con owner_id (Mitigación: Script de migración en Slice 02).
+- Impacto en consultas existentes si no se migran los datos con owner_id (MitigaciÃ³n: Script de migraciÃ³n en Slice 02).
 
 ### Acciones
 - (Ninguna registrada aun)
 
 ### Incidencias
 - (Ninguna registrada aun)
+
+- **Slice 07.3 (Dispatch Tracking)**: Implementado tracking de envÃ­os (WhatsApp/Email) y actualizaciÃ³n de UI. [Automated Update]
+

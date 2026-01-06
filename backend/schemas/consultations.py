@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+﻿from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 
@@ -20,6 +20,18 @@ class ConsultationResponse(ConsultationBase):
     patient_id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
+    email_sent_at: Optional[datetime] = None
+    whatsapp_sent_at: Optional[datetime] = None
+    email_sent_at: Optional[datetime] = None
+    whatsapp_sent_at: Optional[datetime] = None
+    email_sent_at: Optional[datetime] = None
+    whatsapp_sent_at: Optional[datetime] = None
+    email_sent_at: Optional[datetime] = None
+    whatsapp_sent_at: Optional[datetime] = None
     
     class Config:
         from_attributes = True
+
+
+
+

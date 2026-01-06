@@ -1,54 +1,79 @@
-import os
 import resend
+from jinja2 import Template
+import os
+from typing import Optional
 
 class EmailService:
+    """
+    Servicio de envío de emails usando Resend.
+    """
+    
     @staticmethod
-    def send_verification_email(to_email: str, token: str):
+    def send_prescription_email(
+        to_email: str,
+        patient_name: str,
+        doctor_name: str,
+        pdf_url: str,
+        issue_date: str
+    ) -> bool:
         """
-        Sends a verification email using Resend.
-        Also logs the link for debugging purposes.
-        """
-        # Determine Base URL
-        frontend_url = os.getenv("FRONTEND_URL", "https://vitalinuage.web.app")
-        verification_url = f"{frontend_url}/verify?token={token}"
+        Envía email con receta médica usando Resend.
         
-        # Log for Debugging/Cloud Run Logs
-        print(f"\n[EMAIL SERVICE] ---------------------------------------------------")
-        print(f"[EMAIL SERVICE] To: {to_email}")
-        print(f"[EMAIL SERVICE] Link: {verification_url}")
-        print(f"[EMAIL SERVICE] ---------------------------------------------------\n")
-
+        Args:
+            to_email: Email del paciente
+            patient_name: Nombre del paciente
+            doctor_name: Nombre del médico
+            pdf_url: URL pública del PDF
+            issue_date: Fecha de emisión
+        
+        Returns:
+            bool: True si se envió correctamente
+        """
         try:
-            api_key = os.getenv("RESEND_API_KEY")
+            api_key = os.getenv('RESEND_API_KEY')
             if not api_key:
-                print("[EMAIL SERVICE] WARNING: RESEND_API_KEY not set. Email not sent.")
+                print("RESEND_API_KEY not configured")
                 return False
                 
             resend.api_key = api_key
             
-            params = {
-                "from": "Vitalinuage <onboarding@resend.dev>",
-                "to": [to_email],
-                "subject": "Verifica tu cuenta de Vitalinuage",
-                "html": f"""
-                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-                    <h1 style="color: #1a365d;">Bienvenido a Vitalinuage</h1>
-                    <p>Para activar tu cuenta y acceder al panel médico, por favor verifica tu correo electrónico.</p>
-                    <a href="{verification_url}" style="display: inline-block; background-color: #2c5282; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">
-                        Verificar mi cuenta
-                    </a>
-                    <p style="margin-top: 20px; font-size: 12px; color: #718096;">
-                        Si el botón no funciona, copia y pega este enlace: {verification_url}
-                    </p>
-                </div>
-                """
-            }
+            # Renderizar template
+            template_path = os.path.join(
+                os.path.dirname(__file__), 
+                'email_templates', 
+                'prescription_email.html'
+            )
             
+            # Verificar si existe el template, si no usar un fallback simple
+            if os.path.exists(template_path):
+                with open(template_path, 'r', encoding='utf-8') as f:
+                    template = Template(f.read())
+                
+                html_content = template.render(
+                    patient_name=patient_name,
+                    doctor_name=doctor_name,
+                    pdf_url=pdf_url,
+                    issue_date=issue_date
+                )
+            else:
+                # Fallback simple si no existe el archivo (para desarrollo)
+                html_content = f"""
+                <h1>Receta Médica</h1>
+                <p>Hola {patient_name},</p>
+                <p>El {doctor_name} le envía su receta médica.</p>
+                <p><a href="{pdf_url}">Descargar Receta</a></p>
+                """
+            
+            params = {
+                "from": f"{os.getenv('EMAIL_FROM_NAME', 'Vitalinuage')} <{os.getenv('EMAIL_FROM_ADDRESS', 'noreply@vitalinuage.com')}>",
+                "to": [to_email],
+                "subject": f"Receta Médica - {doctor_name}",
+                "html": html_content,
+            }
+
             email = resend.Emails.send(params)
-            print(f"[EMAIL SERVICE] Email sent successfully: {email}")
             return True
             
         except Exception as e:
-            print(f"[EMAIL SERVICE] ERROR sending email: {str(e)}")
-            # Don't crash the app, just log error
+            print(f"Error sending email: {e}")
             return False

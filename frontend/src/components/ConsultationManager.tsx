@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
-import { Plus, History, Calendar, Stethoscope, Activity, ClipboardCheck, ArrowRight, FileText, MessageCircle } from 'lucide-react';
+﻿import { useEffect, useState } from 'react';
+import { Plus, History, Calendar, Stethoscope, Activity, ClipboardCheck, ArrowRight, FileText, MessageCircle, Mail } from 'lucide-react';
 import { ClinicalConsultation, ConsultationForm } from '../contracts/consultations';
 import { isMobileDevice } from '../utils/device';
 import toast from 'react-hot-toast';
+import apiConfig from '../config/api';
 
 interface Props {
     patientId: number;
@@ -74,7 +75,7 @@ export default function ConsultationManager({ patientId }: Props) {
 
     const handleDownloadPDF = (consultationId: number) => {
         const token = localStorage.getItem('token');
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+        const apiUrl = apiConfig.apiBaseUrl;
         const pdfUrl = `${apiUrl}/api/consultas/${consultationId}/pdf`;
 
         // Open PDF in new tab with authorization
@@ -84,7 +85,7 @@ export default function ConsultationManager({ patientId }: Props) {
     const handleSendWhatsApp = async (consultation: ClinicalConsultation) => {
         try {
             const token = localStorage.getItem('token');
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const apiUrl = apiConfig.apiBaseUrl;
 
             // 1. Get or create verification UUID
             const verificationRes = await fetch(`${apiUrl}/api/consultas/${consultation.id}/create-verification`, {
@@ -95,7 +96,7 @@ export default function ConsultationManager({ patientId }: Props) {
             });
 
             if (!verificationRes.ok) {
-                toast.error('Error al generar el enlace de verificación');
+                toast.error('Error al generar el enlace de verificaciÃ³n');
                 return;
             }
 
@@ -109,13 +110,13 @@ export default function ConsultationManager({ patientId }: Props) {
             const doctorName = "Dr. Vitalinuage"; // TODO: Get from context
 
             // 4. Build message
-            const message = `Hola ${patientName}, el ${doctorName} le envía su receta médica de Vitalinuage. Puede verla aquí: ${pdfUrl}`;
+            const message = `Hola ${patientName}, el ${doctorName} le envÃ­a su receta mÃ©dica de Vitalinuage. Puede verla aquÃ­: ${pdfUrl}`;
 
             // 5. Clean phone number (only digits)
             const phone = consultation.patient.telefono?.replace(/\D/g, '');
 
             if (!phone) {
-                toast.error('El paciente no tiene teléfono registrado');
+                toast.error('El paciente no tiene telÃ©fono registrado');
                 return;
             }
 
@@ -130,22 +131,86 @@ export default function ConsultationManager({ patientId }: Props) {
 
             // 8. Show toast for desktop users
             if (!isMobile) {
-                toast('Asegúrate de tener WhatsApp Web abierto en otra pestaña', {
+                toast('AsegÃºrate de tener WhatsApp Web abierto en otra pestaÃ±a', {
                     duration: 3000,
-                    icon: 'ℹ️',
+                    icon: 'â„¹ï¸',
                 });
 
                 // Wait 1.5 seconds before opening
                 setTimeout(() => {
                     window.open(whatsappUrl, '_blank');
+
+                    // Tracking
+                    fetch(`${apiUrl}/api/consultas/${consultation.id}/mark-whatsapp-sent`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    }).catch(console.error);
+
+                    setHistory(prev => prev.map(item =>
+                        item.id === consultation.id
+                            ? { ...item, whatsapp_sent_at: new Date().toISOString() }
+                            : item
+                    ));
                 }, 1500);
             } else {
                 // Mobile: open immediately
                 window.open(whatsappUrl, '_blank');
+
+                // Tracking
+                fetch(`${apiUrl}/api/consultas/${consultation.id}/mark-whatsapp-sent`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                }).catch(console.error);
+
+                setHistory(prev => prev.map(item =>
+                    item.id === consultation.id
+                        ? { ...item, whatsapp_sent_at: new Date().toISOString() }
+                        : item
+                ));
             }
         } catch (err) {
             console.error('Error sending WhatsApp:', err);
             toast.error('Error al enviar por WhatsApp');
+        }
+    };
+
+    const handleSendEmail = async (consultation: ClinicalConsultation) => {
+        try {
+            const token = localStorage.getItem('token');
+            const apiUrl = apiConfig.apiBaseUrl;
+
+            // Validar email
+            if (!consultation.patient?.email) {
+                toast.error('El paciente no tiene email registrado');
+                return;
+            }
+
+            // Enviar email
+            const response = await fetch(
+                `${apiUrl}/api/consultas/${consultation.id}/send-email`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (response.ok) {
+                const data = await response.json();
+                toast.success(`Email enviado a ${consultation.patient.email}`);
+                setHistory(prev => prev.map(item =>
+                    item.id === consultation.id
+                        ? { ...item, email_sent_at: new Date().toISOString() }
+                        : item
+                ));
+            } else {
+                const error = await response.json();
+                toast.error(error.detail || 'Error al enviar email');
+            }
+        } catch (err) {
+            console.error('Error sending email:', err);
+            toast.error('Error al enviar email');
         }
     };
 
@@ -156,7 +221,7 @@ export default function ConsultationManager({ patientId }: Props) {
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-2">
                     <Activity className="text-[#1e3a8a] w-5 h-5" />
-                    <h2 className="text-lg font-semibold text-[#1e3a8a]">Evolución Clínica</h2>
+                    <h2 className="text-lg font-semibold text-[#1e3a8a]">EvoluciÃ³n ClÃ­nica</h2>
                 </div>
                 {!isCreating && (
                     <button
@@ -184,7 +249,7 @@ export default function ConsultationManager({ patientId }: Props) {
                         </div>
 
                         <div className="md:col-span-2">
-                            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Examen Físico</label>
+                            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Examen FÃ­sico</label>
                             <textarea
                                 className="w-full p-2 border border-slate-200 rounded-lg h-24"
                                 value={form.examen_fisico}
@@ -194,7 +259,7 @@ export default function ConsultationManager({ patientId }: Props) {
                         </div>
 
                         <div>
-                            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Diagnóstico</label>
+                            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">DiagnÃ³stico</label>
                             <input
                                 required
                                 className="w-full p-2 border border-slate-200 rounded-lg"
@@ -205,7 +270,7 @@ export default function ConsultationManager({ patientId }: Props) {
                         </div>
 
                         <div>
-                            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Próxima Cita (Opcional)</label>
+                            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">PrÃ³xima Cita (Opcional)</label>
                             <input
                                 type="date"
                                 className="w-full p-2 border border-slate-200 rounded-lg text-slate-600"
@@ -263,6 +328,14 @@ export default function ConsultationManager({ patientId }: Props) {
                                         WhatsApp
                                     </button>
                                     <button
+                                        onClick={() => handleSendEmail(c)}
+                                        className="flex items-center gap-1 px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors text-xs font-medium shadow-sm"
+                                        title="Enviar por Email"
+                                    >
+                                        <Mail className="w-3.5 h-3.5" />
+                                        Email
+                                    </button>
+                                    <button
                                         onClick={() => handleDownloadPDF(c.id)}
                                         className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-xs font-medium shadow-sm"
                                         title="Descargar Receta PDF"
@@ -288,7 +361,7 @@ export default function ConsultationManager({ patientId }: Props) {
                                     </div>
                                     {c.examen_fisico && (
                                         <div className="bg-slate-50 p-3 rounded border border-slate-100">
-                                            <p className="font-semibold text-xs text-slate-400 mb-1">EXAMEN FÍSICO</p>
+                                            <p className="font-semibold text-xs text-slate-400 mb-1">EXAMEN FÃSICO</p>
                                             {c.examen_fisico}
                                         </div>
                                     )}
@@ -301,3 +374,5 @@ export default function ConsultationManager({ patientId }: Props) {
         </div>
     );
 }
+
+

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receta Médica - Vitalinuage</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .greeting {
+            font-size: 18px;
+            color: #1f2937;
+            margin-bottom: 20px;
+        }
+        .message {
+            font-size: 15px;
+            color: #4b5563;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            text-decoration: none;
+            padding: 16px 40px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+            transition: transform 0.2s;
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+        }
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .info-box {
+            background-color: #f0f9ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .info-box p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #1e40af;
+        }
+        .footer {
+            background-color: #f9fafb;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+        }
+        .footer p {
+            margin: 5px 0;
+            font-size: 13px;
+            color: #6b7280;
+        }
+        .disclaimer {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 20px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🏥 Vitalinuage</h1>
+            <p>Sistema de Gestión Médica</p>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <p class="greeting">Hola <strong>{{ patient_name }}</strong>,</p>
+            
+            <p class="message">
+                El <strong>{{ doctor_name }}</strong> le ha enviado su receta médica a través de Vitalinuage.
+                Puede descargarla haciendo clic en el botón de abajo.
+            </p>
+
+            <div class="button-container">
+                <a href="{{ pdf_url }}" class="cta-button">
+                    📄 Descargar Receta Médica
+                </a>
+            </div>
+
+            <div class="info-box">
+                <p><strong>📅 Fecha de emisión:</strong> {{ issue_date }}</p>
+                <p><strong>👨‍⚕️ Médico:</strong> {{ doctor_name }}</p>
+            </div>
+
+            <p class="message" style="font-size: 14px;">
+                Este documento es válido para la dispensación de medicamentos en farmacias.
+                El enlace de descarga es seguro y está protegido.
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Vitalinuage</strong></p>
+            <p>Sistema de Gestión Médica Profesional</p>
+            
+            <p class="disclaimer">
+                Este correo fue enviado automáticamente. Por favor, no responda a este mensaje.
+                Si tiene alguna consulta, comuníquese directamente con su médico.
+                <br><br>
+                <strong>Privacidad:</strong> Este correo contiene información médica confidencial.
+                Si lo recibió por error, por favor elimínelo inmediatamente.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -93,6 +93,15 @@ class ClinicalConsultation(Base):
 
     # Relationships
     patient = relationship("Patient", back_populates="consultations")
+    verification = relationship("PrescriptionVerification", uselist=False, back_populates="consultation")
+
+    @property
+    def email_sent_at(self):
+        return self.verification.email_sent_at if self.verification else None
+
+    @property
+    def whatsapp_sent_at(self):
+        return self.verification.whatsapp_sent_at if self.verification else None
 
 
 # Add back-populate to Patient
@@ -129,6 +138,8 @@ class PrescriptionVerification(Base):
     # Public data (visible when scanned)
     doctor_name = Column(String, nullable=False)
     issue_date = Column(DateTime, nullable=False)
+    email_sent_at = Column(DateTime, nullable=True)
+    whatsapp_sent_at = Column(DateTime, nullable=True)
     
     # Audit
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
@@ -136,4 +147,8 @@ class PrescriptionVerification(Base):
     last_scanned_at = Column(DateTime, nullable=True)
     
     # Relationships
-    consultation = relationship("ClinicalConsultation")
+    consultation = relationship("ClinicalConsultation", back_populates="verification")
+
+
+
+

@@ -11,5 +11,6 @@
     "identity_search_v1": true,
     "medical_record_background_v1": true,
     "clinical_consultations_v1": true,
-    "prescription_coords_v1": true
+    "prescription_coords_v1": true,
+    "tracking_envios": false
 }

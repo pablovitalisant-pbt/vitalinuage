@@ -1,0 +1,1130 @@
+
+> vitalinuage-frontend@0.0.0 test
+> jest ConsultationManager.email.test.tsx
+
+  console.error
+    Error sending email: TypeError: react_hot_toast_1.default.success is not a function
+        at handleSendEmail (C:\Users\pablo\Documents\Vitalinuage\frontend\src\components\ConsultationManager.tsx:177:23)
+
+    [0m [90m 181 |[39m             }
+     [90m 182 |[39m         } [36mcatch[39m (err) {
+    [31m[1m>[22m[39m[90m 183 |[39m             console[33m.[39merror([32m'Error sending email:'[39m[33m,[39m err)[33m;[39m
+     [90m     |[39m                     [31m[1m^[22m[39m
+     [90m 184 |[39m             toast[33m.[39merror([32m'Error al enviar email'[39m)[33m;[39m
+     [90m 185 |[39m         }
+     [90m 186 |[39m     }[33m;[39m[0m
+
+      at handleSendEmail (src/components/ConsultationManager.tsx:183:21)
+
+  console.error
+    Error sending email: TypeError: react_hot_toast_1.default.success is not a function
+        at handleSendEmail (C:\Users\pablo\Documents\Vitalinuage\frontend\src\components\ConsultationManager.tsx:177:23)
+
+    [0m [90m 181 |[39m             }
+     [90m 182 |[39m         } [36mcatch[39m (err) {
+    [31m[1m>[22m[39m[90m 183 |[39m             console[33m.[39merror([32m'Error sending email:'[39m[33m,[39m err)[33m;[39m
+     [90m     |[39m                     [31m[1m^[22m[39m
+     [90m 184 |[39m             toast[33m.[39merror([32m'Error al enviar email'[39m)[33m;[39m
+     [90m 185 |[39m         }
+     [90m 186 |[39m     }[33m;[39m[0m
+
+      at handleSendEmail (src/components/ConsultationManager.tsx:183:21)
+
+  console.error
+    Error sending email: TypeError: react_hot_toast_1.default.error is not a function
+        at handleSendEmail (C:\Users\pablo\Documents\Vitalinuage\frontend\src\components\ConsultationManager.tsx:160:23)
+        at onClick (C:\Users\pablo\Documents\Vitalinuage\frontend\src\components\ConsultationManager.tsx:302:56)
+        at HTMLUnknownElement.callCallback (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\react-dom\cjs\react-dom.development.js:4164:14)
+        at HTMLUnknownElement.callTheUserObjectsOperation (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\jsdom\lib\jsdom\living\generated\EventListener.js:26:30)
+        at innerInvokeEventListeners (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:350:25)
+        at invokeEventListeners (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:286:3)
+        at HTMLUnknownElementImpl._dispatch (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:233:9)
+        at HTMLUnknownElementImpl.dispatchEvent (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:104:17)
+        at HTMLUnknownElement.dispatchEvent (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\jsdom\lib\jsdom\living\generated\EventTarget.js:241:34)
+        at Object.invokeGuardedCallbackDev (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\react-dom\cjs\react-dom.development.js:4213:16)
+        at invokeGuardedCallback (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\react-dom\cjs\react-dom.development.js:4277:31)
+        at invokeGuardedCallbackAndCatchFirstError (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\react-dom\cjs\react-dom.development.js:4291:25)
+        at executeDispatch (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\react-dom\cjs\react-dom.development.js:9041:3)
+        at processDispatchQueueItemsInOrder (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\react-dom\cjs\react-dom.development.js:9073:7)
+        at processDispatchQueue (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\react-dom\cjs\react-dom.development.js:9086:5)
+        at dispatchEventsForPlugins (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\react-dom\cjs\react-dom.development.js:9097:3)
+        at C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\react-dom\cjs\react-dom.development.js:9288:12
+        at batchedUpdates$1 (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\react-dom\cjs\react-dom.development.js:26179:12)
+        at batchedUpdates (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\react-dom\cjs\react-dom.development.js:3991:12)
+        at dispatchEventForPluginEventSystem (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\react-dom\cjs\react-dom.development.js:9287:3)
+        at dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\react-dom\cjs\react-dom.development.js:6465:5)
+        at dispatchEvent (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\react-dom\cjs\react-dom.development.js:6457:5)
+        at dispatchDiscreteEvent (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\react-dom\cjs\react-dom.development.js:6430:5)
+        at HTMLDivElement.callTheUserObjectsOperation (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\jsdom\lib\jsdom\living\generated\EventListener.js:26:30)
+        at innerInvokeEventListeners (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:350:25)
+        at invokeEventListeners (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:286:3)
+        at HTMLButtonElementImpl._dispatch (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:233:9)
+        at HTMLButtonElementImpl.dispatchEvent (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:104:17)
+        at HTMLButtonElement.dispatchEvent (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\jsdom\lib\jsdom\living\generated\EventTarget.js:241:34)
+        at C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\@testing-library\dom\dist\events.js:19:20
+        at C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\@testing-library\react\dist\pure.js:107:16
+        at C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\@testing-library\react\dist\act-compat.js:47:24
+        at act (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\react\cjs\react.development.js:2512:16)
+        at C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\@testing-library\react\dist\act-compat.js:46:25
+        at Object.eventWrapper (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\@testing-library\react\dist\pure.js:106:28)
+        at fireEvent (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\@testing-library\dom\dist\events.js:12:35)
+        at Function.fireEvent.<computed> [as click] (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\@testing-library\dom\dist\events.js:110:36)
+        at Function.fireEvent.<computed> [as click] (C:\Users\pablo\Documents\Vitalinuage\frontend\node_modules\@testing-library\react\dist\fire-event.js:15:52)
+        at Object.<anonymous> (C:\Users\pablo\Documents\Vitalinuage\frontend\src\components\ConsultationManager.email.test.tsx:168:23)
+
+    [0m [90m 181 |[39m             }
+     [90m 182 |[39m         } [36mcatch[39m (err) {
+    [31m[1m>[22m[39m[90m 183 |[39m             console[33m.[39merror([32m'Error sending email:'[39m[33m,[39m err)[33m;[39m
+     [90m     |[39m                     [31m[1m^[22m[39m
+     [90m 184 |[39m             toast[33m.[39merror([32m'Error al enviar email'[39m)[33m;[39m
+     [90m 185 |[39m         }
+     [90m 186 |[39m     }[33m;[39m[0m
+
+      at handleSendEmail (src/components/ConsultationManager.tsx:183:21)
+      at onClick (src/components/ConsultationManager.tsx:302:56)
+      at HTMLUnknownElement.callCallback (node_modules/react-dom/cjs/react-dom.development.js:4164:14)
+      at HTMLUnknownElement.callTheUserObjectsOperation (node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+      at innerInvokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+      at invokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+      at HTMLUnknownElementImpl._dispatch (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+      at HTMLUnknownElementImpl.dispatchEvent (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+      at HTMLUnknownElement.dispatchEvent (node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+      at Object.invokeGuardedCallbackDev (node_modules/react-dom/cjs/react-dom.development.js:4213:16)
+      at invokeGuardedCallback (node_modules/react-dom/cjs/react-dom.development.js:4277:31)
+      at invokeGuardedCallbackAndCatchFirstError (node_modules/react-dom/cjs/react-dom.development.js:4291:25)
+      at executeDispatch (node_modules/react-dom/cjs/react-dom.development.js:9041:3)
+      at processDispatchQueueItemsInOrder (node_modules/react-dom/cjs/react-dom.development.js:9073:7)
+      at processDispatchQueue (node_modules/react-dom/cjs/react-dom.development.js:9086:5)
+      at dispatchEventsForPlugins (node_modules/react-dom/cjs/react-dom.development.js:9097:3)
+      at node_modules/react-dom/cjs/react-dom.development.js:9288:12
+      at batchedUpdates$1 (node_modules/react-dom/cjs/react-dom.development.js:26179:12)
+      at batchedUpdates (node_modules/react-dom/cjs/react-dom.development.js:3991:12)
+      at dispatchEventForPluginEventSystem (node_modules/react-dom/cjs/react-dom.development.js:9287:3)
+      at dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay (node_modules/react-dom/cjs/react-dom.development.js:6465:5)
+      at dispatchEvent (node_modules/react-dom/cjs/react-dom.development.js:6457:5)
+      at dispatchDiscreteEvent (node_modules/react-dom/cjs/react-dom.development.js:6430:5)
+      at HTMLDivElement.callTheUserObjectsOperation (node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+      at innerInvokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+      at invokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+      at HTMLButtonElementImpl._dispatch (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+      at HTMLButtonElementImpl.dispatchEvent (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+      at HTMLButtonElement.dispatchEvent (node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+      at node_modules/@testing-library/dom/dist/events.js:19:20
+      at node_modules/@testing-library/react/dist/pure.js:107:16
+      at node_modules/@testing-library/react/dist/act-compat.js:47:24
+      at act (node_modules/react/cjs/react.development.js:2512:16)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at Object.eventWrapper (node_modules/@testing-library/react/dist/pure.js:106:28)
+      at fireEvent (node_modules/@testing-library/dom/dist/events.js:12:35)
+      at Function.fireEvent.<computed> [as click] (node_modules/@testing-library/dom/dist/events.js:110:36)
+      at Function.fireEvent.<computed> [as click] (node_modules/@testing-library/react/dist/fire-event.js:15:52)
+      at Object.<anonymous> (src/components/ConsultationManager.email.test.tsx:168:23)
+
+  console.error
+    Error sending email: TypeError: react_hot_toast_1.default.error is not a function
+        at handleSendEmail (C:\Users\pablo\Documents\Vitalinuage\frontend\src\components\ConsultationManager.tsx:180:23)
+
+    [0m [90m 181 |[39m             }
+     [90m 182 |[39m         } [36mcatch[39m (err) {
+    [31m[1m>[22m[39m[90m 183 |[39m             console[33m.[39merror([32m'Error sending email:'[39m[33m,[39m err)[33m;[39m
+     [90m     |[39m                     [31m[1m^[22m[39m
+     [90m 184 |[39m             toast[33m.[39merror([32m'Error al enviar email'[39m)[33m;[39m
+     [90m 185 |[39m         }
+     [90m 186 |[39m     }[33m;[39m[0m
+
+      at handleSendEmail (src/components/ConsultationManager.tsx:183:21)
+
+FAIL src/components/ConsultationManager.email.test.tsx
+  ConsultationManager - Email Integration (Slice 07.2)
+    Email Button Rendering
+      ÔêÜ should render Email button for each consultation (83 ms)
+      ÔêÜ should display Mail icon in Email button (31 ms)
+    Email Sending Functionality
+      ├ù should call send-email endpoint when Email button is clicked (70 ms)
+      ├ù should show success toast when email is queued (1048 ms)
+      ├ù should show error toast when patient has no email (1055 ms)
+      ├ù should show error toast when API returns error (1043 ms)
+    Email Button Positioning
+      ÔêÜ should render Email button alongside WhatsApp and PDF buttons (30 ms)
+
+  ÔùÅ ConsultationManager - Email Integration (Slice 07.2) ÔÇ║ Email Sending Functionality ÔÇ║ should call send-email endpoint when Email button is clicked
+
+    TypeError: react_hot_toast_1.default.error is not a function
+
+      182 |         } catch (err) {
+      183 |             console.error('Error sending email:', err);
+    > 184 |             toast.error('Error al enviar email');
+          |                   ^
+      185 |         }
+      186 |     };
+      187 |
+
+      at handleSendEmail (src/components/ConsultationManager.tsx:184:19)
+
+  ÔùÅ ConsultationManager - Email Integration (Slice 07.2) ÔÇ║ Email Sending Functionality ÔÇ║ should call send-email endpoint when Email button is clicked
+
+    TypeError: react_hot_toast_1.default.error is not a function
+
+      182 |         } catch (err) {
+      183 |             console.error('Error sending email:', err);
+    > 184 |             toast.error('Error al enviar email');
+          |                   ^
+      185 |         }
+      186 |     };
+      187 |
+
+      at handleSendEmail (src/components/ConsultationManager.tsx:184:19)
+
+  ÔùÅ ConsultationManager - Email Integration (Slice 07.2) ÔÇ║ Email Sending Functionality ÔÇ║ should show success toast when email is queued
+
+    expect(jest.fn()).toHaveBeenCalled()
+
+    Expected number of calls: >= 1
+    Received number of calls:    0
+
+    Ignored nodes: comments, script, style
+    <html>
+      <head />
+      <body>
+        <div>
+          <div
+            class="bg-white rounded-xl shadow-sm border border-slate-100 p-6"
+          >
+            <div
+              class="flex justify-between items-center mb-6"
+            >
+              <div
+                class="flex items-center gap-2"
+              >
+                <svg
+                  class="lucide lucide-activity text-[#1e3a8a] w-5 h-5"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M22 12h-4l-3 9L9 3l-3 9H2"
+                  />
+                </svg>
+                <h2
+                  class="text-lg font-semibold text-[#1e3a8a]"
+                >
+                  Evoluci├│n Cl├¡nica
+                </h2>
+              </div>
+              <button
+                class="flex items-center gap-2 bg-[#1e3a8a] text-white px-4 py-2 rounded-lg hover:bg-blue-900 transition-colors text-sm font-medium shadow-sm"
+              >
+                <svg
+                  class="lucide lucide-plus w-4 h-4"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M5 12h14"
+                  />
+                  <path
+                    d="M12 5v14"
+                  />
+                </svg>
+                Nueva Consulta
+              </button>
+            </div>
+            <div
+              class="space-y-4"
+            >
+              <div
+                class="group border border-slate-100 rounded-lg p-5 hover:shadow-md transition-all bg-white relative"
+              >
+                <div
+                  class="absolute top-5 right-5 flex items-center gap-3"
+                >
+                  <button
+                    class="flex items-center gap-1 px-3 py-1.5 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors text-xs font-medium shadow-sm"
+                    title="Enviar por WhatsApp"
+                  >
+                    <svg
+                      class="lucide lucide-message-circle w-3.5 h-3.5"
+                      fill="none"
+                      height="24"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"
+                      />
+                    </svg>
+                    WhatsApp
+                  </button>
+                  <button
+                    class="flex items-center gap-1 px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors text-xs font-medium shadow-sm"
+                    title="Enviar por Email"
+                  >
+                    <svg
+                      class="lucide lucide-mail w-3.5 h-3.5"
+                      fill="none"
+                      height="24"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <rect
+                        height="16"
+                        rx="2"
+                        width="20"
+                        x="2"
+                        y="4"
+                      />
+                      <path
+                        d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"
+                      />
+                    </svg>
+                    Email
+                  </button>
+                  <button
+                    class="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-xs font-medium shadow-sm"
+                    title="Descargar Receta PDF"
+                  >
+                    <svg
+                      class="lucide lucide-file-text w-3.5 h-3.5"
+                      fill="none"
+                      height="24"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"
+                      />
+                      <polyline
+                        points="14 2 14 8 20 8"
+                      />
+                      <line
+                        x1="16"
+                        x2="8"
+                        y1="13"
+                        y2="13"
+                      />
+                      <line
+                        x1="16"
+                        x2="8"
+                        y1="17"
+                        y2="17"
+                      />
+                      <line
+                        x1="10"
+                        x2="8"
+                        y1="9"
+                        y2="9"
+                      />
+                    </svg>
+                    Receta PDF
+                  </button>
+                  <div
+                    class="text-xs text-slate-400 flex items-center gap-1"
+                  >
+                    <svg
+                      class="lucide lucide-calendar w-3 h-3"
+                      fill="none"
+                      height="24"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <rect
+                        height="18"
+                        rx="2"
+                        ry="2"
+                        width="18"
+                        x="3"
+                        y="4"
+                      />
+                      <line
+                        x1="16"
+                        x2="16"
+                        y1="2"
+                        y2="6"
+                      />
+                      <line
+                        x1="8"
+                        x2="8"
+                        y1="2"
+                        y2="6"
+                      />
+                      <line
+                        x1="3"
+                        x2="21"
+                        y1="10"
+                        y2="10"
+                      />
+                    </svg>
+                    04-01-2026
+                  </div>
+                </div>
+                <h3
+                  class="text-md font-semibold text-[#1e3a8a] mb-1"
+                >
+                  Test
+                </h3>
+                <p
+                  class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3"
+                >
+                  DX: 
+                  Test diagnosis
+                </p>
+                <div
+                  class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-slate-600"
+                >
+                  <div
+                    class="bg-slate-50 p-3 rounded border border-slate-100"
+                  >
+                    <p
+                      class="font-semibold text-xs text-slate-400 mb-1"
+                    >
+                      TRATAMIENTO
+                    </p>
+                    Test treatment
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </body>
+    </html>
+
+      132 |             await waitFor(() => {
+      133 |                 // Verify success toast was called
+    > 134 |                 expect(toast.success || toast).toHaveBeenCalled();
+          |                                                ^
+      135 |             });
+      136 |         });
+      137 |
+
+      at src/components/ConsultationManager.email.test.tsx:134:48
+      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+  ÔùÅ ConsultationManager - Email Integration (Slice 07.2) ÔÇ║ Email Sending Functionality ÔÇ║ should show success toast when email is queued
+
+    TypeError: react_hot_toast_1.default.error is not a function
+
+      182 |         } catch (err) {
+      183 |             console.error('Error sending email:', err);
+    > 184 |             toast.error('Error al enviar email');
+          |                   ^
+      185 |         }
+      186 |     };
+      187 |
+
+      at handleSendEmail (src/components/ConsultationManager.tsx:184:19)
+
+  ÔùÅ ConsultationManager - Email Integration (Slice 07.2) ÔÇ║ Email Sending Functionality ÔÇ║ should show success toast when email is queued
+
+    TypeError: react_hot_toast_1.default.error is not a function
+
+      182 |         } catch (err) {
+      183 |             console.error('Error sending email:', err);
+    > 184 |             toast.error('Error al enviar email');
+          |                   ^
+      185 |         }
+      186 |     };
+      187 |
+
+      at handleSendEmail (src/components/ConsultationManager.tsx:184:19)
+
+  ÔùÅ ConsultationManager - Email Integration (Slice 07.2) ÔÇ║ Email Sending Functionality ÔÇ║ should show error toast when patient has no email
+
+    expect(received).toHaveBeenCalledWith(...expected)
+
+    Matcher error: received value must be a mock or spy function
+
+    Received has value: undefined
+
+    Ignored nodes: comments, script, style
+    <html>
+      <head />
+      <body>
+        <div>
+          <div
+            class="bg-white rounded-xl shadow-sm border border-slate-100 p-6"
+          >
+            <div
+              class="flex justify-between items-center mb-6"
+            >
+              <div
+                class="flex items-center gap-2"
+              >
+                <svg
+                  class="lucide lucide-activity text-[#1e3a8a] w-5 h-5"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M22 12h-4l-3 9L9 3l-3 9H2"
+                  />
+                </svg>
+                <h2
+                  class="text-lg font-semibold text-[#1e3a8a]"
+                >
+                  Evoluci├│n Cl├¡nica
+                </h2>
+              </div>
+              <button
+                class="flex items-center gap-2 bg-[#1e3a8a] text-white px-4 py-2 rounded-lg hover:bg-blue-900 transition-colors text-sm font-medium shadow-sm"
+              >
+                <svg
+                  class="lucide lucide-plus w-4 h-4"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M5 12h14"
+                  />
+                  <path
+                    d="M12 5v14"
+                  />
+                </svg>
+                Nueva Consulta
+              </button>
+            </div>
+            <div
+              class="space-y-4"
+            >
+              <div
+                class="group border border-slate-100 rounded-lg p-5 hover:shadow-md transition-all bg-white relative"
+              >
+                <div
+                  class="absolute top-5 right-5 flex items-center gap-3"
+                >
+                  <button
+                    class="flex items-center gap-1 px-3 py-1.5 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors text-xs font-medium shadow-sm"
+                    title="Enviar por WhatsApp"
+                  >
+                    <svg
+                      class="lucide lucide-message-circle w-3.5 h-3.5"
+                      fill="none"
+                      height="24"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"
+                      />
+                    </svg>
+                    WhatsApp
+                  </button>
+                  <button
+                    class="flex items-center gap-1 px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors text-xs font-medium shadow-sm"
+                    title="Enviar por Email"
+                  >
+                    <svg
+                      class="lucide lucide-mail w-3.5 h-3.5"
+                      fill="none"
+                      height="24"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <rect
+                        height="16"
+                        rx="2"
+                        width="20"
+                        x="2"
+                        y="4"
+                      />
+                      <path
+                        d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"
+                      />
+                    </svg>
+                    Email
+                  </button>
+                  <button
+                    class="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-xs font-medium shadow-sm"
+                    title="Descargar Receta PDF"
+                  >
+                    <svg
+                      class="lucide lucide-file-text w-3.5 h-3.5"
+                      fill="none"
+                      height="24"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"
+                      />
+                      <polyline
+                        points="14 2 14 8 20 8"
+                      />
+                      <line
+                        x1="16"
+                        x2="8"
+                        y1="13"
+                        y2="13"
+                      />
+                      <line
+                        x1="16"
+                        x2="8"
+                        y1="17"
+                        y2="17"
+                      />
+                      <line
+                        x1="10"
+                        x2="8"
+                        y1="9"
+                        y2="9"
+                      />
+                    </svg>
+                    Receta PDF
+                  </button>
+                  <div
+                    class="text-xs text-slate-400 flex items-center gap-1"
+                  >
+                    <svg
+                      class="lucide lucide-calendar w-3 h-3"
+                      fill="none"
+                      height="24"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <rect
+                        height="18"
+                        rx="2"
+                        ry="2"
+                        width="18"
+                        x="3"
+                        y="4"
+                      />
+                      <line
+                        x1="16"
+                        x2="16"
+                        y1="2"
+                        y2="6"
+                      />
+                      <line
+                        x1="8"
+                        x2="8"
+                        y1="2"
+                        y2="6"
+                      />
+                      <line
+                        x1="3"
+                        x2="21"
+                        y1="10"
+                        y2="10"
+                      />
+                    </svg>
+                    Fecha desc.
+                  </div>
+                </div>
+                <h3
+                  class="text-md font-semibold text-[#1e3a8a] mb-1"
+                >
+                  Test
+                </h3>
+                <p
+                  class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3"
+                >
+                  DX: 
+                  Test
+                </p>
+                <div
+                  class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-slate-600"
+                >
+                  <div
+                    class="bg-slate-50 p-3 rounded border border-slate-100"
+                  >
+                    <p
+                      class="font-semibold text-xs text-slate-400 mb-1"
+                    >
+                      TRATAMIENTO
+                    </p>
+                    Test
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </body>
+    </html>
+
+      170 |             await waitFor(() => {
+      171 |                 // Verify error toast was called
+    > 172 |                 expect(toast.error).toHaveBeenCalledWith(
+          |                                     ^
+      173 |                     expect.stringContaining('email')
+      174 |                 );
+      175 |             });
+
+      at src/components/ConsultationManager.email.test.tsx:172:37
+      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+  ÔùÅ ConsultationManager - Email Integration (Slice 07.2) ÔÇ║ Email Sending Functionality ÔÇ║ should show error toast when patient has no email
+
+    TypeError: react_hot_toast_1.default.error is not a function
+
+      182 |         } catch (err) {
+      183 |             console.error('Error sending email:', err);
+    > 184 |             toast.error('Error al enviar email');
+          |                   ^
+      185 |         }
+      186 |     };
+      187 |
+
+      at handleSendEmail (src/components/ConsultationManager.tsx:184:19)
+      at onClick (src/components/ConsultationManager.tsx:302:56)
+      at HTMLUnknownElement.callCallback (node_modules/react-dom/cjs/react-dom.development.js:4164:14)
+      at HTMLUnknownElement.callTheUserObjectsOperation (node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+      at innerInvokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+      at invokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+      at HTMLUnknownElementImpl._dispatch (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+      at HTMLUnknownElementImpl.dispatchEvent (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+      at HTMLUnknownElement.dispatchEvent (node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+      at Object.invokeGuardedCallbackDev (node_modules/react-dom/cjs/react-dom.development.js:4213:16)
+      at invokeGuardedCallback (node_modules/react-dom/cjs/react-dom.development.js:4277:31)
+      at invokeGuardedCallbackAndCatchFirstError (node_modules/react-dom/cjs/react-dom.development.js:4291:25)
+      at executeDispatch (node_modules/react-dom/cjs/react-dom.development.js:9041:3)
+      at processDispatchQueueItemsInOrder (node_modules/react-dom/cjs/react-dom.development.js:9073:7)
+      at processDispatchQueue (node_modules/react-dom/cjs/react-dom.development.js:9086:5)
+      at dispatchEventsForPlugins (node_modules/react-dom/cjs/react-dom.development.js:9097:3)
+      at node_modules/react-dom/cjs/react-dom.development.js:9288:12
+      at batchedUpdates$1 (node_modules/react-dom/cjs/react-dom.development.js:26179:12)
+      at batchedUpdates (node_modules/react-dom/cjs/react-dom.development.js:3991:12)
+      at dispatchEventForPluginEventSystem (node_modules/react-dom/cjs/react-dom.development.js:9287:3)
+      at dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay (node_modules/react-dom/cjs/react-dom.development.js:6465:5)
+      at dispatchEvent (node_modules/react-dom/cjs/react-dom.development.js:6457:5)
+      at dispatchDiscreteEvent (node_modules/react-dom/cjs/react-dom.development.js:6430:5)
+      at HTMLDivElement.callTheUserObjectsOperation (node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+      at innerInvokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+      at invokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+      at HTMLButtonElementImpl._dispatch (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+      at HTMLButtonElementImpl.dispatchEvent (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+      at HTMLButtonElement.dispatchEvent (node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+      at node_modules/@testing-library/dom/dist/events.js:19:20
+      at node_modules/@testing-library/react/dist/pure.js:107:16
+      at node_modules/@testing-library/react/dist/act-compat.js:47:24
+      at act (node_modules/react/cjs/react.development.js:2512:16)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at Object.eventWrapper (node_modules/@testing-library/react/dist/pure.js:106:28)
+      at fireEvent (node_modules/@testing-library/dom/dist/events.js:12:35)
+      at Function.fireEvent.<computed> [as click] (node_modules/@testing-library/dom/dist/events.js:110:36)
+      at Function.fireEvent.<computed> [as click] (node_modules/@testing-library/react/dist/fire-event.js:15:52)
+      at Object.<anonymous> (src/components/ConsultationManager.email.test.tsx:168:23)
+
+  ÔùÅ ConsultationManager - Email Integration (Slice 07.2) ÔÇ║ Email Sending Functionality ÔÇ║ should show error toast when patient has no email
+
+    TypeError: react_hot_toast_1.default.error is not a function
+
+      182 |         } catch (err) {
+      183 |             console.error('Error sending email:', err);
+    > 184 |             toast.error('Error al enviar email');
+          |                   ^
+      185 |         }
+      186 |     };
+      187 |
+
+      at handleSendEmail (src/components/ConsultationManager.tsx:184:19)
+      at onClick (src/components/ConsultationManager.tsx:302:56)
+      at HTMLUnknownElement.callCallback (node_modules/react-dom/cjs/react-dom.development.js:4164:14)
+      at HTMLUnknownElement.callTheUserObjectsOperation (node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+      at innerInvokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+      at invokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+      at HTMLUnknownElementImpl._dispatch (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+      at HTMLUnknownElementImpl.dispatchEvent (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+      at HTMLUnknownElement.dispatchEvent (node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+      at Object.invokeGuardedCallbackDev (node_modules/react-dom/cjs/react-dom.development.js:4213:16)
+      at invokeGuardedCallback (node_modules/react-dom/cjs/react-dom.development.js:4277:31)
+      at invokeGuardedCallbackAndCatchFirstError (node_modules/react-dom/cjs/react-dom.development.js:4291:25)
+      at executeDispatch (node_modules/react-dom/cjs/react-dom.development.js:9041:3)
+      at processDispatchQueueItemsInOrder (node_modules/react-dom/cjs/react-dom.development.js:9073:7)
+      at processDispatchQueue (node_modules/react-dom/cjs/react-dom.development.js:9086:5)
+      at dispatchEventsForPlugins (node_modules/react-dom/cjs/react-dom.development.js:9097:3)
+      at node_modules/react-dom/cjs/react-dom.development.js:9288:12
+      at batchedUpdates$1 (node_modules/react-dom/cjs/react-dom.development.js:26179:12)
+      at batchedUpdates (node_modules/react-dom/cjs/react-dom.development.js:3991:12)
+      at dispatchEventForPluginEventSystem (node_modules/react-dom/cjs/react-dom.development.js:9287:3)
+      at dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay (node_modules/react-dom/cjs/react-dom.development.js:6465:5)
+      at dispatchEvent (node_modules/react-dom/cjs/react-dom.development.js:6457:5)
+      at dispatchDiscreteEvent (node_modules/react-dom/cjs/react-dom.development.js:6430:5)
+      at HTMLDivElement.callTheUserObjectsOperation (node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+      at innerInvokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+      at invokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+      at HTMLButtonElementImpl._dispatch (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
+      at HTMLButtonElementImpl.dispatchEvent (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:104:17)
+      at HTMLButtonElement.dispatchEvent (node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:241:34)
+      at node_modules/@testing-library/dom/dist/events.js:19:20
+      at node_modules/@testing-library/react/dist/pure.js:107:16
+      at node_modules/@testing-library/react/dist/act-compat.js:47:24
+      at act (node_modules/react/cjs/react.development.js:2512:16)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at Object.eventWrapper (node_modules/@testing-library/react/dist/pure.js:106:28)
+      at fireEvent (node_modules/@testing-library/dom/dist/events.js:12:35)
+      at Function.fireEvent.<computed> [as click] (node_modules/@testing-library/dom/dist/events.js:110:36)
+      at Function.fireEvent.<computed> [as click] (node_modules/@testing-library/react/dist/fire-event.js:15:52)
+      at Object.<anonymous> (src/components/ConsultationManager.email.test.tsx:168:23)
+
+  ÔùÅ ConsultationManager - Email Integration (Slice 07.2) ÔÇ║ Email Sending Functionality ÔÇ║ should show error toast when API returns error
+
+    expect(received).toHaveBeenCalled()
+
+    Matcher error: received value must be a mock or spy function
+
+    Received has value: undefined
+
+    Ignored nodes: comments, script, style
+    <html>
+      <head />
+      <body>
+        <div>
+          <div
+            class="bg-white rounded-xl shadow-sm border border-slate-100 p-6"
+          >
+            <div
+              class="flex justify-between items-center mb-6"
+            >
+              <div
+                class="flex items-center gap-2"
+              >
+                <svg
+                  class="lucide lucide-activity text-[#1e3a8a] w-5 h-5"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M22 12h-4l-3 9L9 3l-3 9H2"
+                  />
+                </svg>
+                <h2
+                  class="text-lg font-semibold text-[#1e3a8a]"
+                >
+                  Evoluci├│n Cl├¡nica
+                </h2>
+              </div>
+              <button
+                class="flex items-center gap-2 bg-[#1e3a8a] text-white px-4 py-2 rounded-lg hover:bg-blue-900 transition-colors text-sm font-medium shadow-sm"
+              >
+                <svg
+                  class="lucide lucide-plus w-4 h-4"
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M5 12h14"
+                  />
+                  <path
+                    d="M12 5v14"
+                  />
+                </svg>
+                Nueva Consulta
+              </button>
+            </div>
+            <div
+              class="space-y-4"
+            >
+              <div
+                class="group border border-slate-100 rounded-lg p-5 hover:shadow-md transition-all bg-white relative"
+              >
+                <div
+                  class="absolute top-5 right-5 flex items-center gap-3"
+                >
+                  <button
+                    class="flex items-center gap-1 px-3 py-1.5 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors text-xs font-medium shadow-sm"
+                    title="Enviar por WhatsApp"
+                  >
+                    <svg
+                      class="lucide lucide-message-circle w-3.5 h-3.5"
+                      fill="none"
+                      height="24"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"
+                      />
+                    </svg>
+                    WhatsApp
+                  </button>
+                  <button
+                    class="flex items-center gap-1 px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors text-xs font-medium shadow-sm"
+                    title="Enviar por Email"
+                  >
+                    <svg
+                      class="lucide lucide-mail w-3.5 h-3.5"
+                      fill="none"
+                      height="24"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <rect
+                        height="16"
+                        rx="2"
+                        width="20"
+                        x="2"
+                        y="4"
+                      />
+                      <path
+                        d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"
+                      />
+                    </svg>
+                    Email
+                  </button>
+                  <button
+                    class="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-xs font-medium shadow-sm"
+                    title="Descargar Receta PDF"
+                  >
+                    <svg
+                      class="lucide lucide-file-text w-3.5 h-3.5"
+                      fill="none"
+                      height="24"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"
+                      />
+                      <polyline
+                        points="14 2 14 8 20 8"
+                      />
+                      <line
+                        x1="16"
+                        x2="8"
+                        y1="13"
+                        y2="13"
+                      />
+                      <line
+                        x1="16"
+                        x2="8"
+                        y1="17"
+                        y2="17"
+                      />
+                      <line
+                        x1="10"
+                        x2="8"
+                        y1="9"
+                        y2="9"
+                      />
+                    </svg>
+                    Receta PDF
+                  </button>
+                  <div
+                    class="text-xs text-slate-400 flex items-center gap-1"
+                  >
+                    <svg
+                      class="lucide lucide-calendar w-3 h-3"
+                      fill="none"
+                      height="24"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <rect
+                        height="18"
+                        rx="2"
+                        ry="2"
+                        width="18"
+                        x="3"
+                        y="4"
+                      />
+                      <line
+                        x1="16"
+                        x2="16"
+                        y1="2"
+                        y2="6"
+                      />
+                      <line
+                        x1="8"
+                        x2="8"
+                        y1="2"
+                        y2="6"
+                      />
+                      <line
+                        x1="3"
+                        x2="21"
+                        y1="10"
+                        y2="10"
+                      />
+                    </svg>
+                    04-01-2026
+                  </div>
+                </div>
+                <h3
+                  class="text-md font-semibold text-[#1e3a8a] mb-1"
+                >
+                  Test
+                </h3>
+                <p
+                  class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3"
+                >
+                  DX: 
+                  Test diagnosis
+                </p>
+                <div
+                  class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-slate-600"
+                >
+                  <div
+                    class="bg-slate-50 p-3 rounded border border-slate-100"
+                  >
+                    <p
+                      class="font-semibold text-xs text-slate-400 mb-1"
+                    >
+                      TRATAMIENTO
+                    </p>
+                    Test treatment
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </body>
+    </html>
+
+      195 |
+      196 |             await waitFor(() => {
+    > 197 |                 expect(toast.error).toHaveBeenCalled();
+          |                                     ^
+      198 |             });
+      199 |         });
+      200 |     });
+
+      at src/components/ConsultationManager.email.test.tsx:197:37
+      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+  ÔùÅ ConsultationManager - Email Integration (Slice 07.2) ÔÇ║ Email Sending Functionality ÔÇ║ should show error toast when API returns error
+
+    TypeError: react_hot_toast_1.default.error is not a function
+
+      182 |         } catch (err) {
+      183 |             console.error('Error sending email:', err);
+    > 184 |             toast.error('Error al enviar email');
+          |                   ^
+      185 |         }
+      186 |     };
+      187 |
+
+      at handleSendEmail (src/components/ConsultationManager.tsx:184:19)
+
+  ÔùÅ ConsultationManager - Email Integration (Slice 07.2) ÔÇ║ Email Sending Functionality ÔÇ║ should show error toast when API returns error
+
+    TypeError: react_hot_toast_1.default.error is not a function
+
+      182 |         } catch (err) {
+      183 |             console.error('Error sending email:', err);
+    > 184 |             toast.error('Error al enviar email');
+          |                   ^
+      185 |         }
+      186 |     };
+      187 |
+
+      at handleSendEmail (src/components/ConsultationManager.tsx:184:19)
+
+Test Suites: 1 failed, 1 total
+Tests:       4 failed, 3 passed, 7 total
+Snapshots:   0 total
+Time:        4.842 s, estimated 5 s
+Ran all test suites matching ConsultationManager.email.test.tsx.
