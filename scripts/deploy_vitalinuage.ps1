@@ -1,46 +1,29 @@
--- VITALINUAGE: Sincronización Total de Esquema (Neon/Postgres)
--- Ejecuta este script en la consola de Neon para corregir todas las tablas.
+# VITALINUAGE: Script de Despliegue Profesional v1.5.5
+# Este script sube tu codigo a Google Cloud Run utilizando Google Cloud Build.
 
--- 1. Reparación de la Tabla de Usuarios (Autenticación e Identidad)
-DO $$ 
-BEGIN 
-    -- Columnas de Estado
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='is_verified') THEN
-        ALTER TABLE users ADD COLUMN is_verified BOOLEAN DEFAULT FALSE;
-    END IF;
+$PROJECT_ID = "vitalinuage-backend"
+$SERVICE_NAME = "vitalinuage-backend"
+$REGION = "us-central1"
 
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='is_onboarded') THEN
-        ALTER TABLE users ADD COLUMN is_onboarded BOOLEAN DEFAULT FALSE;
-    END IF;
+Write-Host "--- Iniciando Despliegue PBT-IA: Vitalinuage ---" -ForegroundColor Cyan
 
-    -- Columnas de Identidad Profesional
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='professional_name') THEN
-        ALTER TABLE users ADD COLUMN professional_name VARCHAR;
-    END IF;
+# 1. Verificación de configuración del proyecto
+Write-Host "[1/3] Configurando el proyecto en Google Cloud: $PROJECT_ID"
+gcloud config set project $PROJECT_ID
 
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='specialty') THEN
-        ALTER TABLE users ADD COLUMN specialty VARCHAR;
-    END IF;
+# 2. Construcción de la imagen en la nube (Evita problemas de Docker local)
+Write-Host "[2/3] Subiendo codigo y construyendo imagen en Google Cloud Build..."
+# Este comando empaqueta el directorio actual y lo sube para ser procesado por Google.
+gcloud builds submit --tag gcr.io/$PROJECT_ID/$SERVICE_NAME .
 
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='medical_license') THEN
-        ALTER TABLE users ADD COLUMN medical_license VARCHAR;
-    END IF;
-END $$;
+# 3. Despliegue y actualización del servicio en Cloud Run
+Write-Host "[3/3] Actualizando servicio en Cloud Run..."
+gcloud run deploy $SERVICE_NAME `
+    --image gcr.io/$PROJECT_ID/$SERVICE_NAME `
+    --platform managed `
+    --region $REGION `
+    --allow-unauthenticated `
+    --set-env-vars "ENV=production"
 
--- 2. Reparación de la Tabla de Consultas (Tracking de Envíos)
-DO $$ 
-BEGIN 
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='consultations' AND column_name='email_sent_at') THEN
-        ALTER TABLE consultations ADD COLUMN email_sent_at TIMESTAMP WITH TIME ZONE;
-    END IF;
-
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='consultations' AND column_name='whatsapp_sent_at') THEN
-        ALTER TABLE consultations ADD COLUMN whatsapp_sent_at TIMESTAMP WITH TIME ZONE;
-    END IF;
-END $$;
-
--- 3. Verificación Final
-SELECT table_name, column_name, data_type 
-FROM information_schema.columns 
-WHERE table_name IN ('users', 'consultations')
-ORDER BY table_name, column_name;
+Write-Host "--- Despliegue Completado con Exito ---" -ForegroundColor Green
+Write-Host "Verifica la URL proporcionada por Google para confirmar que el error ha desaparecido."
