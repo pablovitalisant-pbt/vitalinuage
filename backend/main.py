@@ -37,7 +37,7 @@ async def general_exception_handler(request, exc):
 
 from api import patients, doctor, medical_background, consultations, maps
 from api import print as print_api
-from api import verification
+from api import verification, audit
 from api.consultations import verification_router
 app.include_router(patients.router)
 app.include_router(doctor.router)
@@ -46,6 +46,7 @@ app.include_router(consultations.router)
 app.include_router(maps.router)
 app.include_router(print_api.router)
 app.include_router(verification.router)
+app.include_router(audit.router, prefix="/api/audit", tags=["audit"])
 app.include_router(verification_router)
 
 # CORS Configuration for Production and Development

@@ -8,6 +8,7 @@ import ProfileSettings from './pages/ProfileSettings';
 import RegisterPatient from './pages/RegisterPatient';
 import NewConsultation from './pages/NewConsultation';
 import TalonarioSettings from './pages/TalonarioSettings';
+import AuditPanel from './pages/AuditPanel';
 import ProtectedLayout from './layouts/ProtectedLayout';
 import { DoctorProvider } from './context/DoctorContext';
 
@@ -38,6 +39,7 @@ function App() {
                         <Route path="/patient/:id/new-consultation" element={<NewConsultation />} />
                         <Route path="/settings" element={<ProfileSettings />} />
                         <Route path="/settings/talonario" element={<TalonarioSettings />} />
+                        <Route path="/audit" element={<AuditPanel />} />
                     </Route>
                 </Routes>
             </BrowserRouter>
