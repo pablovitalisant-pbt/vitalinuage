@@ -9,6 +9,7 @@ export interface DoctorProfile {
     address: string;
     phone: string;
     registrationNumber?: string;
+    isOnboarded: boolean;
 }
 
 export interface PrintPreferences {
@@ -37,7 +38,8 @@ const defaultProfile: DoctorProfile = {
     professionalName: "Dr. Vitali",
     specialty: "",
     address: "",
-    phone: ""
+    phone: "",
+    isOnboarded: false
 };
 
 const defaultPreferences: PrintPreferences = {
@@ -79,7 +81,8 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
                     specialty: data.specialty || "",
                     address: "",
                     phone: "",
-                    registrationNumber: data.registration_number || ""
+                    registrationNumber: data.registration_number || "",
+                    isOnboarded: data.is_onboarded || false
                 });
             } else if (profileRes.status !== 401) {
                 setProfile(defaultProfile);
@@ -134,7 +137,8 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
                 ...prev,
                 professionalName: updated.professional_name,
                 specialty: updated.specialty,
-                registrationNumber: updated.medical_license
+                registrationNumber: updated.medical_license,
+                isOnboarded: true
             }));
         } catch (error) {
             console.error('Onboarding Error:', error);

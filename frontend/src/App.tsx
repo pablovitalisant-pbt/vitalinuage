@@ -12,7 +12,7 @@ import AuditPanel from './pages/AuditPanel';
 import ProtectedLayout from './layouts/ProtectedLayout';
 import { DoctorProvider } from './context/DoctorContext';
 import OnboardingView from './pages/OnboardingView';
-
+import OnboardingGuard from './components/auth/OnboardingGuard';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 
 import { Toaster } from 'react-hot-toast';
@@ -30,7 +30,9 @@ function App() {
                     {/* Protected Routes */}
                     <Route element={
                         <ProtectedRoute>
-                            <ProtectedLayout />
+                            <OnboardingGuard>
+                                <ProtectedLayout />
+                            </OnboardingGuard>
                         </ProtectedRoute>
                     }>
                         <Route path="/dashboard" element={<SearchPage />} />

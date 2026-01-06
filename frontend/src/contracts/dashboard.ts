@@ -2,6 +2,7 @@ export interface DoctorProfile {
     professional_name: string;
     specialty: string;
     registration_number: string;
+    is_onboarded?: boolean;
 }
 
 export interface PatientSearchResult {
