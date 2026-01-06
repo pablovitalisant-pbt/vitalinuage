@@ -12,6 +12,12 @@ class UserLogin(UserCreate):
 
 class User(UserBase):
     id: int
+    is_verified: bool
+    is_onboarded: bool = False
+    professional_name: Optional[str] = None
+    specialty: Optional[str] = None
+    medical_license: Optional[str] = None
+
     model_config = ConfigDict(from_attributes=True)
 
 class Token(BaseModel):

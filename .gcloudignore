@@ -1,0 +1,10 @@
+.git
+.gitignore
+node_modules/
+frontend/node_modules/
+backend/__pycache__/
+backend/venv/
+.venv/
+.env
+scripts/
+# No ignoramos Dockerfile ni los directorios de cÃ³digo fuente
