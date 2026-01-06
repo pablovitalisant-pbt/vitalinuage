@@ -30,3 +30,9 @@ class UserVerify(BaseModel):
 class UserCreateResponse(BaseModel):
     message: str
     email: EmailStr
+
+class OnboardingUpdate(BaseModel):
+    professional_name: Optional[str] = None
+    specialty: Optional[str] = None
+    medical_license: Optional[str] = None
+    registration_number: Optional[str] = None
