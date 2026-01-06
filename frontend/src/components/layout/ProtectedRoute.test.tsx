@@ -9,7 +9,7 @@ const MockPrivate = () => <div>Private Content</div>;
 describe('ProtectedRoute', () => {
     // Mock setup
     const defaultContext = {
-        profile: { professionalName: 'Dr. Test', specialty: 'General', address: '123 Test St', phone: '555-1234' },
+        profile: { professionalName: 'Dr. Test', specialty: 'General', address: '123 Test St', phone: '555-1234', isOnboarded: true },
         preferences: { paperSize: "A4" as const, templateId: "classic" as const },
         updateProfile: jest.fn(),
         updatePreferences: jest.fn(),

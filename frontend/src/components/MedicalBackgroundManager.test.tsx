@@ -1,9 +1,10 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+// import { describe, it, expect, vi } from 'vitest';
 import MedicalBackgroundManager from './MedicalBackgroundManager';
 
 // Mock fetch
-global.fetch = vi.fn();
+// global.fetch = vi.fn();
+global.fetch = jest.fn();
 
 describe('MedicalBackgroundManager', () => {
     const mockPatientId = 123;

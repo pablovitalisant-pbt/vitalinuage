@@ -30,7 +30,8 @@ export default function OnboardingView() {
                 specialty: data.specialty,
                 address: "", // Ignore in onboarding
                 phone: "",   // Ignore in onboarding
-                registrationNumber: data.medical_license
+                registrationNumber: data.medical_license,
+                isOnboarded: true
             });
             toast.success("Perfil configurado con éxito");
             navigate('/dashboard');

@@ -14,5 +14,5 @@
     "prescription_coords_v1": true,
     "tracking_envios": true,
     "audit_panel": true,
-    "onboarding_workflow": false
+    "onboarding_workflow": true
 }

@@ -78,7 +78,7 @@ from datetime import datetime
 
 # Build timestamp for version tracking
 BUILD_TIME = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
-VERSION = "1.1.2-atomic-fix"
+VERSION = "1.2.0-onboarding"
 
 @app.get("/")
 def read_root():
