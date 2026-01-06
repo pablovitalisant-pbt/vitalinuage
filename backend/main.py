@@ -12,8 +12,10 @@ import crud
 import auth
 from database import SessionLocal, engine, get_db
 # Create Tables
-# Create Tables
-models.Base.metadata.create_all(bind=engine)
+try:
+    models.Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print(f"WARNING: DB Connection failed on startup. Server will start anyway. Error: {e}")
 
 app = FastAPI(title="Vitalinuage API")
 
@@ -78,7 +80,7 @@ from datetime import datetime
 
 # Build timestamp for version tracking
 BUILD_TIME = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
-VERSION = "1.2.0-onboarding"
+VERSION = "1.2.1-hotfix"
 
 @app.get("/")
 def read_root():
@@ -97,6 +99,10 @@ def get_version():
         "auth_method": "SHA-256 + bcrypt",
         "timestamp": datetime.utcnow().isoformat()
     }
+
+@app.get("/api/health")
+def health_check():
+    return {"status": "ok", "db": "unknown"}
 
 from datetime import datetime
 import uuid
