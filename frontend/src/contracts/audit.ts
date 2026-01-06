@@ -12,3 +12,11 @@ export interface DispatchAuditResponse {
     items: DispatchSummaryItem[];
     total_count: number;
 }
+
+export type DispatchStatus = 'all' | 'pending' | 'sent';
+
+export interface DispatchAuditFilterParams {
+    start_date?: string;
+    end_date?: string;
+    status?: DispatchStatus;
+}

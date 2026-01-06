@@ -8,28 +8,53 @@ export default function AuditPanel() {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchAudit = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const res = await fetch(`${apiConfig.apiBaseUrl}/api/audit/dispatch-summary`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [status, setStatus] = useState('all');
 
-                if (res.status === 404) {
-                    throw new Error("Audit Panel is disabled or not found.");
-                }
-                if (!res.ok) throw new Error("Failed to load audit data");
+    const handleSearch = async () => {
+        setLoading(true);
+        try {
+            const token = localStorage.getItem('token');
+            const queryParams = new URLSearchParams();
+            if (startDate) queryParams.append('start_date', new Date(startDate).toISOString());
+            if (endDate) queryParams.append('end_date', new Date(endDate).toISOString());
+            if (status !== 'all') queryParams.append('status', status);
 
-                const json: DispatchAuditResponse = await res.json();
-                setData(json);
-            } catch (err: any) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
+            const res = await fetch(`${apiConfig.apiBaseUrl}/api/audit/dispatch-summary?${queryParams.toString()}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (res.status === 404) {
+                throw new Error("Audit Panel is disabled or not found.");
             }
-        };
-        fetchAudit();
+            if (!res.ok) throw new Error("Failed to load audit data");
+
+            const json: DispatchAuditResponse = await res.json();
+            setData(json);
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleExport = () => {
+        if (!data) return;
+        const headers = ["Fecha,Paciente,Medico,Email Sent,WhatsApp Sent\n"];
+        const rows = data.items.map(i =>
+            `${i.issue_date},"${i.patient_name}","${i.doctor_name}",${i.email_sent_at || ''},${i.whatsapp_sent_at || ''}`
+        );
+        const blob = new Blob([headers + rows.join("\n")], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `audit_${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+    };
+
+    useEffect(() => {
+        handleSearch();
     }, []);
 
     if (loading) return <div className="p-8 text-center text-gray-500">Loading audit data...</div>;
@@ -38,6 +63,75 @@ export default function AuditPanel() {
     return (
         <div className="p-6 max-w-7xl mx-auto">
             <h1 className="text-2xl font-bold mb-6 text-gray-800">Panel de Auditoría de Despachos</h1>
+
+            {/* Filters Toolbar */}
+            <div className="bg-white p-4 rounded-lg shadow mb-6 flex flex-wrap gap-4 items-end">
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Desde</label>
+                    <input
+                        type="date"
+                        className="border border-gray-300 rounded px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+                        onChange={(e) => {
+                            // Minimal implementation to trigger fetch? Or button? 
+                            // For now, let's keep it simple and just reload or add a search button. 
+                            // Better: Add state for filters and Search button.
+                        }}
+                    />
+                </div>
+                {/* 
+                   Wait, I need to implement the STATE for filters first. 
+                   The previous code didn't have filter state. I need to replace more lines to add state.
+                   Retrying with a larger block replacement.
+                 */}
+            </div>
+
+            {/* Filters Toolbar */}
+            <div className="bg-white p-4 rounded-lg shadow mb-6 flex flex-wrap gap-4 items-end">
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Desde</label>
+                    <input
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        className="border border-gray-300 rounded px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Hasta</label>
+                    <input
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        className="border border-gray-300 rounded px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                    <select
+                        value={status}
+                        onChange={(e) => setStatus(e.target.value)}
+                        className="border border-gray-300 rounded px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500 min-w-[150px]"
+                    >
+                        <option value="all">Todos</option>
+                        <option value="pending">Pendientes</option>
+                        <option value="sent">Enviados</option>
+                    </select>
+                </div>
+                <button
+                    onClick={handleSearch}
+                    className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700 transition-colors"
+                >
+                    Filtrar
+                </button>
+                <div className="flex-grow"></div>
+                <button
+                    onClick={handleExport}
+                    className="border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm font-medium hover:bg-gray-50 transition-colors flex items-center gap-2"
+                >
+                    <span>⬇ CSV</span>
+                </button>
+            </div>
+
             <div className="bg-white rounded-lg shadow overflow-hidden">
                 <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
