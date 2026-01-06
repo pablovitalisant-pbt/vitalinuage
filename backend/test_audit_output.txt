@@ -1,0 +1,81 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.8, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\Users\pablo\Documents\Vitalinuage\backend
+plugins: anyio-4.12.0
+collected 1 item
+
+tests\test_audit_dispatch.py F                                           [100%]
+
+================================== FAILURES ===================================
+_________________ TestAuditDispatch.test_get_dispatch_summary _________________
+
+self = <backend.tests.test_audit_dispatch.TestAuditDispatch object at 0x000002C6F46111D0>
+client = <starlette.testclient.TestClient object at 0x000002C6F4615940>
+db_session = <sqlalchemy.orm.session.Session object at 0x000002C6F46157F0>
+auth_headers = {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhdWRpdF9kb2N0b3JAdGVzdC5jb20iLCJleHAiOjE3NzAyNTUzMzJ9.jzUEJeaY5cgJJiN-m7WdKlmngURt1Z5DeABTWIJp3Sc'}
+setup_audit_data = <models.PrescriptionVerification object at 0x000002C6F4770050>
+
+    def test_get_dispatch_summary(self, client, db_session, auth_headers, setup_audit_data):
+        """
+        Test retrieving the dispatch summary.
+        Should return a list of dispatched items matching the contract.
+        """
+        # Call Endpoint
+        # Note: We anticipate the endpoint will be under /api/audit
+        response = client.get("/api/audit/dispatch-summary", headers=auth_headers)
+    
+        # Expect Success (Contract defined 200 OK)
+>       assert response.status_code == 200
+E       assert 404 == 200
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+tests\test_audit_dispatch.py:106: AssertionError
+============================== warnings summary ===============================
+database.py:14
+  C:\Users\pablo\Documents\Vitalinuage\backend\database.py:14: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+api\medical_background.py:26
+  C:\Users\pablo\Documents\Vitalinuage\backend\api\medical_background.py:26: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class MedicalBackgroundResponse(MedicalBackgroundBase):
+
+..\..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\_internal\_config.py:383
+..\..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\_internal\_config.py:383
+  C:\Users\pablo\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\_internal\_config.py:383: UserWarning: Valid config keys have changed in V2:
+  * 'orm_mode' has been renamed to 'from_attributes'
+    warnings.warn(message, UserWarning)
+
+schemas\consultations.py:18
+  C:\Users\pablo\Documents\Vitalinuage\backend\schemas\consultations.py:18: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class ConsultationResponse(ConsultationBase):
+
+schemas\prescription_map.py:21
+  C:\Users\pablo\Documents\Vitalinuage\backend\schemas\prescription_map.py:21: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class PrescriptionMapResponse(PrescriptionMapBase):
+
+main.py:78
+  C:\Users\pablo\Documents\Vitalinuage\backend\main.py:78: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    BUILD_TIME = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+
+tests/test_audit_dispatch.py::TestAuditDispatch::test_get_dispatch_summary
+  C:\Users\pablo\Documents\Vitalinuage\backend\auth.py:81: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    expire = datetime.utcnow() + timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)
+
+tests/test_audit_dispatch.py::TestAuditDispatch::test_get_dispatch_summary
+tests/test_audit_dispatch.py::TestAuditDispatch::test_get_dispatch_summary
+tests/test_audit_dispatch.py::TestAuditDispatch::test_get_dispatch_summary
+  C:\Users\pablo\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\sql\schema.py:3624: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    return util.wrap_callable(lambda ctx: fn(), fn)  # type: ignore
+
+tests/test_audit_dispatch.py::TestAuditDispatch::test_get_dispatch_summary
+  C:\Users\pablo\Documents\Vitalinuage\backend\tests\test_audit_dispatch.py:85: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    issue_date=datetime.utcnow(),
+
+tests/test_audit_dispatch.py::TestAuditDispatch::test_get_dispatch_summary
+  C:\Users\pablo\Documents\Vitalinuage\backend\tests\test_audit_dispatch.py:86: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    email_sent_at=datetime.utcnow(),
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_audit_dispatch.py::TestAuditDispatch::test_get_dispatch_summary
+======================= 1 failed, 13 warnings in 2.20s ========================

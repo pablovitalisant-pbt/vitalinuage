@@ -1,0 +1,59 @@
+
+(process:14812): GLib-GIO-WARNING **: 22:42:27.228: Unexpectedly, UWP app `Microsoft.ScreenSketch_11.2510.31.0_x64__8wekyb3d8bbwe' (AUMId `Microsoft.ScreenSketch_8wekyb3d8bbwe!App') supports 29 extensions but has no verbs
+
+(process:14812): GLib-GIO-WARNING **: 22:42:27.556: Unexpectedly, UWP app `Clipchamp.Clipchamp_4.4.10720.0_x64__yxz26nhyzhsrt' (AUMId `Clipchamp.Clipchamp_yxz26nhyzhsrt!App') supports 41 extensions but has no verbs
+============================= test session starts =============================
+platform win32 -- Python 3.13.8, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\Users\pablo\Documents\Vitalinuage\backend
+plugins: anyio-4.12.0
+collected 1 item
+
+tests\test_audit_dispatch.py .                                           [100%]
+
+============================== warnings summary ===============================
+database.py:14
+  C:\Users\pablo\Documents\Vitalinuage\backend\database.py:14: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+api\medical_background.py:26
+  C:\Users\pablo\Documents\Vitalinuage\backend\api\medical_background.py:26: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class MedicalBackgroundResponse(MedicalBackgroundBase):
+
+..\..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\_internal\_config.py:383
+..\..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\_internal\_config.py:383
+  C:\Users\pablo\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\_internal\_config.py:383: UserWarning: Valid config keys have changed in V2:
+  * 'orm_mode' has been renamed to 'from_attributes'
+    warnings.warn(message, UserWarning)
+
+schemas\consultations.py:18
+  C:\Users\pablo\Documents\Vitalinuage\backend\schemas\consultations.py:18: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class ConsultationResponse(ConsultationBase):
+
+schemas\prescription_map.py:21
+  C:\Users\pablo\Documents\Vitalinuage\backend\schemas\prescription_map.py:21: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class PrescriptionMapResponse(PrescriptionMapBase):
+
+main.py:79
+  C:\Users\pablo\Documents\Vitalinuage\backend\main.py:79: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    BUILD_TIME = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+
+tests/test_audit_dispatch.py::TestAuditDispatch::test_get_dispatch_summary
+  C:\Users\pablo\Documents\Vitalinuage\backend\auth.py:81: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    expire = datetime.utcnow() + timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)
+
+tests/test_audit_dispatch.py::TestAuditDispatch::test_get_dispatch_summary
+tests/test_audit_dispatch.py::TestAuditDispatch::test_get_dispatch_summary
+tests/test_audit_dispatch.py::TestAuditDispatch::test_get_dispatch_summary
+  C:\Users\pablo\AppData\Local\Programs\Python\Python313\Lib\site-packages\sqlalchemy\sql\schema.py:3624: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    return util.wrap_callable(lambda ctx: fn(), fn)  # type: ignore
+
+tests/test_audit_dispatch.py::TestAuditDispatch::test_get_dispatch_summary
+  C:\Users\pablo\Documents\Vitalinuage\backend\tests\test_audit_dispatch.py:81: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    issue_date=datetime.utcnow(),
+
+tests/test_audit_dispatch.py::TestAuditDispatch::test_get_dispatch_summary
+  C:\Users\pablo\Documents\Vitalinuage\backend\tests\test_audit_dispatch.py:82: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    email_sent_at=datetime.utcnow(),
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================= 1 passed, 13 warnings in 4.57s ========================

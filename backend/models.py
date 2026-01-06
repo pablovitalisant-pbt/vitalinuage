@@ -17,6 +17,8 @@ class User(Base):
     # Doctor Profile
     professional_name = Column(String, nullable=True)
     specialty = Column(String, nullable=True)
+    medical_license = Column(String, nullable=True)
+    is_onboarded = Column(Boolean, default=False)
     registration_number = Column(String, nullable=True)
 class Patient(Base):
     __tablename__ = "patients"

@@ -12,6 +12,7 @@
     "medical_record_background_v1": true,
     "clinical_consultations_v1": true,
     "prescription_coords_v1": true,
-    "tracking_envios": false,
-    "audit_panel": false
+    "tracking_envios": true,
+    "audit_panel": true,
+    "onboarding_workflow": false
 }
