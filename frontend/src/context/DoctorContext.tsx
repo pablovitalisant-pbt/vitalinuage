@@ -30,6 +30,7 @@ interface DoctorContextType {
     refreshProfile: () => Promise<void>;
     token: string | null;
     setToken: (token: string | null) => void;
+    completeOnboarding: (data: DoctorProfile) => Promise<void>;
 }
 
 const defaultProfile: DoctorProfile = {
@@ -108,6 +109,39 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
         setProfile(prev => ({ ...prev, ...newData }));
     };
 
+    const completeOnboarding = async (data: DoctorProfile) => {
+        if (!token) return;
+
+        try {
+            const res = await fetch(getApiUrl('/api/user/onboarding'), {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    professional_name: data.professionalName,
+                    specialty: data.specialty,
+                    medical_license: data.registrationNumber || "", // Map registrationNumber to license
+                    onboarding_completed: true
+                })
+            });
+
+            if (!res.ok) throw new Error('Failed to update onboarding profile');
+
+            const updated = await res.json();
+            setProfile(prev => ({
+                ...prev,
+                professionalName: updated.professional_name,
+                specialty: updated.specialty,
+                registrationNumber: updated.medical_license
+            }));
+        } catch (error) {
+            console.error('Onboarding Error:', error);
+            throw error;
+        }
+    };
+
     const updatePreferences = async (newPrefs: Partial<PrintPreferences>) => {
         setPreferences(prev => ({ ...prev, ...newPrefs }));
         if (!token) return;
@@ -141,11 +175,13 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
             updatePreferences,
             refreshProfile,
             token,
-            setToken
+            setToken,
+            completeOnboarding
         }}>
             {children}
         </DoctorContext.Provider>
     );
+
 }
 
 export function useDoctor() {

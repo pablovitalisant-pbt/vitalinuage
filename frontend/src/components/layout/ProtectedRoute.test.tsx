@@ -9,13 +9,14 @@ const MockPrivate = () => <div>Private Content</div>;
 describe('ProtectedRoute', () => {
     // Mock setup
     const defaultContext = {
-        profile: { professionalName: "Dr. Test", specialty: "GP", address: "", phone: "" },
-        preferences: { paperSize: 'A4' as const, templateId: 'classic' as const },
-        token: null,
-        setToken: jest.fn(),
+        profile: { professionalName: 'Dr. Test', specialty: 'General', address: '123 Test St', phone: '555-1234' },
+        preferences: { paperSize: "A4" as const, templateId: "classic" as const },
         updateProfile: jest.fn(),
         updatePreferences: jest.fn(),
-        refreshProfile: jest.fn()
+        refreshProfile: jest.fn(),
+        token: 'fake-token',
+        setToken: jest.fn(),
+        completeOnboarding: jest.fn()
     };
 
     it('redirects to / if token is missing', () => {
