@@ -8,6 +8,7 @@ from core.config import settings
 SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL or "sqlite:///./test_pipeline.db"
 
 if os.environ.get("PYTEST_CURRENT_TEST"):
+    # StaticPool mantiene la conexión abierta en memoria para todos los hilos del test
     engine = create_engine(
         "sqlite:///:memory:",
         connect_args={"check_same_thread": False},
