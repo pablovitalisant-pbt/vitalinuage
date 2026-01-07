@@ -1,28 +1,28 @@
-﻿from reportlab.pdfgen import canvas
+from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm as reportlab_mm
 from reportlab.lib.pagesizes import A5
 from weasyprint import HTML
 from sqlalchemy.orm import Session
 from typing import Optional
-from backend import models
+from backend from backend import models
 import tempfile
 import os
 
 
 class PDFService:
     """
-    Servicio de generaciÃ³n de PDFs con soporte para coordenadas personalizadas.
-    Estrategia hÃ­brida: ReportLab para coordenadas exactas, WeasyPrint para templates.
+    Servicio de generación de PDFs con soporte para coordenadas personalizadas.
+    Estrategia híbrida: ReportLab para coordenadas exactas, WeasyPrint para templates.
     """
     
     @staticmethod
     def mm_to_points(millimeters: float) -> float:
         """
-        Convierte milÃ­metros a puntos PDF.
-        1mm = 2.83465 points (estÃ¡ndar PDF)
+        Convierte milímetros a puntos PDF.
+        1mm = 2.83465 points (estándar PDF)
         
         Args:
-            millimeters: Valor en milÃ­metros
+            millimeters: Valor en milímetros
             
         Returns:
             float: Valor en puntos PDF
@@ -32,14 +32,14 @@ class PDFService:
     @staticmethod
     def get_active_map(doctor_email: str, db: Session) -> Optional[models.PrescriptionMap]:
         """
-        Obtiene el mapa de coordenadas activo del mÃ©dico.
+        Obtiene el mapa de coordenadas activo del médico.
         
         Args:
-            doctor_email: Email del mÃ©dico
-            db: SesiÃ³n de base de datos
+            doctor_email: Email del médico
+            db: Sesión de base de datos
             
         Returns:
-            PrescriptionMap si existe y estÃ¡ activo, None en caso contrario
+            PrescriptionMap si existe y está activo, None en caso contrario
         """
         return db.query(models.PrescriptionMap).filter(
             models.PrescriptionMap.doctor_id == doctor_email,
@@ -52,11 +52,11 @@ class PDFService:
         Mapea field_key a datos reales de la consulta.
         
         Args:
-            consultation: Consulta clÃ­nica
+            consultation: Consulta clínica
             field_key: Clave del campo ('patient_name', 'diagnosis', etc.)
             
         Returns:
-            str: Valor del campo o cadena vacÃ­a si no existe
+            str: Valor del campo o cadena vacía si no existe
         """
         FIELD_MAPPING = {
             'patient_name': lambda c: f"{c.patient.nombre} {c.patient.apellido_paterno}",
@@ -64,7 +64,7 @@ class PDFService:
             'date': lambda c: c.created_at.strftime('%d/%m/%Y') if c.created_at else "",
             'diagnosis': lambda c: c.diagnosis or "",
             'treatment': lambda c: c.treatment or "",
-            'doctor_signature': lambda c: "Firma y Sello MÃ©dico"
+            'doctor_signature': lambda c: "Firma y Sello Médico"
         }
         
         mapper = FIELD_MAPPING.get(field_key)
@@ -82,10 +82,10 @@ class PDFService:
         Genera PDF usando ReportLab con coordenadas exactas.
         
         Args:
-            consultation: Datos de la consulta clÃ­nica
-            prescription_map: ConfiguraciÃ³n de coordenadas
+            consultation: Datos de la consulta clínica
+            prescription_map: Configuración de coordenadas
             output_path: Ruta temporal para el PDF
-            db: SesiÃ³n de base de datos (para crear verificaciones QR)
+            db: Sesión de base de datos (para crear verificaciones QR)
         
         Returns:
             bytes: Contenido del PDF generado
@@ -115,7 +115,7 @@ class PDFService:
                 ).first()
                 doctor_name = doctor.professional_name if doctor and doctor.professional_name else "Dr. Vitalinuage"
                 
-                # Generar registro de verificaciÃ³n
+                # Generar registro de verificación
                 verification_uuid = str(uuid_lib.uuid4())
                 verification = models.PrescriptionVerification(
                     uuid=verification_uuid,
@@ -140,16 +140,16 @@ class PDFService:
                 c.drawImage(
                     ImageReader(qr_image),
                     x_pt,
-                    y_pt - size_pt,  # Ajuste para alineaciÃ³n
+                    y_pt - size_pt,  # Ajuste para alineación
                     width=size_pt,
                     height=size_pt,
                     preserveAspectRatio=True
                 )
             else:
-                # LÃ³gica existente para campos de texto
+                # Lógica existente para campos de texto
                 field_value = cls.extract_field_value(consultation, field_config['field_key'])
                 
-                # Convertir coordenadas mm â†’ puntos
+                # Convertir coordenadas mm → puntos
                 x_pt = cls.mm_to_points(field_config['x_mm'])
                 # IMPORTANTE: ReportLab usa origen en esquina inferior izquierda
                 # Invertir Y: y_pdf = height - y_mm
@@ -177,10 +177,10 @@ class PDFService:
     ) -> bytes:
         """
         Genera PDF usando WeasyPrint con templates HTML/CSS.
-        Fallback para mÃ©dicos sin mapa configurado.
+        Fallback para médicos sin mapa configurado.
         
         Args:
-            consultation: Datos de la consulta clÃ­nica
+            consultation: Datos de la consulta clínica
             template_id: ID del template ('minimal', 'modern', 'classic')
         
         Returns:
@@ -203,7 +203,7 @@ class PDFService:
             professional_name = "Dr. Vitalinuage"
             specialty = "Medicina General"
             phone = "N/A"
-            address = "Consultorio MÃ©dico"
+            address = "Consultorio Médico"
         
         class MockPatient:
             def __init__(self, patient):
@@ -243,17 +243,17 @@ class PDFService:
         db: Session
     ) -> bytes:
         """
-        MÃ©todo principal: decide quÃ© estrategia usar (coordenadas vs template).
+        Método principal: decide qué estrategia usar (coordenadas vs template).
         
         Args:
-            consultation: Datos de la consulta clÃ­nica
-            doctor_email: Email del mÃ©dico autenticado
-            db: SesiÃ³n de base de datos
+            consultation: Datos de la consulta clínica
+            doctor_email: Email del médico autenticado
+            db: Sesión de base de datos
         
         Returns:
             bytes: Contenido del PDF generado
         """
-        # 1. Buscar mapa activo del mÃ©dico
+        # 1. Buscar mapa activo del médico
         prescription_map = cls.get_active_map(doctor_email, db)
         
         # 2. Decidir estrategia
@@ -273,6 +273,5 @@ class PDFService:
                     pass
             return pdf_bytes
         else:
-            # Usar template estÃ¡ndar (WeasyPrint)
+            # Usar template estándar (WeasyPrint)
             return cls.generate_with_template(consultation, template_id="modern")
-

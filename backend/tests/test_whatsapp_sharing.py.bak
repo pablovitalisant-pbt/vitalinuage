@@ -1,4 +1,4 @@
-﻿import sys
+import sys
 import os
 # Ensure backend is in path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -8,7 +8,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 from database import Base
-from backend import models
+from backend from backend import models
 import uuid
 from datetime import datetime
 from main import app, get_db
@@ -57,8 +57,8 @@ def test_patient(db_session, test_doctor):
     """Create a test patient"""
     patient = models.Patient(
         nombre="Juan",
-        apellido_paterno="PÃ©rez",
-        apellido_materno="GarcÃ­a",
+        apellido_paterno="Pérez",
+        apellido_materno="García",
         dni="12345678",
         fecha_nacimiento=datetime(1990, 1, 1),
         sexo="M",
@@ -352,4 +352,3 @@ class TestCreateVerificationEndpoint:
         
         # Should be 404 (not found) because consultation doesn't belong to this doctor
         assert response.status_code == 404
-

@@ -1,7 +1,7 @@
-﻿from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form, Body
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form, Body
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from backend import models
+from backend from backend import models
 import json
 import os
 from database import get_db
@@ -100,4 +100,3 @@ def create_or_update_map(
     db.commit()
     db.refresh(new_map)
     return new_map
-

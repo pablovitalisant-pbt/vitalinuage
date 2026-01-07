@@ -1,7 +1,7 @@
-﻿from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
-from backend import models
+from backend from backend import models
 import schemas.user as schemas
 from dependencies import get_current_user
 
@@ -36,4 +36,3 @@ def update_onboarding_profile(
         "medical_license": current_user.medical_license,
         "onboarding_completed": current_user.is_onboarded
     }
-

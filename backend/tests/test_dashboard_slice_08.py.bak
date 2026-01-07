@@ -1,4 +1,4 @@
-﻿import sys
+import sys
 import os
 import pytest
 from fastapi.testclient import TestClient
@@ -11,7 +11,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from main import app
 from database import get_db, Base
-from backend import models
+from backend from backend import models
 
 # Setup Test Database
 from sqlalchemy.pool import StaticPool
@@ -94,4 +94,3 @@ def test_get_doctor_profile_structure(client, db_session):
     assert "registration_number" in data
 
  
-

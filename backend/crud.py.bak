@@ -1,5 +1,5 @@
-﻿from sqlalchemy.orm import Session
-from backend import models
+from sqlalchemy.orm import Session
+from backend from backend import models
 import schemas
 import auth
 
@@ -44,4 +44,3 @@ def create_patient(db: Session, patient: schemas.PatientCreate, owner_id: str):
 
 def get_patients(db: Session, owner_id: str, skip: int = 0, limit: int = 100):
     return db.query(models.Patient).filter(models.Patient.owner_id == owner_id).offset(skip).limit(limit).all()
-
