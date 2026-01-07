@@ -7,7 +7,7 @@ os.environ["TESTING"] = "1"
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from backend.database import Base, engine, SessionLocal
-from backend.models import User, Patient, ClinicalConsultation, Prescription
+from backend.models import User, Patient, MedicalBackground, ClinicalConsultation, Prescription
 
 @pytest.fixture(autouse=True, scope="function")
 def setup_db():
