@@ -6,8 +6,8 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-from database import Base
-import models
+from backend.database import get_db, Base
+from backend.models import User, Patient, ClinicalConsultation, PrescriptionVerification, PrescriptionVerification
 import uuid
 from datetime import datetime
 from io import BytesIO

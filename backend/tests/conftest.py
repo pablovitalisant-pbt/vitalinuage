@@ -6,19 +6,37 @@ import sys
 os.environ["TESTING"] = "1"
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from backend.database import Base, engine, SessionLocal
+from backend.db_core import Base, engine
 from backend.models import User, Patient, MedicalBackground, ClinicalConsultation, Prescription
+from backend.database import SessionLocal
 
 @pytest.fixture(autouse=True, scope="function")
-def setup_db():
+def memory_surgery():
+    """
+    Cirugía de Metadatos:
+    Elimina definiciones de índices del objeto MetaData de Python y limpia el registro
+    antes de crear las tablas. Esto evita 'Index already exists' y 'Multiple classes found'.
+    """
+    # 1. Limpiar registro de clases
+    Base.registry.dispose()
+    
+    # 2. Cirugía: Eliminar definiciones de índices del objeto MetaData de Python
+    # Esto evita que SQLite intente crear un índice que Python "cree" que ya existe,
+    # especialmente si el modelo se importó múltiples veces.
+    for table in Base.metadata.tables.values():
+        table.indexes.clear()
+        
+    yield
+
+@pytest.fixture(autouse=True, scope="function")
+def setup_db(memory_surgery):
     """
     Crea las tablas antes de cada test. Al usar StaticPool, 
     esto ocurre en la base de datos en memoria compartida.
     """
-    Base.registry.dispose() # Limpiar registro para evitar "Multiple classes found"
     Base.metadata.create_all(bind=engine)
     yield
-    # Opcional: Base.metadata.drop_all(bind=engine) si se desea aislamiento total
+    # Opcional: Base.metadata.drop_all(bind=engine)
 
 @pytest.fixture
 def db_session():

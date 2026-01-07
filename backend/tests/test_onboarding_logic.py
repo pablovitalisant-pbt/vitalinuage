@@ -1,11 +1,10 @@
-
 import pytest
 from fastapi.testclient import TestClient
 from main import app
-from database import get_db, Base
-from models import User
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from datetime import datetime
+from backend.models import User
+from backend.schemas.doctor import DoctorProfileBase
+from backend.services.onboarding import update_doctor_profiler
 from sqlalchemy.pool import StaticPool
 import auth
 

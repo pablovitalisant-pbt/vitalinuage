@@ -1,10 +1,10 @@
 
 import pytest
 from fastapi.testclient import TestClient
-from main import app
-from database import get_db, Base, engine
-from models import User, Patient, ClinicalConsultation
-import schemas
+from backend.main import app
+from backend.database import get_db, Base, engine
+from backend.models import User, Patient, ClinicalConsultation
+import backend.schemas as schemas
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from auth import get_password_hash

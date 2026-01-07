@@ -9,9 +9,9 @@ from sqlalchemy.orm import sessionmaker
 # Add backend to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from main import app
-from database import get_db, Base
-import models
+from backend.main import app
+from backend.database import get_db, Base
+import backend.models as models
 
 # Setup Test Database
 from sqlalchemy.pool import StaticPool

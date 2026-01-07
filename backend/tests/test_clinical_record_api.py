@@ -6,13 +6,13 @@ import os
 # Ensure path is correct for imports if needed
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from main import app
-from database import get_db, Base
-from models import User, Patient, ClinicalRecord
+from backend.main import app
+from backend.database import get_db, Base
+from backend.models import User, Patient, ClinicalRecord
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-import auth
+import backend.auth as auth
 
 # Reuse fixtures setup for simplicity in this specific test file
 @pytest.fixture

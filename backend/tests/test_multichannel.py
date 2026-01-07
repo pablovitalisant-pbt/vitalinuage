@@ -1,9 +1,10 @@
 import pytest
 from fastapi.testclient import TestClient
-from main import app, get_db, Base
+from backend.main import app
+from backend.database import get_db, Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from models import Patient, ClinicalConsultation, PrescriptionVerification
+from backend.models import Patient, ClinicalConsultation, PrescriptionVerification
 import uuid
 from datetime import datetime
 import secrets

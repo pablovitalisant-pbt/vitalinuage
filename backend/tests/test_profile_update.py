@@ -1,15 +1,15 @@
 
 import pytest
 from fastapi.testclient import TestClient
-from main import app
-from schemas.user import UserUpdate
+from backend.main import app
+from backend.schemas.user import UserUpdate
 from pydantic import ValidationError
-from database import get_db, Base
-from models import User
+from backend.database import get_db, Base
+from backend.models import User
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-import auth
+import backend.auth as auth
 
 # Fixtures
 @pytest.fixture

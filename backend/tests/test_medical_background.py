@@ -10,10 +10,10 @@ from sqlalchemy.pool import StaticPool
 # Add backend to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from main import app
-from database import get_db, Base
+from backend.main import app
+from backend.database import get_db, Base
 import json
-import auth
+import backend.auth as auth
 
 # Force consistency for tests
 auth.SECRET_KEY = "test_secret_key_fixed_for_consistency"

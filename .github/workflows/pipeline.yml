@@ -43,7 +43,7 @@ jobs:
           DATABASE_URL: "sqlite:///./test_pipeline.db"
           SECRET_KEY: "testing_secret"
         run: |
-          pytest backend/tests/
+          pytest -n auto --dist loadfile backend/tests/
 
   build-frontend:
     runs-on: ubuntu-latest

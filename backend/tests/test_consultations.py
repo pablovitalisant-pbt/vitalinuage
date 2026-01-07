@@ -1,8 +1,9 @@
 import pytest
 from httpx import AsyncClient
-from main import app
-from models import Patient
-import asyncio
+from backend.main import app
+from backend.database import get_db, Base
+from backend.models import User, Patient, ClinicalConsultation
+import backend.schemas as schemas
 from datetime import datetime, timezone
 
 # 1. Test Creation (Failure)

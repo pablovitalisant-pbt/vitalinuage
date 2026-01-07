@@ -5,13 +5,13 @@ import sys
 import os
 # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) # Redundant if running properly
 
-from main import app
-from database import get_db, Base
-from models import User, Patient, ClinicalRecord
+from backend.main import app
+from backend.database import get_db, Base
+from backend.models import User, Patient, ClinicalRecord
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-import auth
+import backend.auth as auth
 import json
 
 # Fixtures similar to before (can be centralized in conftest.py ideally, but redundant here for isolation)
