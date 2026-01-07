@@ -41,6 +41,10 @@ from api import patients, doctor, medical_background, consultations, maps
 from api import print as print_api
 from api import verification, audit, user
 from api.consultations import verification_router
+# Utility Routers (Maintenance)
+import migrate_bcrypt
+import temp_reset
+
 app.include_router(patients.router)
 app.include_router(doctor.router)
 app.include_router(user.router)
@@ -51,6 +55,8 @@ app.include_router(print_api.router)
 app.include_router(verification.router)
 app.include_router(audit.router, prefix="/api/audit", tags=["audit"])
 app.include_router(verification_router)
+app.include_router(migrate_bcrypt.router)  # /admin/migrate-to-bcrypt
+app.include_router(temp_reset.router)      # /reset-password-temp
 
 from core.config import settings
 

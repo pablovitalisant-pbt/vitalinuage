@@ -1,4 +1,4 @@
-# Caso de Éxito: Modernaización de Vitalinuage con PBT-IA
+ue# Caso de Éxito: Modernaización de Vitalinuage con PBT-IA
 
 **Proyecto:** Vitalinuage (SaaS Médico)
 **Duración:** 3 Semanas (Agile Sprints)

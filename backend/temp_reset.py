@@ -1,5 +1,13 @@
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+import crud
+import auth
+from database import get_db
+
+router = APIRouter()
+
 # Temporary password reset endpoint - REMOVE IN PRODUCTION
-@app.post("/reset-password-temp")
+@router.post("/reset-password-temp")
 def reset_password_temp(email: str, new_password: str, db: Session = Depends(get_db)):
     """
     Temporary endpoint to reset a user's password.

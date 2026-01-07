@@ -1,5 +1,13 @@
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+import crud
+import auth
+from database import get_db
+
+router = APIRouter()
+
 # PRODUCTION: Update password to bcrypt standard
-@app.get("/admin/migrate-to-bcrypt")
+@router.get("/admin/migrate-to-bcrypt")
 def migrate_to_bcrypt(db: Session = Depends(get_db)):
     """
     Migrate existing user from pbkdf2 to bcrypt.
