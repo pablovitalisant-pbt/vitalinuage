@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
-from backend import models
+from backend from backend import models
 from database import get_db
 from dependencies import get_current_user
 from services.pdf_service import PDFService

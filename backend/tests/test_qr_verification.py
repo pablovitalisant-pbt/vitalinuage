@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
-from backend from backend import models
+from backend from backend from backend import models
 import uuid
 
 def test_qr_models_presence():
