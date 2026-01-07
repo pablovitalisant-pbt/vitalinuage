@@ -62,8 +62,8 @@ class PDFService:
             'patient_name': lambda c: f"{c.patient.nombre} {c.patient.apellido_paterno}",
             'patient_dni': lambda c: c.patient.dni or "N/A",
             'date': lambda c: c.created_at.strftime('%d/%m/%Y') if c.created_at else "",
-            'diagnosis': lambda c: c.diagnostico or "",
-            'treatment': lambda c: c.plan_tratamiento or "",
+            'diagnosis': lambda c: c.diagnosis or "",
+            'treatment': lambda c: c.treatment or "",
             'doctor_signature': lambda c: "Firma y Sello Médico"
         }
         
@@ -213,8 +213,8 @@ class PDFService:
         
         class MockConsultation:
             def __init__(self, consultation):
-                self.diagnosis = consultation.diagnostico or ""
-                self.treatment = consultation.plan_tratamiento or ""
+                self.diagnosis = consultation.diagnosis or ""
+                self.treatment = consultation.treatment or ""
         
         context = {
             'doctor': MockDoctor(),
