@@ -9,12 +9,11 @@ ENV PYTHONPATH=/app
 WORKDIR /app
 
 # --- Dependencies ---
-COPY backend/requirements.txt /app/requirements.txt
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # --- Application code ---
-COPY backend /app/backend
-COPY backend/main.py /app/main.py
+COPY . .
 
 # --- Runtime ---
 EXPOSE 8080
