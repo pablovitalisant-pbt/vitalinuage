@@ -7,8 +7,6 @@ from backend import migrate_bcrypt, temp_reset
 import os
 
 # Sincronización de esquema: 
-# En producción/desarrollo creamos las tablas si no existen.
-# En tests, conftest.py se encarga de esto con StaticPool.
 if not os.environ.get("PYTEST_CURRENT_TEST") and not os.environ.get("TESTING"):
     Base.metadata.create_all(bind=engine)
 
@@ -25,7 +23,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Registro de routers con rutas absolutas para evitar errores de importación en Cloud Run
 app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
 app.include_router(users.router, prefix="/api/users", tags=["Users"])
 app.include_router(clinical_records.router, prefix="/api/records", tags=["Clinical"])
@@ -36,11 +33,9 @@ app.include_router(temp_reset.router, prefix="/api/maintenance", tags=["Admin"])
 
 @app.get("/api/health")
 async def health_check():
-    """Endpoint de salud requerido por Cloud Run"""
     return {
         "status": "READY",
         "version": settings.VERSION,
         "database_connected": True,
         "environment": "production" if os.environ.get("K_SERVICE") else "development"
     }
-
