@@ -7,7 +7,7 @@ class User(Base):
     __tablename__ = "users"
     __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True)
-    email = Column(String, unique=True, index=True)
+    email = Column(String, unique=True) # index implied by unique in SQLite
     hashed_password = Column(String)
     
     # Email Verification

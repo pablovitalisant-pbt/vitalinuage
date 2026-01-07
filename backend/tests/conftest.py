@@ -1,25 +1,25 @@
 import pytest
-import os
+from sqlalchemy import MetaData
+from main import app # Ensure app is imported to register routers/models if side-effects needed
 from database import Base, engine
 
-@pytest.fixture(scope="session", autouse=True)
-def setup_database():
+@pytest.fixture(autouse=True)
+def clean_database():
     """
-    Global session fixture to clean up database registration metadata 
-    to prevent 'Multiple classes found' registry errors during testing.
-    Also ensures fresh DB schema for in-memory SQLite.
+    Protocolo Nuclear v1.2.7:
+    Deep cleanup of metadata and tables before EACH test function.
+    Ensures total isolation.
     """
-    # Force cleanup of SQLAlchemy Class Registry
-    # This addresses 'Multiple classes found for path...' errors
-    # caused by importing models via different paths (backend.models vs models)
-    for key in list(Base.registry._class_registry.keys()):
-        del Base.registry._class_registry[key]
+    # 1. Clear SQLAlchemy internal Metadata/Registry
+    Base.metadata.clear()
     
-    # 2. Drop and Create All Tables
+    # 2. Drop all tables physically
     Base.metadata.drop_all(bind=engine)
+    
+    # 3. Create all tables fresh
     Base.metadata.create_all(bind=engine)
     
     yield
     
-    # Teardown
+    # 4. Teardown
     Base.metadata.drop_all(bind=engine)

@@ -27,14 +27,16 @@ import temp_reset
 app = FastAPI(title=settings.PROJECT_NAME)
 
 # --- Database Initialization ---
+# --- Database Initialization ---
 import os
 
-# --- Database Initialization ---
-if not os.environ.get("PYTEST_CURRENT_TEST"):
-    try:
-        models.Base.metadata.create_all(bind=engine)
-    except Exception as e:
-        print(f"WARNING: DB Connection failed on startup. Server will start anyway. Error: {e}")
+# NUKE PROTOCOL v1.2.7: Disabled auto-creation to prevent interference.
+# Relying on Alembic migrations for Prod and conftest for Tests.
+# if not os.environ.get("PYTEST_CURRENT_TEST"):
+#     try:
+#         models.Base.metadata.create_all(bind=engine)
+#     except Exception as e:
+#         print(f"WARNING: DB Connection failed on startup. Server will start anyway. Error: {e}")
 
 # --- Exception Handlers ---
 @app.exception_handler(RequestValidationError)
