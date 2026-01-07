@@ -17,6 +17,7 @@ class User(UserBase):
     professional_name: Optional[str] = None
     specialty: Optional[str] = None
     medical_license: Optional[str] = None
+    registration_number: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 

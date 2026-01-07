@@ -56,7 +56,7 @@ export default function Header() {
                     <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 overflow-hidden animate-in fade-in zoom-in-95 duration-100 origin-top-right">
                         <div className="px-4 py-2 border-b border-gray-50">
                             <p className="text-sm font-medium text-slate-900">{profile.professionalName}</p>
-                            <p className="text-xs text-slate-500 truncate">doctor@vitalinuage.com</p>
+                            <p className="text-xs text-slate-500 truncate">{profile.email || "Usuario"}</p>
                         </div>
 
                         <div className="py-1">

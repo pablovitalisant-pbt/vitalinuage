@@ -1,3 +1,4 @@
+// Retrying test with .cjs config
 module.exports = {
     preset: 'ts-jest',
     testEnvironment: 'jsdom',

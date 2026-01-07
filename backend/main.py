@@ -52,16 +52,14 @@ app.include_router(verification.router)
 app.include_router(audit.router, prefix="/api/audit", tags=["audit"])
 app.include_router(verification_router)
 
+from core.config import settings
+
 # CORS Configuration for Production and Development
 origins = [
-    # Development
+    settings.FRONTEND_URL,
+    # Localhost development fallback (optional, can be removed if strict production)
     "http://localhost:5173",
-    "http://localhost:4173",
-    "http://localhost:3000",
     "http://127.0.0.1:5173",
-    # Production Firebase Hosting
-    "https://vitalinuage.web.app",
-    "https://vitalinuage.firebaseapp.com",
 ]
 
 app.add_middleware(
@@ -71,6 +69,20 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization", "Accept"],
 )
+
+# Slice 21.0: Security Headers
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.types import ASGIApp
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        return response
+
+app.add_middleware(SecurityHeadersMiddleware)
 
 # Dependency
 
@@ -102,7 +114,7 @@ def get_version():
 
 @app.get("/api/health")
 def health_check():
-    return {"status": "ok", "db": "unknown"}
+    return {"status": "READY", "version": "1.0.0"}
 
 from datetime import datetime
 import uuid

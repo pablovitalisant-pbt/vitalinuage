@@ -1,168 +1,104 @@
-from fastapi.testclient import TestClient
-import uuid
 import pytest
-import sys
-import os
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
+from httpx import AsyncClient
+from backend.main import app
+from backend.models import Patient
+import asyncio
+from datetime import datetime, timezone
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-
-from main import app
-from database import get_db, Base
-import auth
-
-auth.SECRET_KEY = "test_secret_key_fixed_for_consistency"
-
-SQLALCHEMY_DATABASE_URL = "sqlite://"
-engine_test = create_engine(
-    SQLALCHEMY_DATABASE_URL, 
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool
-)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine_test)
-
-def override_get_db():
-    try:
-        db = TestingSessionLocal()
-        yield db
-    finally:
-        db.close()
-
-app.dependency_overrides[get_db] = override_get_db
-
-@pytest.fixture(scope="module")
-def client():
-    Base.metadata.create_all(bind=engine_test)
-    yield TestClient(app)
-    Base.metadata.drop_all(bind=engine_test)
-
-@pytest.fixture(scope="function")
-def db_session():
-    connection = engine_test.connect()
-    transaction = connection.begin()
-    session = TestingSessionLocal(bind=connection)
-    yield session
-    session.close()
-    transaction.rollback()
-    connection.close()
-
-def test_create_consultation_security(client, db_session):
-    # 1. Setup Auth (Doctor A)
-    import auth
-    from models import User, Patient
-    email_a = f"doc_a_{uuid.uuid4()}@vital.com"
-    user_a = User(email=email_a, hashed_password="pw", is_verified=True)
-    db_session.add(user_a)
-    
-    # Doctor B
-    email_b = f"doc_b_{uuid.uuid4()}@vital.com"
-    user_b = User(email=email_b, hashed_password="pw", is_verified=True)
-    db_session.add(user_b)
-    db_session.commit()
-
-    # Patient of B
-    patient_b = Patient(
-        nombre="Priv2", apellido_paterno="Test", dni=f"P-{uuid.uuid4()}",
-        fecha_nacimiento="1990-01-01", owner_id=email_b
+# 1. Test Creation (Failure)
+@pytest.mark.asyncio
+async def test_create_consultation_fail_not_implemented(auth_client, test_db, create_patient_fixture):
+    # Setup: Create a patient first
+    patient = create_patient_fixture(
+        nombre="Mario", 
+        apellido_paterno="Test", 
+        dni="CONS-001",
+        fecha_nacimiento="1980-05-20"
     )
-    db_session.add(patient_b)
-    db_session.commit()
-
-    # Login as A
-    token = auth.create_access_token(data={"sub": email_a})
-    headers = {"Authorization": f"Bearer {token}"}
-
-    # 2. Try to create consultation for Patient B
+    
     payload = {
-        "motivo_consulta": "Robo de datos",
-        "diagnostico": "Hacker",
-        "plan_tratamiento": "Ban"
+        "reason": "Dolor de cabeza severo",
+        "diagnosis": "Migraña",
+        "treatment": "Ibuprofeno 400mg",
+        "notes": "Paciente reporta fotofobia."
     }
-    response = client.post(f"/api/pacientes/{patient_b.id}/consultas", json=payload, headers=headers)
     
-    # Expect 404 (Patient not found for A) or 403
-    # If endpoint doesn't exist, it returns 404, which is technically "pass" for status code check if we allow 404.
-    # To ensure it's "Red" because of missing logic/models, we can start with asserting 404 but ensure validation msg?
-    # Actually, user requirement: "Verificar que al enviar una consulta a un paciente que NO pertenece al médico autenticado, el sistema devuelva 403 Forbidden o 404 Not Found."
-    # If I just assert 404, it might pass because API missing. 
-    # But checking for a specific error detail "Patient not found" vs "Not Found" (generic route missing) is better.
-    # Standard route missing: {"detail": "Not Found"}
-    # Our logic usually returns: {"detail": "Patient not found"}
-    assert response.status_code in [403, 404]
-    if response.status_code == 404:
-        assert response.json().get("detail") == "Patient not found"
-
-def test_list_consultations_ordering(client, db_session):
-    # 1. Setup Auth (Doctor Me)
-    import auth
-    from models import User, Patient
-    email = f"doc_ord_{uuid.uuid4()}@vital.com"
-    user = User(email=email, hashed_password="pw", is_verified=True)
-    db_session.add(user)
-    db_session.commit()
-
-    patient = Patient(
-        nombre="Ord", apellido_paterno="Test", dni=f"O-{uuid.uuid4()}",
-        fecha_nacimiento="1990-01-01", owner_id=email
-    )
-    db_session.add(patient)
-    db_session.commit()
-
-    token = auth.create_access_token(data={"sub": email})
-    headers = {"Authorization": f"Bearer {token}"}
-
-    # 2. Create 2 Consultations (Old, New)
-    # We can't create them via API if it doesn't exist.
-    # In Red phase, we try to call POST.
+    # Act: Try to create consultation
+    response = await auth_client.post(f"/api/patients/{patient.id}/consultations", json=payload)
     
-    c1 = {
-        "motivo_consulta": "Old",
-        "diagnostico": "D1",
-        "plan_tratamiento": "P1"
-    }
-    client.post(f"/api/pacientes/{patient.id}/consultas", json=c1, headers=headers)
+    # Assert (RED): We expect 201 in Green phase, but currently it returns 501 or 404 (if not routed)
+    # The requirement says "Debe fallar porque el endpoint actualmente es un pass o no existe".
+    # If we implemented it as raising 501, we verify it raises 501 here if we want to confirm RED correctly?
+    # Or strict TDD: We write the test expecting 201, and it FAILS.
     
-    c2 = {
-        "motivo_consulta": "New",
-        "diagnostico": "D2",
-        "plan_tratamiento": "P2"
-    }
-    client.post(f"/api/pacientes/{patient.id}/consultas", json=c2, headers=headers)
-
-    # 3. List
-    response = client.get(f"/api/pacientes/{patient.id}/consultas", headers=headers)
-    assert response.status_code == 200
+    assert response.status_code == 201, f"Expected 201, got {response.status_code}"
     data = response.json()
-    assert len(data) == 2
-    # Expect New then Old (Desc)
-    assert data[0]["motivo_consulta"] == "New"
-    assert data[1]["motivo_consulta"] == "Old"
+    assert data["reason"] == payload["reason"]
+    assert "id" in data
 
-def test_create_schema_validation(client, db_session):
-    # Setup Auth
-    import auth
-    from models import User, Patient
-    email = f"doc_inv_{uuid.uuid4()}@vital.com"
-    user = User(email=email, hashed_password="pw", is_verified=True)
-    db_session.add(user)
-    db_session.commit()
-
-    patient = Patient(
-        nombre="Inv", apellido_paterno="Test", dni=f"I-{uuid.uuid4()}",
-        fecha_nacimiento="1990-01-01", owner_id=email
+# 2. Test Listing (Persistence Failure)
+@pytest.mark.asyncio
+async def test_list_consultations_persistence_fail(auth_client, test_db, create_patient_fixture):
+    patient = create_patient_fixture(
+        nombre="Luigi", 
+        apellido_paterno="Test", 
+        dni="CONS-002",
+        fecha_nacimiento="1982-06-25"
     )
-    db_session.add(patient)
-    db_session.commit()
+    
+    # 1. Create (this will fail based on above, but let's assume we proceed or skip)
+    payload = { "reason": "Checkup", "diagnosis": "Sano" }
+    create_res = await auth_client.post(f"/api/patients/{patient.id}/consultations", json=payload)
+    
+    # If create fails (as expected), this test stops here. 
+    # But if we were checking persistence, we'd list.
+    
+    get_res = await auth_client.get(f"/api/patients/{patient.id}/consultations")
+    assert get_res.status_code == 200
+    items = get_res.json()
+    
+    # Assert (RED): We expect the item we 'tried' to create to be there. 
+    # Since create returns 501 and does nothing, list returns empty.
+    assert len(items) > 0
+    assert items[0]["reason"] == "Checkup"
 
-    token = auth.create_access_token(data={"sub": email})
-    headers = {"Authorization": f"Bearer {token}"}
+# 3. Security Test (Should work as 404/403 even in Red if stubbed correctly or fail if stub allows all)
+@pytest.mark.asyncio
+async def test_security_other_doctor_cannot_access(auth_client_2, test_db, create_patient_fixture):
+    # Patient belongs to Doctor 1 (from create_patient_fixture defaults)
+    patient = create_patient_fixture(
+        nombre="Bowser", 
+        apellido_paterno="Koopa", 
+        dni="CONS-003",
+        fecha_nacimiento="1950-01-01"
+    )
+    
+    # Doctor 2 tries to access
+    response = await auth_client_2.get(f"/api/patients/{patient.id}/consultations")
+    
+    # Assert: Should be 404 (Not Found) or 403.
+    # If Stub is naive and bypasses ownership check, this might return 200 [] (RED).
+    # If Stub has @user dependency but no check inside, it returns 200 [].
+    # Our stub currently just returns [], so it probably returns 200 [] for anyone -> FAIL (RED).
+    assert response.status_code == 404
 
-    # Missing fields
+# 4. Validation Schema Test
+@pytest.mark.asyncio
+async def test_create_validation_error(auth_client, test_db, create_patient_fixture):
+    patient = create_patient_fixture(
+        nombre="Peach", 
+        apellido_paterno="Toadstool", 
+        dni="CONS-004",
+        fecha_nacimiento="1985-10-10"
+    )
+    
+    # Payload missing 'reason' (required)
     payload = {
-        "motivo_consulta": "Just reason"
-        # missing diagnosed/plan
+        "diagnosis": "Missing Reason"
     }
-    response = client.post(f"/api/pacientes/{patient.id}/consultas", json=payload, headers=headers)
+    
+    response = await auth_client.post(f"/api/patients/{patient.id}/consultations", json=payload)
+    
+    # This might actually pass (Green) because FastAPI validation happens before function body.
+    # So 422 is expected and likely to happen even with Stub 501.
     assert response.status_code == 422

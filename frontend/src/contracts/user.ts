@@ -19,4 +19,14 @@ export const UserSchema = z.object({
     medical_license: z.string().nullable().optional(),
 });
 
+
 export type User = z.infer<typeof UserSchema>;
+
+export const ProfileUpdateSchema = z.object({
+    professional_name: z.string().min(3, "Mínimo 3 caracteres"),
+    specialty: z.string().min(1, "Campo requerido"),
+    medical_license: z.string().min(1, "Campo requerido"),
+    registration_number: z.string().min(1, "Campo requerido")
+});
+
+export type ProfileUpdate = z.infer<typeof ProfileUpdateSchema>;

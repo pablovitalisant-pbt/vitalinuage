@@ -86,13 +86,12 @@ class ClinicalConsultation(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
-    # Clinical Data
-    motivo_consulta = Column(String, nullable=False)
-    examen_fisico = Column(String, nullable=True)
-    diagnostico = Column(String, nullable=False)
-    plan_tratamiento = Column(String, nullable=False)
-    proxima_cita = Column(String, nullable=True)
-
+    # Clinical Data (Updated for Slice 19.0)
+    reason = Column(String, nullable=False)     # Was motivo_consulta
+    diagnosis = Column(String, nullable=True)   # Was diagnostico
+    treatment = Column(String, nullable=True)   # Was plan_tratamiento
+    notes = Column(String, nullable=True)       # Was examen_fisico/notes
+    
     # Relationships
     patient = relationship("Patient", back_populates="consultations")
     verification = relationship("PrescriptionVerification", uselist=False, back_populates="consultation")
@@ -150,6 +149,62 @@ class PrescriptionVerification(Base):
     
     # Relationships
     consultation = relationship("ClinicalConsultation", back_populates="verification")
+
+class ClinicalRecord(Base):
+    """
+    New Slice 17.0 Clinical Record (Ficha Clínica).
+    Replaces or supplements MedicalBackground.
+    """
+    __tablename__ = "clinical_records"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id"), unique=True, nullable=False)
+    
+    blood_type = Column(String, nullable=True)
+    allergies = Column(JSON, default=list)            # List[str]
+    chronic_conditions = Column(JSON, default=list)   # List[str]
+    family_history = Column(String, nullable=True)
+    current_medications = Column(JSON, default=list)  # List[str]
+    
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    
+    patient = relationship("Patient", back_populates="clinical_record")
+
+Patient.clinical_record = relationship("ClinicalRecord", back_populates="patient", uselist=False, cascade="all, delete-orphan")
+
+
+class Prescription(Base):
+    __tablename__ = "prescriptions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    consultation_id = Column(Integer, ForeignKey("clinical_consultations.id"), nullable=False, index=True)
+    doctor_id = Column(String, index=True, nullable=False) # Owner
+    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False, index=True)
+    
+    date = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    
+    # Relationships
+    consultation = relationship("ClinicalConsultation", back_populates="prescriptions")
+    patient = relationship("Patient")
+    medications = relationship("Medication", back_populates="prescription", cascade="all, delete-orphan")
+
+class Medication(Base):
+    __tablename__ = "medications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    prescription_id = Column(Integer, ForeignKey("prescriptions.id"), nullable=False, index=True)
+    
+    name = Column(String, nullable=False)
+    dosage = Column(String, nullable=False)
+    frequency = Column(String, nullable=False)
+    duration = Column(String, nullable=False)
+    notes = Column(String, nullable=True)
+    
+    prescription = relationship("Prescription", back_populates="medications")
+
+# Update ClinicalConsultation relationship
+ClinicalConsultation.prescriptions = relationship("Prescription", back_populates="consultation", cascade="all, delete-orphan")
 
 
 
