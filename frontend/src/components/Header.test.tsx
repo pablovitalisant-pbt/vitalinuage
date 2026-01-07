@@ -24,7 +24,7 @@ const mockContext = {
 test('renders brand name', () => {
     render(
         <BrowserRouter>
-            <DoctorContext.Provider value={mockContext as any}>
+            <DoctorContext.Provider value={mockContext as unknown}>
                 <Header />
             </DoctorContext.Provider>
         </BrowserRouter>
