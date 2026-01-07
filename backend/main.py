@@ -1,13 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-try:
-    from core.config import settings
-    import migrate_bcrypt
-    import temp_reset
-except ImportError:
-    from .core.config import settings
-    from . import migrate_bcrypt
-    from . import temp_reset
+from database import get_db, Base
+from core.config import settings
+import migrate_bcrypt
+import temp_reset
 
 app = FastAPI(title=settings.PROJECT_NAME, version=settings.VERSION)
 
