@@ -10,7 +10,7 @@ Base = declarative_base()
 IS_TESTING = os.environ.get("PYTEST_CURRENT_TEST") or os.environ.get("TESTING")
 
 if IS_TESTING:
-    # SQLITE EN MEMORIA + STATICPOOL: Imprescindible para compartir la conexión
+    # SQLITE EN MEMORIA + STATICPOOL
     engine = create_engine(
         "sqlite://",
         connect_args={"check_same_thread": False},

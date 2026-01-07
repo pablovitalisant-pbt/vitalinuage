@@ -6,7 +6,7 @@ from backend.api import auth, users, clinical_records, consultations, prescripti
 from backend import migrate_bcrypt, temp_reset
 import os
 
-# Sincronización de esquema: 
+# Sincronización de esquema PBT-IA
 if not os.environ.get("PYTEST_CURRENT_TEST") and not os.environ.get("TESTING"):
     Base.metadata.create_all(bind=engine)
 
@@ -23,6 +23,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Registro de routers con prefijos absolutos
 app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
 app.include_router(users.router, prefix="/api/users", tags=["Users"])
 app.include_router(clinical_records.router, prefix="/api/records", tags=["Clinical"])
