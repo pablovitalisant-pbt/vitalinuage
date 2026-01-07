@@ -8,6 +8,9 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL and DATABASE_URL.startswith("postgresql://"):
     DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
 
+if os.environ.get("PYTEST_CURRENT_TEST"):
+    DATABASE_URL = "sqlite:///:memory:"
+
 connect_args = {"check_same_thread": False} if not DATABASE_URL or "sqlite" in DATABASE_URL else {"sslmode": "require"}
 engine = create_engine(
     DATABASE_URL if DATABASE_URL else "sqlite:///./test.db", 
