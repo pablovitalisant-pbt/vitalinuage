@@ -1,7 +1,7 @@
 import pytest
 from httpx import AsyncClient
-from backend.main import app
-from backend.models import Patient
+from main import app
+from models import Patient
 import asyncio
 from datetime import datetime, timezone
 

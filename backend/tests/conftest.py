@@ -1,25 +1,32 @@
 import pytest
-from sqlalchemy import MetaData
-from main import app # Ensure app is imported to register routers/models if side-effects needed
+import os
 from database import Base, engine
+# Import models to ensure they are registered (even if we dispose later, 
+# it helps confirm what we are clearing)
+import models 
 
 @pytest.fixture(autouse=True)
 def clean_database():
     """
-    Protocolo Nuclear v1.2.7:
-    Deep cleanup of metadata and tables before EACH test function.
-    Ensures total isolation.
+    Protocolo Unificado v1.2.8:
+    Ensures Registry and Metadata are pristine for EVERY test.
+    Handles 'Multiple classes found' by disposing registry.
     """
-    # 1. Clear SQLAlchemy internal Metadata/Registry
+    # 1. Dispose Registry (The Class Cache)
+    # This is critical for preventing duplication errors if imports are mixed
+    Base.registry.dispose()
+    
+    # 2. Clear Metadata (The Table Cache)
     Base.metadata.clear()
     
-    # 2. Drop all tables physically
+    # 3. Physical Clean
     Base.metadata.drop_all(bind=engine)
     
-    # 3. Create all tables fresh
+    # 4. Re-create
     Base.metadata.create_all(bind=engine)
     
     yield
     
-    # 4. Teardown
+    # Teardown
     Base.metadata.drop_all(bind=engine)
+    Base.registry.dispose()
