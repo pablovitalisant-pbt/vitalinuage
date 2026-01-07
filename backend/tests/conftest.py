@@ -1,17 +1,25 @@
 import pytest
 import os
+
+# Force testing environment variable
+os.environ["TESTING"] = "1"
+
 from backend.database import Base, engine
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="function", autouse=True)
 def setup_database():
-    # Asegurar limpieza de metadatos al inicio de la sesión
-    Base.metadata.drop_all(bind=engine)
+    """
+    Lifecycle Manager:
+    Ensures that for every single test function, the database tables are created fresh.
+    """
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)
-
+    
 @pytest.fixture(autouse=True)
 def clean_registry():
-    # Limpiar el registro para evitar "Multiple classes found"
+    """
+    Clean up SQLAlchemy registry to prevent 'Multiple classes found' errors.
+    """
     from backend.database import Base
     Base.registry.dispose()

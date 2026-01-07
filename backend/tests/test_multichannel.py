@@ -8,10 +8,14 @@ import uuid
 from datetime import datetime
 import secrets
 
+from sqlalchemy.pool import StaticPool
+
 # Setup Test Database
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test_multichannel.db"
+SQLALCHEMY_DATABASE_URL = "sqlite://"
 engine_test = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+    SQLALCHEMY_DATABASE_URL, 
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine_test)
 

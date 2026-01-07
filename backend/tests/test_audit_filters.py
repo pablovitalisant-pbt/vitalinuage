@@ -50,9 +50,9 @@ def setup_filter_data(db_session):
     user = User(
         email="audit_tester@test.com", 
         hashed_password="pw", 
-        professional_name="Dr. Tester",
-        is_verified=True
+        professional_name="Dr. Tester"
     )
+    user.is_verified = True
     db_session.add(user)
     
     # Create Patient
