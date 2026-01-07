@@ -76,9 +76,9 @@ def test_consultation(db_session, test_doctor, test_patient):
     consultation = models.ClinicalConsultation(
         patient_id=test_patient.id,
         owner_id=test_doctor.email,
-        motivo_consulta="Dolor de cabeza",
-        diagnostico="Cefalea tensional",
-        plan_tratamiento="Paracetamol 500mg cada 8 horas"
+        reason="Dolor de cabeza",
+        diagnosis="Cefalea tensional",
+        treatment="Paracetamol 500mg cada 8 horas"
     )
     db_session.add(consultation)
     db_session.commit()

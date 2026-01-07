@@ -40,9 +40,8 @@ def token(client):
         user = User(
             email="presc_doctor@example.com",
             hashed_password=get_password_hash("password"),
-            full_name="Dr. Prescription",
-            role="doctor",
-            is_active=True
+            professional_name="Dr. Prescription",
+            is_verified=True
         )
         db.add(user)
         db.commit()
@@ -59,9 +58,8 @@ def other_token(client):
         user = User(
             email="other_presc@example.com",
             hashed_password=get_password_hash("password"),
-            full_name="Dr. Other",
-            role="doctor",
-            is_active=True
+            professional_name="Dr. Other",
+            is_verified=True
         )
         db.add(user)
         db.commit()
