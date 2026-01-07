@@ -1,9 +1,14 @@
 # Script de Reparacion Integral para Vitalinuage - VERSION FINAL
-# Corrige Backend (Lint/Config) y Frontend (TypeScript/Tests)
+# Corrige Backend (Lint/Config), Frontend (TypeScript/Tests) y Workflow (GitHub Actions)
 
 $ErrorActionPreference = "Stop"
 
 Write-Host "--- Iniciando reparacion de Vitalinuage ---" -ForegroundColor Cyan
+
+# 0. ASEGURAR CARPETAS
+if (-not (Test-Path ".github/workflows")) {
+    New-Item -Path ".github/workflows" -ItemType Directory -Force
+}
 
 # 1. REPARACION DEL BACKEND
 Write-Host "Paso 1: Reparando Backend..."
@@ -94,20 +99,17 @@ Set-Content -Path "backend/main.py" -Value $main -Encoding ASCII
 # 2. REPARACION DEL FRONTEND
 Write-Host "Paso 2: Reparando Frontend (TypeScript)..."
 
-# Reparar Header.test.tsx - Reemplazo total del bloque de perfil para evitar duplicados
 $headerPath = "frontend/src/components/layout/Header.test.tsx"
 if (Test-Path $headerPath) {
     $c = Get-Content $headerPath -Raw
     $newProfile = 'profile: { professionalName: "Dr. Test", specialty: "Cardiology", isOnboarded: true, email: "test@example.com", address: "Calle 123", phone: "5551234" }'
     $c = $c -replace 'profile: \{ [^}]* \}', $newProfile
-    
     if ($c -notmatch "preferences") {
         $c = $c -replace 'completeOnboarding: jest.fn\(\)', 'completeOnboarding: jest.fn(), preferences: { paperSize: "A4", templateId: "classic" }, updatePreferences: jest.fn(), token: "token", setToken: jest.fn()'
     }
     Set-Content -Path $headerPath -Value $c -Encoding ASCII
 }
 
-# Reparar ProtectedRoute.test.tsx
 $protectedPath = "frontend/src/components/layout/ProtectedRoute.test.tsx"
 if (Test-Path $protectedPath) {
     $c = Get-Content $protectedPath -Raw
@@ -115,7 +117,6 @@ if (Test-Path $protectedPath) {
     Set-Content -Path $protectedPath -Value $c -Encoding ASCII
 }
 
-# Reparar OnboardingView.tsx
 $onboardingPath = "frontend/src/pages/OnboardingView.tsx"
 if (Test-Path $onboardingPath) {
     $c = Get-Content $onboardingPath -Raw
@@ -125,10 +126,61 @@ if (Test-Path $onboardingPath) {
     Set-Content -Path $onboardingPath -Value $c -Encoding ASCII
 }
 
-# 3. SUBIDA A GITHUB
-Write-Host "Paso 3: Enviando a GitHub..."
+# 3. REPARACION DEL WORKFLOW (Activacion de GitHub Actions)
+Write-Host "Paso 3: Asegurando activacion del Pipeline en GitHub..."
+
+$pipeline_yml = @'
+name: Vitalinuage CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Backend Dependencies
+        run: |
+          pip install -r backend/requirements.txt
+
+      - name: Lint with flake8
+        run: |
+          flake8 backend --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      - name: Run Backend Tests
+        run: |
+          export PYTHONPATH=$PYTHONPATH:backend
+          pytest
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend && npm install
+
+      - name: Build Frontend
+        run: |
+          cd frontend && npm run build
+'@
+Set-Content -Path ".github/workflows/pipeline.yml" -Value $pipeline_yml -Encoding ASCII
+
+# 4. SUBIDA A GITHUB
+Write-Host "Paso 4: Enviando a GitHub..."
 git add .
-git commit -m "fix: total repair of backend and frontend build errors"
+git commit -m "fix: total repair and explicit workflow trigger activation"
 git push origin main
 
-Write-Host "TODO LISTO. El proceso ha terminado con exito." -ForegroundColor Magenta
+Write-Host "TODO LISTO. El proceso ha terminado con exito. Revisa la pestaña Actions en GitHub." -ForegroundColor Magenta
