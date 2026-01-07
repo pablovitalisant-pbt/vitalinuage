@@ -38,7 +38,6 @@ def token(client):
             email=email,
             hashed_password=get_password_hash("password"),
             professional_name="Dr. Dashboard",
-            is_active=True
         )
         db.add(user)
         db.commit()

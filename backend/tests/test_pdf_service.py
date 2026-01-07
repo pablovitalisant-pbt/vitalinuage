@@ -106,8 +106,7 @@ def test_prescription_map(db_session, test_doctor):
                 "font_size_pt": 10,
                 "max_width_mm": 110.0
             }
-        ],
-        is_active=True
+        ]
     )
     db_session.add(pmap)
     db_session.commit()

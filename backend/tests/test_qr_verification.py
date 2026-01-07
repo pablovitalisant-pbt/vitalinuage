@@ -331,8 +331,7 @@ class TestPDFServiceQRIntegration:
                     "font_size_pt": 0,
                     "max_width_mm": 25.0
                 }
-            ],
-            is_active=True
+            ]
         )
         db_session.add(pmap)
         db_session.commit()
@@ -378,8 +377,7 @@ class TestPDFServiceQRIntegration:
                     "font_size_pt": 12,
                     "max_width_mm": 80.0
                 }
-            ],
-            is_active=True
+            ]
         )
         db_session.add(pmap)
         db_session.commit()
