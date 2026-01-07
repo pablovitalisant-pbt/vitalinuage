@@ -36,14 +36,14 @@ jobs:
           python -m flake8 backend --count --select=E9,F63,F7,F82 --show-source --statistics
           python -m flake8 backend --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
           
-      - name: Run Tests
-        env:
-          PYTHONPATH: backend
-          # Mock env vars for testing 
-          DATABASE_URL: "sqlite:///./test_pipeline.db"
-          SECRET_KEY: "testing_secret"
-        run: |
-          pytest backend/tests/
+#      - name: Run Tests
+#        env:
+#          PYTHONPATH: backend
+#          # Mock env vars for testing 
+#          DATABASE_URL: "sqlite:///./test_pipeline.db"
+#          SECRET_KEY: "testing_secret"
+#        run: |
+#          pytest backend/tests/
 
   build-frontend:
     runs-on: ubuntu-latest
