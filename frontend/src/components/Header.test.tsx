@@ -1,16 +1,16 @@
 import { render, screen } from '@testing-library/react';
 import Header from './Header';
-import { DoctorContext } from '../../contexts/DoctorContext';
+import { DoctorContext } from '../context/DoctorContext';
 import { BrowserRouter } from 'react-router-dom';
 
 const mockContext = {
-    profile: { 
-        professionalName: "Dr. Test", 
-        specialty: "Cardiology", 
-        isOnboarded: true, 
-        email: "test@example.com", 
-        address: "Calle 123", 
-        phone: "5551234" 
+    profile: {
+        professionalName: "Dr. Test",
+        specialty: "Cardiology",
+        isOnboarded: true,
+        email: "test@example.com",
+        address: "Calle 123",
+        phone: "5551234"
     },
     preferences: { paperSize: "A4", templateId: "classic" },
     token: "valid-token",

@@ -1,12 +1,12 @@
-import { DoctorContext } from '../../contexts/DoctorContext';
+import { DoctorContext } from '../context/DoctorContext';
 
-const mockProfile = { 
-    professionalName: "Dr. Test", 
-    specialty: "General", 
-    isOnboarded: true, 
-    email: "doc@test.com", 
-    address: "Calle 123", 
-    phone: "5551234" 
+const mockProfile = {
+    professionalName: "Dr. Test",
+    specialty: "General",
+    isOnboarded: true,
+    email: "doc@test.com",
+    address: "Calle 123",
+    phone: "5551234"
 };
 
 const mockContext = {
