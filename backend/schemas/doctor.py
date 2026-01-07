@@ -7,7 +7,8 @@ class DoctorProfile(BaseModel):
     email: str
     # UI expects fullName, backend model might have full_name property or similar
     # Using alias so JSON output is "fullName"
-    full_name: str = Field(..., alias="fullName")
+    # Updated to match DB model and Frontend expectations
+    professional_name: Optional[str] = Field(None, alias="professionalName")
     
     # Optional fields (Flexibilized)
     medical_license: Optional[str] = Field(None, alias="medicalLicense")
@@ -20,6 +21,8 @@ class DoctorProfile(BaseModel):
     # System fields
     role: Optional[str] = None
     is_verified: Optional[bool] = Field(None, alias="isVerified")
+    is_onboarded: Optional[bool] = Field(None, alias="isOnboarded")
+    registration_number: Optional[str] = Field(None, alias="registrationNumber")
     created_at: Optional[datetime] = Field(None, alias="createdAt")
 
     class Config:

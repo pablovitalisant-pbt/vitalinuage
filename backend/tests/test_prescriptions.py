@@ -11,8 +11,15 @@ from auth import get_password_hash
 from dependencies import get_current_user
 
 # Setup Test DB
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test_prescriptions.db"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+from sqlalchemy.pool import StaticPool
+
+# Setup Test DB
+SQLALCHEMY_DATABASE_URL = "sqlite://" # Memory
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL, 
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool
+)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def override_get_db():
@@ -24,7 +31,7 @@ def override_get_db():
 
 app.dependency_overrides[get_db] = override_get_db
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def client():
     # Create tables
     Base.metadata.create_all(bind=engine)
@@ -48,7 +55,7 @@ def token(client):
     db.close()
     
     # Login
-    response = client.post("/api/auth/token", data={"username": "presc_doctor@example.com", "password": "password"})
+    response = client.post("/login", json={"email": "presc_doctor@example.com", "password": "password"})
     return response.json()["access_token"]
 
 @pytest.fixture
@@ -64,7 +71,7 @@ def other_token(client):
         db.add(user)
         db.commit()
     db.close()
-    return client.post("/api/auth/token", data={"username": "other_presc@example.com", "password": "password"}).json()["access_token"]
+    return client.post("/login", json={"email": "other_presc@example.com", "password": "password"}).json()["access_token"]
 
 @pytest.fixture
 def consultation_id(client, token):

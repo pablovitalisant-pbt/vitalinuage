@@ -11,11 +11,15 @@ router = APIRouter(
 @router.get("/profile", response_model=schemas.DoctorProfile)
 def get_profile(current_user: User = Depends(get_current_user)):
     return {
+        "id": current_user.id,
         "email": current_user.email,
         "professional_name": current_user.professional_name or "Dr. Vitali",
         "specialty": current_user.specialty or "",
         "registration_number": current_user.registration_number or "",
-        "is_onboarded": current_user.is_onboarded
+        "medical_license": current_user.medical_license,
+        "is_onboarded": current_user.is_onboarded,
+        "is_verified": current_user.is_verified,
+        "created_at": current_user.created_at if hasattr(current_user, "created_at") else None
     }
 
 from sqlalchemy.orm import Session

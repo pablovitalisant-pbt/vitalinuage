@@ -79,12 +79,12 @@ def test_dashboard_stats_endpoint(client, db_session, auth_headers):
     
     c1 = ClinicalConsultation(
         patient_id=p1.id, owner_id=doctor_email,
-        motivo_consulta="Dolor", diagnostico="Gripe", plan_tratamiento="Repos",
+        reason="Dolor", diagnosis="Gripe", treatment="Repos",
         created_at=today
     )
     c2 = ClinicalConsultation(
         patient_id=p2.id, owner_id=doctor_email,
-        motivo_consulta="Control", diagnostico="Sano", plan_tratamiento="Alta",
+        reason="Control", diagnosis="Sano", treatment="Alta",
         created_at=yesterday
     )
     

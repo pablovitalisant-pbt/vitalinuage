@@ -319,8 +319,8 @@ def create_prescription(
     db.commit()
     
     # 5. Build Response
-    # Assuming current_user.full_name exists or we construct it
-    doctor_name = current_user.full_name if hasattr(current_user, "full_name") else current_user.email
+    # Assuming current_user.professional_name exists or we construct it
+    doctor_name = current_user.professional_name if current_user.professional_name else current_user.email
     patient_name = f"{consultation.patient.nombre} {consultation.patient.apellido_paterno}"
     
     return PrescriptionResponse(
@@ -358,7 +358,7 @@ def get_prescription(
     # We already have Patient in presc.patient (lazy loaded)
     # Doctor name: We should query the User table using presc.doctor_id
     doctor = db.query(models.User).filter(models.User.email == presc.doctor_id).first()
-    doctor_name = doctor.full_name if doctor and doctor.full_name else "Dr. Unknown"
+    doctor_name = doctor.professional_name if doctor and doctor.professional_name else "Dr. Unknown"
     
     patient_name = f"{presc.patient.nombre} {presc.patient.apellido_paterno}"
     

@@ -62,5 +62,5 @@ def test_profile_returns_registration_number(client, auth_headers):
     
     # This might fail if the endpoint logic hasn't been updated to map 
     # the field from the model to the response schema, or if schema is missing it.
-    assert "registration_number" in data
-    assert data["registration_number"] == "REG-TEST-101"
+    assert "registrationNumber" in data
+    assert data["registrationNumber"] == "REG-TEST-101"
