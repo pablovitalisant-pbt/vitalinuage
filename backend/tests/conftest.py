@@ -1,28 +1,17 @@
 import pytest
 import os
-from database import Base, engine
-import models 
+from backend.database import Base, engine
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_database():
+    # Asegurar limpieza de metadatos al inicio de la sesión
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+    yield
+    Base.metadata.drop_all(bind=engine)
 
 @pytest.fixture(autouse=True)
-def clean_database():
-    """
-    Protocolo Saneado v1.2.9:
-    Clean metadata BUT DO NOT DISPOSE REGISTRY.
-    Disposing registry breaks class instrumentation (TypeError on __init__).
-    Relies on Import Unification (all tests use 'import models') to avoid Multiple Classes error.
-    """
-    # 1. Clear Metadata (The Table Cache) (DISABLED)
-    # Base.metadata.clear()
-    pass
-    
-    # 2. Physical Clean
-    Base.metadata.drop_all(bind=engine)
-    
-    # 3. Re-create
-    Base.metadata.create_all(bind=engine)
-    
-    yield
-    
-    # Teardown
-    Base.metadata.drop_all(bind=engine)
-    # Base.registry.dispose() # DO NOT CALL THIS, it breaks models.
+def clean_registry():
+    # Limpiar el registro para evitar "Multiple classes found"
+    from backend.database import Base
+    Base.registry.dispose()

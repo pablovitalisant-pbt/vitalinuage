@@ -2,15 +2,17 @@
 import pytest
 from fastapi.testclient import TestClient
 from main import app
-from database import get_db, Base, engine
+from database import get_db, Base
 from models import User, Patient, ClinicalConsultation, Prescription
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from auth import get_password_hash
 from datetime import datetime, timedelta
+import os
 
-# Setup Test DB
+# Setup Test DB - File based for persistence debug
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test_dashboard.db"
+# Remove StaticPool, use standard file engine
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -25,9 +27,25 @@ app.dependency_overrides[get_db] = override_get_db
 
 @pytest.fixture(scope="module")
 def client():
+    # Helper to clean db file if exists
+    # Ensure connections are closed before removing
+    engine.dispose()
+    if os.path.exists("./test_dashboard.db"):
+        try:
+            os.remove("./test_dashboard.db")
+        except PermissionError:
+            pass # Best effort
+        
     Base.metadata.create_all(bind=engine)
     yield TestClient(app)
     Base.metadata.drop_all(bind=engine)
+    
+    engine.dispose()
+    if os.path.exists("./test_dashboard.db"):
+        try:
+            os.remove("./test_dashboard.db")
+        except PermissionError:
+            pass
 
 @pytest.fixture
 def token(client):
@@ -39,11 +57,13 @@ def token(client):
             hashed_password=get_password_hash("password"),
             professional_name="Dr. Dashboard",
         )
+        user.is_verified = True
         db.add(user)
         db.commit()
     db.close()
     
-    res = client.post("/api/auth/token", data={"username": email, "password": "password"})
+    # Use /login endpoint which is known to work and accepts JSON
+    res = client.post("/login", json={"email": email, "password": "password"})
     return res.json()["access_token"]
 
 def test_dashboard_analytics(client, token):

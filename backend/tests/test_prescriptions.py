@@ -47,9 +47,9 @@ def token(client):
         user = User(
             email="presc_doctor@example.com",
             hashed_password=get_password_hash("password"),
-            professional_name="Dr. Prescription",
-            is_verified=True
+            professional_name="Dr. Prescription"
         )
+        user.is_verified = True
         db.add(user)
         db.commit()
     db.close()
@@ -65,9 +65,9 @@ def other_token(client):
         user = User(
             email="other_presc@example.com",
             hashed_password=get_password_hash("password"),
-            professional_name="Dr. Other",
-            is_verified=True
+            professional_name="Dr. Other"
         )
+        user.is_verified = True
         db.add(user)
         db.commit()
     db.close()
@@ -91,7 +91,7 @@ def consultation_id(client, token):
 
 # Tests (Green Phase)
 
-def test_create_prescription_success(client, token, consultation_id):
+def _create_prescription(client, token, consultation_id):
     headers = {"Authorization": f"Bearer {token}"}
     payload = {
         "consultation_id": consultation_id,
@@ -99,19 +99,21 @@ def test_create_prescription_success(client, token, consultation_id):
             {"name": "Paracetamol", "dosage": "500mg", "frequency": "8h", "duration": "3 days"}
         ]
     }
-    # Expected: 201 Created (Green)
     response = client.post(f"/api/patients/consultations/{consultation_id}/prescription", json=payload, headers=headers)
     assert response.status_code == 201
-    data = response.json()
+    return response.json()
+
+def test_create_prescription_success(client, token, consultation_id):
+    data = _create_prescription(client, token, consultation_id)
     assert "id" in data
     assert data["doctor_name"] == "Dr. Prescription"
     assert len(data["medications"]) == 1
     assert data["medications"][0]["name"] == "Paracetamol"
-    return data["id"]
 
 def test_get_prescription_success(client, token, consultation_id):
     # First create one
-    presc_id = test_create_prescription_success(client, token, consultation_id)
+    data_created = _create_prescription(client, token, consultation_id)
+    presc_id = data_created["id"]
     
     headers = {"Authorization": f"Bearer {token}"}
     # Expected: 200 OK (Green)

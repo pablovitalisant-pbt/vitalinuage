@@ -5,8 +5,7 @@ from sqlalchemy.pool import StaticPool
 import os
 from core.config import settings
 
-SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL or "sqlite:///./test_pipeline.db"
-
+# En tests, forzamos StaticPool para mantener la conexión en memoria viva
 if os.environ.get("PYTEST_CURRENT_TEST"):
     engine = create_engine(
         "sqlite:///:memory:",
@@ -14,6 +13,7 @@ if os.environ.get("PYTEST_CURRENT_TEST"):
         poolclass=StaticPool
     )
 else:
+    SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL or "sqlite:///./test_pipeline.db"
     engine = create_engine(
         SQLALCHEMY_DATABASE_URL,
         connect_args={"check_same_thread": False} if "sqlite" in SQLALCHEMY_DATABASE_URL else {}
