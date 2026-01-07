@@ -6,7 +6,7 @@ import datetime
 class User(Base):
     __tablename__ = "users"
     __table_args__ = {'extend_existing': True}
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     
@@ -26,7 +26,7 @@ class Patient(Base):
     __tablename__ = "patients"
     __table_args__ = {'extend_existing': True}
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     
     # Identificación
     nombre = Column(String, index=True, nullable=False)
@@ -65,7 +65,7 @@ class MedicalBackground(Base):
     __tablename__ = "medical_backgrounds"
     __table_args__ = {'extend_existing': True}
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     patient_id = Column(Integer, ForeignKey("patients.id"), unique=True, nullable=False)
     
     patologicos = Column(String, nullable=True)
@@ -83,7 +83,7 @@ class ClinicalConsultation(Base):
     __tablename__ = "clinical_consultations"
     __table_args__ = {'extend_existing': True}
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False, index=True)
     
     # Audit & Security
@@ -117,7 +117,7 @@ class PrescriptionMap(Base):
     __tablename__ = "prescription_maps"
     __table_args__ = {'extend_existing': True}
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     doctor_id = Column(String, index=True, nullable=False) # Email/ID of the doctor
     
     name = Column(String, nullable=False)
@@ -138,7 +138,7 @@ class PrescriptionVerification(Base):
     __tablename__ = "prescription_verifications"
     __table_args__ = {'extend_existing': True}
     
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     uuid = Column(String, unique=True, index=True, nullable=False)
     consultation_id = Column(Integer, ForeignKey("clinical_consultations.id"), nullable=False)
     doctor_email = Column(String, index=True, nullable=False)
@@ -165,7 +165,7 @@ class ClinicalRecord(Base):
     __tablename__ = "clinical_records"
     __table_args__ = {'extend_existing': True}
     
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     patient_id = Column(Integer, ForeignKey("patients.id"), unique=True, nullable=False)
     
     blood_type = Column(String, nullable=True)
@@ -185,7 +185,7 @@ class Prescription(Base):
     __tablename__ = "prescriptions"
     __table_args__ = {'extend_existing': True}
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     consultation_id = Column(Integer, ForeignKey("clinical_consultations.id"), nullable=False, index=True)
     doctor_id = Column(String, index=True, nullable=False) # Owner
     patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False, index=True)
@@ -202,7 +202,7 @@ class Medication(Base):
     __tablename__ = "medications"
     __table_args__ = {'extend_existing': True}
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     prescription_id = Column(Integer, ForeignKey("prescriptions.id"), nullable=False, index=True)
     
     name = Column(String, nullable=False)
