@@ -1,19 +1,13 @@
-﻿import os
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
+﻿from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.pool import StaticPool
+import os
+from core.config import settings
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-if DATABASE_URL and DATABASE_URL.startswith("postgresql://"):
-    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
+SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL or "sqlite:///./test_pipeline.db"
 
 if os.environ.get("PYTEST_CURRENT_TEST"):
-    DATABASE_URL = "sqlite:///:memory:"
-
-connect_args = {"check_same_thread": False} if not DATABASE_URL or "sqlite" in DATABASE_URL else {"sslmode": "require"}
-if os.environ.get("PYTEST_CURRENT_TEST"):
-    from sqlalchemy.pool import StaticPool
     engine = create_engine(
         "sqlite:///:memory:",
         connect_args={"check_same_thread": False},
@@ -21,10 +15,10 @@ if os.environ.get("PYTEST_CURRENT_TEST"):
     )
 else:
     engine = create_engine(
-        DATABASE_URL if DATABASE_URL else "sqlite:///./test.db", 
-        connect_args=connect_args,
-        pool_pre_ping=True
+        SQLALCHEMY_DATABASE_URL,
+        connect_args={"check_same_thread": False} if "sqlite" in SQLALCHEMY_DATABASE_URL else {}
     )
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 

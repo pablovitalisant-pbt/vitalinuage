@@ -80,7 +80,7 @@ def audit_infrastructure():
     print(f"   Backend Schema: {schema_cls.__name__}")
     
     # Critical Fields (Python names)
-    critical_fields = ["id", "email", "full_name"] 
+    critical_fields = ["id", "email", "professional_name"] 
     
     missing_crit = [f for f in critical_fields if f not in schema_fields]
     if not missing_crit:
