@@ -1,25 +1,46 @@
 import pytest
 import os
+import sys
 
-# Force testing environment variable
+# FORZAR entorno de test ANTES de cualquier importación de modelos
 os.environ["TESTING"] = "1"
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from backend.database import Base, engine
+from backend.database import Base, engine, SessionLocal
+from backend.models import User, Patient, ClinicalConsultation, Prescription
 
-@pytest.fixture(scope="function", autouse=True)
-def setup_database():
+@pytest.fixture(autouse=True, scope="function")
+def setup_db():
     """
-    Lifecycle Manager:
-    Ensures that for every single test function, the database tables are created fresh.
+    Crea las tablas antes de cada test. Al usar StaticPool, 
+    esto ocurre en la base de datos en memoria compartida.
     """
+    Base.registry.dispose() # Limpiar registro para evitar "Multiple classes found"
     Base.metadata.create_all(bind=engine)
     yield
-    Base.metadata.drop_all(bind=engine)
+    # Opcional: Base.metadata.drop_all(bind=engine) si se desea aislamiento total
+
+@pytest.fixture
+def db_session():
+    session = SessionLocal()
+    try:
+        yield session
+    finally:
+        session.close()
+
+@pytest.fixture
+def client(db_session):
+    from fastapi.testclient import TestClient
+    from backend.main import app
+    from backend.database import get_db
+
+    def _get_test_db():
+        try:
+            yield db_session
+        finally:
+            pass
     
-@pytest.fixture(autouse=True)
-def clean_registry():
-    """
-    Clean up SQLAlchemy registry to prevent 'Multiple classes found' errors.
-    """
-    from backend.database import Base
-    Base.registry.dispose()
+    app.dependency_overrides[get_db] = _get_test_db
+    with TestClient(app) as c:
+        yield c
+    app.dependency_overrides.clear()

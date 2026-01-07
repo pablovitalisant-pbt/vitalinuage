@@ -1,22 +1,23 @@
 ﻿from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.pool import StaticPool
 import os
 from core.config import settings
 
-# Unified Testing Detection
-IS_TESTING = os.environ.get("PYTEST_CURRENT_TEST") or os.environ.get("TESTING")
+# Detección redundante de modo test
+IS_TESTING = os.environ.get("PYTEST_CURRENT_TEST") or os.environ.get("TESTING") == "1"
 
 if IS_TESTING:
-    # Pure in-memory SQLite with StaticPool query
-    SQLALCHEMY_DATABASE_URL = "sqlite://"
+    # SQLITE EN MEMORIA + STATICPOOL: Imprescindible para que todos los hilos 
+    # y el cliente de FastAPI compartan la misma base de datos volátil.
     engine = create_engine(
-        SQLALCHEMY_DATABASE_URL,
+        "sqlite://",
         connect_args={"check_same_thread": False},
         poolclass=StaticPool
     )
 else:
-    SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL
+    SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL or "sqlite:///./vitalinuage.db"
     engine = create_engine(
         SQLALCHEMY_DATABASE_URL,
         connect_args={"check_same_thread": False} if "sqlite" in SQLALCHEMY_DATABASE_URL else {}
@@ -30,7 +31,6 @@ def get_db():
     try:
         yield db
     finally:
-        # Guard: Do not close in testing to prevent ResourceClosedError with StaticPool
-        # if the connection is shared and managed by the fixture.
+        # En modo test no cerramos agresivamente para evitar ResourceClosedError
         if not IS_TESTING:
             db.close()

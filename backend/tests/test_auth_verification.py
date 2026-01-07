@@ -14,9 +14,13 @@ from database import get_db, Base
 import models
 
 # Setup Test Database for Auth
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test_auth.db"
+# Setup Test Database for Auth
+from sqlalchemy.pool import StaticPool
+SQLALCHEMY_DATABASE_URL = "sqlite://"
 engine_test = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+    SQLALCHEMY_DATABASE_URL, 
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine_test)
 
