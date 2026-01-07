@@ -73,7 +73,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Docker Build Placeholder
-        run: echo "Docker build step would go here"
+        # Fix: Usar contexto raiz (.) y referenciar Dockerfile (-f backend/Dockerfile)
+        run: docker build -t vitalinuage-app -f Dockerfile .
 
   deploy:
     needs: build
