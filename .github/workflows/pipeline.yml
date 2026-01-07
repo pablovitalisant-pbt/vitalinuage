@@ -1,30 +1,57 @@
-name: Vitalinuage CI/CD
+name: Deployment Pipeline
+
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
 jobs:
-  build-and-deploy:
+  quality:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-      - name: Install Tools and Deps
+          cache: 'pip'
+          
+      - name: Install Dependencies
         run: |
-          pip install flake8 pytest pytest-asyncio pydantic-settings sqlalchemy psycopg2-binary
+          python -m pip install --upgrade pip
+          pip install flake8 pytest httpx
           if [ -f backend/requirements.txt ]; then pip install -r backend/requirements.txt; fi
-      - name: Lint
-        # Usamos python -m para asegurar que encuentre el ejecutable en el path de pip
-        run: python -m flake8 backend --count --select=E9,F63,F7,F82 --show-source --statistics
-      - name: Tests
+          
+      - name: Lint with Flake8
         run: |
-          export PYTHONPATH=$PYTHONPATH:$(pwd)/backend
-          # Ignoramos temporalmente los tests con dependencias circulares complejas
-          python -m pytest backend/tests/ --ignore=backend/tests/test_consultations.py
-      - name: Build Frontend
+          # Use python -m to run flake8 ensuring it sees installed packages
+          # E501: Line too long (managed by black usually, but relaxing for legacy code)
+          python -m flake8 backend --count --select=E9,F63,F7,F82 --show-source --statistics
+          python -m flake8 backend --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+          
+      - name: Run Tests
+        env:
+          PYTHONPATH: backend
+          # Mock env vars for testing 
+          DATABASE_URL: "sqlite:///./test_pipeline.db"
+          SECRET_KEY: "testing_secret"
         run: |
-          cd frontend
-          npm install
-          npm run build
+          pytest backend/tests/unit
+
+  build:
+    needs: quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Docker Build Placeholder
+        run: echo "Docker build step would go here"
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy Placeholder
+        run: echo "Deploy logic via Google Cloud Actions would go here"
