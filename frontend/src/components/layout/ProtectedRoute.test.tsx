@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+﻿import { render, screen } from '@testing-library/react';
 import ProtectedRoute from './ProtectedRoute';
 import { DoctorContext } from '../../context/DoctorContext';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
@@ -59,3 +59,4 @@ describe('ProtectedRoute', () => {
         expect(screen.getByText('Private Content')).toBeInTheDocument();
     });
 });
+

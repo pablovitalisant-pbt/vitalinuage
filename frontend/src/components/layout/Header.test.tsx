@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+﻿import { render, screen } from '@testing-library/react';
 // import { describe, it, expect } from 'vitest'; // Commented out for build compat
 import Header from '../Header';
 import { DoctorContext } from '../../context/DoctorContext';
@@ -8,7 +8,7 @@ import { BrowserRouter } from 'react-router-dom';
 const mockProfile = {
     professionalName: 'Test Doctor',
     specialty: 'Test Specialty',
-    isOnboarded: true,
+    isOnboarded: true, email: "test@example.com",
     email: 'dynamic@vitalinuage.com' // Dynamic email
 };
 
@@ -16,7 +16,7 @@ const mockContextValue = {
     profile: mockProfile,
     refreshProfile: jest.fn(),
     updateProfile: jest.fn(),
-    completeOnboarding: jest.fn(),
+    completeOnboarding: jest.fn(), preferences: { paperSize: "A4", templateId: "classic" }, updatePreferences: jest.fn(), token: "test-token", setToken: jest.fn(),
     printPreferences: {},
     updatePrintPreferences: jest.fn()
 };
@@ -45,3 +45,4 @@ describe('Header Component Identity', () => {
         // expect(screen.getByText('dynamic@vitalinuage.com')).toBeInTheDocument();
     });
 });
+
