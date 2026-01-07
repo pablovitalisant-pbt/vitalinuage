@@ -1,4 +1,5 @@
 ﻿import pytest, os, sys
+import backend.models
 os.environ["TESTING"] = "1"
 os.environ["PYTEST_CURRENT_TEST"] = "1"
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
