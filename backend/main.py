@@ -8,7 +8,9 @@ from starlette.middleware.base import BaseHTTPMiddleware
 # Models & Core
 import models
 import auth
-from database import Engine, SessionLocal, Base, get_db  # Re-exporting Base and get_db as requested
+import schemas
+import crud
+from database import engine, SessionLocal, Base, get_db  # Mismatch fixed: Engine -> engine
 from core.config import settings
 
 # Routers
@@ -26,7 +28,7 @@ app = FastAPI(title=settings.PROJECT_NAME)
 
 # --- Database Initialization ---
 try:
-    models.Base.metadata.create_all(bind=Engine)
+    models.Base.metadata.create_all(bind=engine)
 except Exception as e:
     print(f"WARNING: DB Connection failed on startup. Server will start anyway. Error: {e}")
 
@@ -88,7 +90,7 @@ from datetime import datetime
 import uuid
 from datetime import timedelta
 from services.email_service import EmailService
-import crud # Imported here to avoid circulars or just for use in endpoints below
+from dependencies import get_current_user # Restore missing import
 
 BUILD_TIME = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
 VERSION = "1.2.1-hotfix"
