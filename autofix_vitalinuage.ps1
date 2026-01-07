@@ -3,7 +3,17 @@
 
 $ErrorActionPreference = "Stop"
 
-Write-Host "--- Iniciando Sincronizacion Maestra (Borrón y cuenta nueva) ---" -ForegroundColor Cyan
+Write-Host "--- Iniciando Sincronizacion Maestra (Borron y cuenta nueva) ---" -ForegroundColor Cyan
+
+# --- 0. PREPARACION DE PAQUETES ---
+# Aseguramos que las carpetas de Python sean paquetes validos
+$folders = @("backend", "backend/core", "backend/api", "backend/schemas", "backend/models", "backend/utils")
+foreach ($f in $folders) {
+    if (Test-Path $f) {
+        $initFile = Join-Path $f "__init__.py"
+        if (-not (Test-Path $initFile)) { New-Item -Path $initFile -ItemType File -Force }
+    }
+}
 
 # --- 1. CONFIGURACION DEL PIPELINE (GITHUB ACTIONS) ---
 $pipeline_content = @'
@@ -25,12 +35,13 @@ jobs:
           pip install flake8 pytest pytest-asyncio pydantic-settings sqlalchemy psycopg2-binary
           if [ -f backend/requirements.txt ]; then pip install -r backend/requirements.txt; fi
       - name: Lint
-        run: flake8 backend --count --select=E9,F63,F7,F82 --show-source --statistics
+        # Usamos python -m para asegurar que encuentre el ejecutable en el path de pip
+        run: python -m flake8 backend --count --select=E9,F63,F7,F82 --show-source --statistics
       - name: Tests
         run: |
           export PYTHONPATH=$PYTHONPATH:$(pwd)/backend
-          # Ejecutamos tests ignorando los que tienen conflictos de base de datos circular
-          pytest backend/tests/ --ignore=backend/tests/test_consultations.py
+          # Ignoramos temporalmente los tests con dependencias circulares complejas
+          python -m pytest backend/tests/ --ignore=backend/tests/test_consultations.py
       - name: Build Frontend
         run: |
           cd frontend
@@ -70,7 +81,7 @@ Set-Content -Path "backend/main.py" -Value $main_content -Encoding ASCII
 
 # --- 3. FRONTEND: CORRECCION DE TESTS (Objetos de prueba completos) ---
 
-# Reparar Header.test.tsx (Sobrescritura completa para evitar duplicados TS1117)
+# Reparar Header.test.tsx
 $header_test = @'
 import { render, screen } from '@testing-library/react';
 import Header from './Header';
@@ -108,7 +119,7 @@ test('renders brand name', () => {
 '@
 Set-Content -Path "frontend/src/components/layout/Header.test.tsx" -Value $header_test -Encoding ASCII
 
-# Reparar ProtectedRoute.test.tsx (Perfil completo)
+# Reparar ProtectedRoute.test.tsx
 $protected_test = @'
 import { DoctorContext } from '../../contexts/DoctorContext';
 
@@ -141,7 +152,7 @@ Set-Content -Path "frontend/src/components/layout/ProtectedRoute.test.tsx" -Valu
 # --- 4. SUBIDA FINAL ---
 Write-Host "Sincronizando con GitHub..." -ForegroundColor Yellow
 git add .
-git commit -m "chore: master synchronization of ci/cd and contracts"
+git commit -m "chore: master synchronization with resilient ci pathing"
 git push origin main
 
 Write-Host "SINCRO COMPLETA. Revisa GitHub Actions ahora." -ForegroundColor Magenta
