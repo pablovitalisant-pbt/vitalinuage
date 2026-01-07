@@ -1,4 +1,4 @@
-﻿import { render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 // import { describe, it, expect } from 'vitest'; // Commented out for build compat
 import Header from '../Header';
 import { DoctorContext } from '../../context/DoctorContext';
@@ -45,4 +45,5 @@ describe('Header Component Identity', () => {
         // expect(screen.getByText('dynamic@vitalinuage.com')).toBeInTheDocument();
     });
 });
+
 

@@ -1,4 +1,4 @@
-﻿from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 try:
     from database import get_db
@@ -14,4 +14,4 @@ def reset_password_temp(email: str, new_password: str, db: Session = Depends(get
     user = crud.get_user_by_email(db, email=email)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    return {"message": f"Password reset protocol initiated for {email}"}
+    return {"message": "Password reset protocol initiated"}
