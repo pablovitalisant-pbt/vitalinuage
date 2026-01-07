@@ -66,9 +66,9 @@ def setup_audit_data(db_session):
     consultation = ClinicalConsultation(
         patient_id=patient.id,
         owner_id="audit_doctor@test.com",
-        motivo_consulta="Audit Reason",
-        diagnostico="Audit Diagnosis",
-        plan_tratamiento="Audit Plan"
+        reason="Audit Reason",
+        diagnosis="Audit Diagnosis",
+        treatment="Audit Plan"
     )
     db_session.add(consultation)
     db_session.commit()

@@ -71,9 +71,9 @@ def setup_filter_data(db_session):
     consultation = ClinicalConsultation(
         patient_id=patient.id,
         owner_id="audit_tester@test.com",
-        motivo_consulta="Filter Test",
-        diagnostico="Filter Test",
-        plan_tratamiento="Test"
+        reason="Filter Test",
+        diagnosis="Filter Test",
+        treatment="Test"
     )
     db_session.add(consultation)
     db_session.commit()

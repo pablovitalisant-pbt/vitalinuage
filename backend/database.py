@@ -12,11 +12,19 @@ if os.environ.get("PYTEST_CURRENT_TEST"):
     DATABASE_URL = "sqlite:///:memory:"
 
 connect_args = {"check_same_thread": False} if not DATABASE_URL or "sqlite" in DATABASE_URL else {"sslmode": "require"}
-engine = create_engine(
-    DATABASE_URL if DATABASE_URL else "sqlite:///./test.db", 
-    connect_args=connect_args,
-    pool_pre_ping=True
-)
+if os.environ.get("PYTEST_CURRENT_TEST"):
+    from sqlalchemy.pool import StaticPool
+    engine = create_engine(
+        "sqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool
+    )
+else:
+    engine = create_engine(
+        DATABASE_URL if DATABASE_URL else "sqlite:///./test.db", 
+        connect_args=connect_args,
+        pool_pre_ping=True
+    )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 

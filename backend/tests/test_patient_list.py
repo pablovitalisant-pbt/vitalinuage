@@ -114,7 +114,7 @@ def test_last_consultation_field(client, db_session, auth_headers):
     old_date = datetime.utcnow() - timedelta(days=10)
     c1 = ClinicalConsultation(
         patient_id=p.id, owner_id=email,
-        motivo_consulta="Old", diagnostico="A", plan_tratamiento="A",
+        reason="Old", diagnosis="A", treatment="A",
         created_at=old_date
     )
     
@@ -122,7 +122,7 @@ def test_last_consultation_field(client, db_session, auth_headers):
     new_date = datetime.utcnow()
     c2 = ClinicalConsultation(
         patient_id=p.id, owner_id=email,
-        motivo_consulta="New", diagnostico="B", plan_tratamiento="B",
+        reason="New", diagnosis="B", treatment="B",
         created_at=new_date
     )
     

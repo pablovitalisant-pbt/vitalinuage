@@ -67,7 +67,7 @@ def test_get_doctor_profile_structure(client, db_session):
     # So we MUST create the user in DB first.
     from models import User
     hashed = "hashed_secret" # Mock hash
-    user = User(email=email, hashed_password=hashed, is_verified=True)
+    user = User(email=email, hashed_password=hashed, is_verified=True, professional_name="Dr. Slice")
     db_session.add(user)
     db_session.commit()
 

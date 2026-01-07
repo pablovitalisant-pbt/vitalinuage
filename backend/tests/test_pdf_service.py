@@ -39,7 +39,7 @@ def test_doctor(db_session):
         email=f"test_doctor_{uuid.uuid4()}@vital.com",
         hashed_password="test_hash",
         is_verified=True,
-        professional_name="Dr. Test",
+        professional_name="Dr. Tester",
         specialty="Medicina General",
         registration_number="12345"
     )
@@ -74,9 +74,9 @@ def test_consultation(db_session, test_doctor, test_patient):
     consultation = models.ClinicalConsultation(
         patient_id=test_patient.id,
         owner_id=test_doctor.email,  # Changed from doctor_id to owner_id
-        motivo_consulta="Dolor de cabeza",
-        diagnostico="Cefalea tensional",
-        plan_tratamiento="Paracetamol 500mg cada 8 horas"  # Changed from tratamiento
+        reason="Dolor de cabeza",
+        diagnosis="Cefalea tensional",
+        treatment="Paracetamol 500mg cada 8 horas"
     )
     db_session.add(consultation)
     db_session.commit()
@@ -141,7 +141,7 @@ class TestPDFServiceUnit:
         diagnosis = PDFService.extract_field_value(test_consultation, 'diagnosis')
         assert diagnosis == "Cefalea tensional"
         
-        # Test treatment extraction (uses plan_tratamiento in model)
+        # Test treatment extraction (uses treatment in model)
         treatment = PDFService.extract_field_value(test_consultation, 'treatment')
         assert treatment == "Paracetamol 500mg cada 8 horas"
         

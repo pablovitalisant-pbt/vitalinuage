@@ -73,9 +73,9 @@ def test_data(db_session):
     consultation = ClinicalConsultation(
         patient_id=patient.id,
         owner_id="doctor@test.com",
-        motivo_consulta="Test Dispatch",
-        diagnostico="Test",
-        plan_tratamiento="Test plan"
+        reason="Test Dispatch",
+        diagnosis="Test",
+        treatment="Test plan"
     )
     db_session.add(consultation)
     db_session.commit()

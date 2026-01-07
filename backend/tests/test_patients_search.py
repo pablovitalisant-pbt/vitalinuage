@@ -74,7 +74,7 @@ def test_patient_search_integration(client, db_session):
     headers = {"Authorization": f"Bearer {access_token}"}
     
     # 2. Search Request
-    response = client.get("/api/pacientes/search?q=Test", headers=headers)
+    response = client.get("/api/patients/search?q=Test", headers=headers)
     
     # 3. Assertions (Red Phase: Expect 404 because endpoint doesn't exist yet)
     # 3. Assertions (Red Phase: Expect 404 because endpoint doesn't exist yet)
@@ -127,7 +127,7 @@ def test_smoke_e2e_search_flow(client, db_session):
     db_session.commit()
     
     # 3. Search
-    response = client.get(f"/api/pacientes/search?q=Smoke", headers=headers)
+    response = client.get(f"/api/patients/search?q=Smoke", headers=headers)
     
     # 4. Validate
     assert response.status_code == 200, f"Expected 200 OK, got {response.status_code}"

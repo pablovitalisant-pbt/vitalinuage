@@ -37,7 +37,7 @@ def token(client):
         user = User(
             email=email,
             hashed_password=get_password_hash("password"),
-            full_name="Dr. Dashboard",
+            professional_name="Dr. Dashboard",
             role="doctor",
             is_active=True
         )

@@ -71,7 +71,7 @@ def test_medical_background_lifecycle(client, db_session):
     from models import User, Patient
     
     email = f"doc_bg_{uuid.uuid4()}@vital.com"
-    user = User(email=email, hashed_password="pw", is_verified=True)
+    user = User(email=email, hashed_password="pw", is_verified=True, professional_name="Dr. Background")
     db_session.add(user)
     db_session.commit()
     
@@ -125,12 +125,12 @@ def test_privacy_and_isolation(client, db_session):
     
     # Owner A
     email_a = f"doc_a_{uuid.uuid4()}@vital.com"
-    user_a = User(email=email_a, hashed_password="pw", is_verified=True)
+    user_a = User(email=email_a, hashed_password="pw", is_verified=True, professional_name="Dr. A")
     db_session.add(user_a)
     
     # Owner B
     email_b = f"doc_b_{uuid.uuid4()}@vital.com"
-    user_b = User(email=email_b, hashed_password="pw", is_verified=True)
+    user_b = User(email=email_b, hashed_password="pw", is_verified=True, professional_name="Dr. B")
     db_session.add(user_b)
     db_session.commit()
     

@@ -264,8 +264,8 @@ class TestVerificationAPIEndpoint:
         assert 'patient_dni' not in data
         assert 'diagnosis' not in data
         assert 'treatment' not in data
-        assert 'plan_tratamiento' not in data
-        assert 'diagnostico' not in data
+        assert 'treatment' not in data
+        assert 'diagnosis' not in data
     
     def test_scan_counter_increments(self, db_session, test_doctor, test_consultation):
         """Test that scanned_count increments on each access"""

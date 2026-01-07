@@ -96,9 +96,9 @@ def test_consultation_with_email(db_session, test_doctor, test_patient_with_emai
     consultation = models.ClinicalConsultation(
         patient_id=test_patient_with_email.id,
         owner_id=test_doctor.email,
-        motivo_consulta="Dolor de cabeza",
-        diagnostico="Cefalea tensional",
-        plan_tratamiento="Paracetamol 500mg cada 8 horas"
+        reason="Dolor de cabeza",
+        diagnosis="Cefalea tensional",
+        treatment="Paracetamol 500mg cada 8 horas"
     )
     db_session.add(consultation)
     db_session.commit()
@@ -111,9 +111,9 @@ def test_consultation_no_email(db_session, test_doctor, test_patient_no_email):
     consultation = models.ClinicalConsultation(
         patient_id=test_patient_no_email.id,
         owner_id=test_doctor.email,
-        motivo_consulta="Gripe",
-        diagnostico="Influenza",
-        plan_tratamiento="Reposo"
+        reason="Gripe",
+        diagnosis="Influenza",
+        treatment="Reposo"
     )
     db_session.add(consultation)
     db_session.commit()
