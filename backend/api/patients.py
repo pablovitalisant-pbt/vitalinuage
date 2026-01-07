@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from typing import List
-import models
+from backend import models
 import schemas.patients_schema as schemas
 import schemas.patients as search_schemas
 from schemas.patient import (

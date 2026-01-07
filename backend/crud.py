@@ -1,5 +1,5 @@
-﻿from sqlalchemy.orm import Session
-import models
+from sqlalchemy.orm import Session
+from backend import models
 import schemas
 import auth
 

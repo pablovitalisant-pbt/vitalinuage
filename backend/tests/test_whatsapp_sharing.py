@@ -8,7 +8,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 from database import Base
-import models
+from backend import models
 import uuid
 from datetime import datetime
 from main import app, get_db

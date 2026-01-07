@@ -6,6 +6,8 @@ from backend.db_core import Base, engine, SessionLocal
 @pytest.fixture(autouse=True)
 def db_setup():
     Base.registry.dispose()
+    try: Base.metadata.drop_all(bind=engine)
+    except: pass
     Base.metadata.create_all(bind=engine)
     yield
 @pytest.fixture

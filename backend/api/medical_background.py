@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import Optional
 from pydantic import BaseModel
-import models
+from backend import models
 import json
 import os
 from database import get_db

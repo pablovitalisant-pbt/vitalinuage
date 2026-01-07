@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form, Body
 from sqlalchemy.orm import Session
 from typing import List, Optional
-import models
+from backend import models
 import json
 import os
 from database import get_db

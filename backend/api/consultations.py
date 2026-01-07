@@ -1,7 +1,7 @@
-﻿from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import List
-import models
+from backend import models
 import json
 import os
 import datetime
@@ -105,11 +105,11 @@ async def create_verification(
     current_user: models.User = Depends(get_current_user)
 ):
     """
-    Crea un registro de verificaciÃ³n para una consulta.
+    Crea un registro de verificación para una consulta.
     Reutiliza si ya existe (idempotente).
     
     - **consultation_id**: ID de la consulta
-    - **Requiere autenticaciÃ³n**: Solo el mÃ©dico dueÃ±o
+    - **Requiere autenticación**: Solo el médico dueño
     
     Returns:
         {"uuid": "..."}
@@ -117,7 +117,7 @@ async def create_verification(
     import uuid as uuid_lib
     import datetime
     
-    # Verificar autorizaciÃ³n
+    # Verificar autorización
     consultation = db.query(models.ClinicalConsultation).filter(
         models.ClinicalConsultation.id == consultation_id,
         models.ClinicalConsultation.owner_id == current_user.email
@@ -126,7 +126,7 @@ async def create_verification(
     if not consultation:
         raise HTTPException(status_code=404, detail="Consultation not found")
     
-    # Buscar verificaciÃ³n existente
+    # Buscar verificación existente
     verification = db.query(models.PrescriptionVerification).filter(
         models.PrescriptionVerification.consultation_id == consultation_id
     ).first()
@@ -135,7 +135,7 @@ async def create_verification(
         # Retornar UUID existente (idempotente)
         return {"uuid": verification.uuid}
     
-    # Crear nueva verificaciÃ³n
+    # Crear nueva verificación
     verification = models.PrescriptionVerification(
         uuid=str(uuid_lib.uuid4()),
         consultation_id=consultation_id,
@@ -157,10 +157,10 @@ async def send_prescription_email(
     current_user: models.User = Depends(get_current_user)
 ):
     """
-    EnvÃ­a receta por email (asÃ­ncrono).
+    Envía receta por email (asíncrono).
     
     - **consultation_id**: ID de la consulta
-    - **Requiere autenticaciÃ³n**: Solo el mÃ©dico dueÃ±o
+    - **Requiere autenticación**: Solo el médico dueño
     
     Returns:
         {"status": "queued", "message": "..."}
@@ -169,7 +169,7 @@ async def send_prescription_email(
     from services.email_service import EmailService
     import uuid as uuid_lib
     
-    # 1. Verificar autorizaciÃ³n
+    # 1. Verificar autorización
     consultation = db.query(models.ClinicalConsultation).filter(
         models.ClinicalConsultation.id == consultation_id,
         models.ClinicalConsultation.owner_id == current_user.email
@@ -185,7 +185,7 @@ async def send_prescription_email(
             detail="Patient does not have an email address"
         )
     
-    # 3. Obtener o crear verificaciÃ³n
+    # 3. Obtener o crear verificación
     verification = db.query(models.PrescriptionVerification).filter(
         models.PrescriptionVerification.consultation_id == consultation_id
     ).first()
@@ -210,11 +210,11 @@ async def send_prescription_email(
     pdf_url = f"{base_url}/v/{verification.uuid}/pdf"
     issue_date = verification.issue_date.strftime('%d/%m/%Y')
     
-    # 5. Registrar envío (Timestamp)
+    # 5. Registrar env�o (Timestamp)
     verification.email_sent_at = datetime.datetime.utcnow()
     db.commit()
 
-    # 6. Añadir tarea en background
+    # 6. A�adir tarea en background
     background_tasks.add_task(
         EmailService.send_prescription_email,
         to_email=consultation.patient.email,
@@ -278,7 +278,7 @@ async def get_dispatch_status(
     if not consultation:
         raise HTTPException(status_code=404, detail="Consulta no encontrada")
     
-    # Gracias a la propiedad hibrida aÃ±adida en models.py, esto es facil,
+    # Gracias a la propiedad hibrida añadida en models.py, esto es facil,
     # pero para el endpoint especifico consultamos la verification directa
     verification = db.query(models.PrescriptionVerification).filter(
         models.PrescriptionVerification.consultation_id == consultation_id

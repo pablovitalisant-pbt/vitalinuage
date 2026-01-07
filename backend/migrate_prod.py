@@ -1,7 +1,7 @@
 import os
 from sqlalchemy import text
 from database import engine, Base
-import models
+from backend import models
 
 def migrate():
     print("Conectando a Neon para sincronizar esquema...")
