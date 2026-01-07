@@ -21,7 +21,7 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libcairo2 libpango-1.0-0 libgobject-2.0-0 libpangocairo-1.0-0
+          sudo apt-get install -y libcairo2 libpango-1.0-0 libgobject-2.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info
 
       - name: Install Dependencies
         run: |

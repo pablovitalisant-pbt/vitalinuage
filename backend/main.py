@@ -27,10 +27,14 @@ import temp_reset
 app = FastAPI(title=settings.PROJECT_NAME)
 
 # --- Database Initialization ---
-try:
-    models.Base.metadata.create_all(bind=engine)
-except Exception as e:
-    print(f"WARNING: DB Connection failed on startup. Server will start anyway. Error: {e}")
+import os
+
+# --- Database Initialization ---
+if not os.environ.get("PYTEST_CURRENT_TEST"):
+    try:
+        models.Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        print(f"WARNING: DB Connection failed on startup. Server will start anyway. Error: {e}")
 
 # --- Exception Handlers ---
 @app.exception_handler(RequestValidationError)

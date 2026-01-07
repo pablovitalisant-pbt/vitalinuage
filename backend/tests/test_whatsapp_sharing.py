@@ -1,6 +1,7 @@
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+# Ensure backend is in path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import pytest
 from sqlalchemy import create_engine
@@ -10,6 +11,8 @@ from database import Base
 import models
 import uuid
 from datetime import datetime
+from main import app, get_db
+import auth
 
 
 # Setup Test Database
