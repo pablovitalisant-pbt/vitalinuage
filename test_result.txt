@@ -1,0 +1,74 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.8, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\Users\pablo\Documents\Vitalinuage
+plugins: anyio-4.12.0
+collected 5 items
+
+backend\tests\test_dashboard.py E                                        [ 20%]
+backend\tests\test_prescriptions.py ....                                 [100%]
+
+=================================== ERRORS ====================================
+_________________ ERROR at setup of test_dashboard_analytics __________________
+
+client = <starlette.testclient.TestClient object at 0x000002EA95D557F0>
+
+    @pytest.fixture
+    def token(client):
+        db = TestingSessionLocal()
+        email = "dash_doctor@example.com"
+        if not db.query(User).filter_by(email=email).first():
+            user = User(
+                email=email,
+                hashed_password=get_password_hash("password"),
+                professional_name="Dr. Dashboard",
+            )
+            user.is_verified = True
+            db.add(user)
+            db.commit()
+        db.close()
+    
+        res = client.post("/api/auth/token", data={"username": email, "password": "password"})
+>       return res.json()["access_token"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'access_token'
+
+backend\tests\test_dashboard.py:48: KeyError
+============================== warnings summary ===============================
+backend\database.py:23
+backend\database.py:23
+  C:\Users\pablo\Documents\Vitalinuage\backend\database.py:23: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+backend\schemas\doctor.py:5
+  C:\Users\pablo\Documents\Vitalinuage\backend\schemas\doctor.py:5: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class DoctorProfile(BaseModel):
+
+backend\api\medical_background.py:26
+  C:\Users\pablo\Documents\Vitalinuage\backend\api\medical_background.py:26: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class MedicalBackgroundResponse(MedicalBackgroundBase):
+
+.venv\Lib\site-packages\pydantic\_internal\_config.py:383
+  C:\Users\pablo\Documents\Vitalinuage\.venv\Lib\site-packages\pydantic\_internal\_config.py:383: UserWarning: Valid config keys have changed in V2:
+  * 'orm_mode' has been renamed to 'from_attributes'
+    warnings.warn(message, UserWarning)
+
+backend\main.py:101
+  C:\Users\pablo\Documents\Vitalinuage\backend\main.py:101: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    BUILD_TIME = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+
+backend/tests/test_prescriptions.py::test_create_prescription_success
+backend/tests/test_prescriptions.py::test_get_prescription_success
+backend/tests/test_prescriptions.py::test_validation_empty_medications
+backend/tests/test_prescriptions.py::test_security_access
+backend/tests/test_prescriptions.py::test_security_access
+  C:\Users\pablo\Documents\Vitalinuage\backend\auth.py:81: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    expire = datetime.utcnow() + timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)
+
+backend/tests/test_prescriptions.py: 12 warnings
+  C:\Users\pablo\Documents\Vitalinuage\.venv\Lib\site-packages\sqlalchemy\sql\schema.py:3624: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    return util.wrap_callable(lambda ctx: fn(), fn)  # type: ignore
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR backend/tests/test_dashboard.py::test_dashboard_analytics - KeyError: '...
+=================== 4 passed, 23 warnings, 1 error in 4.62s ===================
