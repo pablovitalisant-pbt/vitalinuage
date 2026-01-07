@@ -1,13 +1,12 @@
-﻿from pydantic import BaseModel
+﻿from pydantic import BaseModel, ConfigDict
 from typing import Optional
 from datetime import datetime
 
 class ConsultationBase(BaseModel):
-    motivo_consulta: str
-    examen_fisico: Optional[str] = None
-    diagnostico: str
-    plan_tratamiento: str
-    proxima_cita: Optional[str] = None  # Flexible format or ISO date string
+    reason: str
+    diagnosis: str
+    treatment: Optional[str] = None
+    notes: Optional[str] = None
 
 class ConsultationCreate(ConsultationBase):
     pass
@@ -22,16 +21,5 @@ class ConsultationResponse(ConsultationBase):
     updated_at: Optional[datetime] = None
     email_sent_at: Optional[datetime] = None
     whatsapp_sent_at: Optional[datetime] = None
-    email_sent_at: Optional[datetime] = None
-    whatsapp_sent_at: Optional[datetime] = None
-    email_sent_at: Optional[datetime] = None
-    whatsapp_sent_at: Optional[datetime] = None
-    email_sent_at: Optional[datetime] = None
-    whatsapp_sent_at: Optional[datetime] = None
-    
-    class Config:
-        from_attributes = True
 
-
-
-
+    model_config = ConfigDict(from_attributes=True)

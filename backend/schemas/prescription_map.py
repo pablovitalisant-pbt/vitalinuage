@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional
 
 class FieldConfig(BaseModel):
@@ -23,5 +23,4 @@ class PrescriptionMapResponse(PrescriptionMapBase):
     doctor_id: str
     background_image_url: Optional[str] = None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

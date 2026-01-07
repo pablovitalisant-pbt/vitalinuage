@@ -6,7 +6,7 @@ from database import get_db, Base, engine
 from models import User, Patient, ClinicalConsultation, Prescription
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from utils.security import get_password_hash
+from auth import get_password_hash
 from datetime import datetime, timedelta
 
 # Setup Test DB

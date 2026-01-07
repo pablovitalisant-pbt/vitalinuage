@@ -5,6 +5,7 @@ import datetime
 
 class User(Base):
     __tablename__ = "users"
+    __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
@@ -20,8 +21,10 @@ class User(Base):
     medical_license = Column(String, nullable=True)
     is_onboarded = Column(Boolean, default=False)
     registration_number = Column(String, nullable=True)
+
 class Patient(Base):
     __tablename__ = "patients"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
     
@@ -60,6 +63,7 @@ class Patient(Base):
 
 class MedicalBackground(Base):
     __tablename__ = "medical_backgrounds"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
     patient_id = Column(Integer, ForeignKey("patients.id"), unique=True, nullable=False)
@@ -77,6 +81,7 @@ class MedicalBackground(Base):
 
 class ClinicalConsultation(Base):
     __tablename__ = "clinical_consultations"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
     patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False, index=True)
@@ -110,6 +115,7 @@ Patient.consultations = relationship("ClinicalConsultation", back_populates="pat
 
 class PrescriptionMap(Base):
     __tablename__ = "prescription_maps"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
     doctor_id = Column(String, index=True, nullable=False) # Email/ID of the doctor
@@ -130,6 +136,7 @@ class PrescriptionMap(Base):
 
 class PrescriptionVerification(Base):
     __tablename__ = "prescription_verifications"
+    __table_args__ = {'extend_existing': True}
     
     id = Column(Integer, primary_key=True, index=True)
     uuid = Column(String, unique=True, index=True, nullable=False)
@@ -156,6 +163,7 @@ class ClinicalRecord(Base):
     Replaces or supplements MedicalBackground.
     """
     __tablename__ = "clinical_records"
+    __table_args__ = {'extend_existing': True}
     
     id = Column(Integer, primary_key=True, index=True)
     patient_id = Column(Integer, ForeignKey("patients.id"), unique=True, nullable=False)
@@ -175,6 +183,7 @@ Patient.clinical_record = relationship("ClinicalRecord", back_populates="patient
 
 class Prescription(Base):
     __tablename__ = "prescriptions"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
     consultation_id = Column(Integer, ForeignKey("clinical_consultations.id"), nullable=False, index=True)
@@ -191,6 +200,7 @@ class Prescription(Base):
 
 class Medication(Base):
     __tablename__ = "medications"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
     prescription_id = Column(Integer, ForeignKey("prescriptions.id"), nullable=False, index=True)
