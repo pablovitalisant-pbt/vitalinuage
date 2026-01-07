@@ -1,6 +1,5 @@
 ﻿from sqlalchemy import Column, Integer, String, Boolean
-from db_core import Base
-
+from backend.db_core import Base
 class User(Base):
     __tablename__ = "users"
     __table_args__ = {'extend_existing': True}
@@ -11,13 +10,7 @@ class User(Base):
     specialty = Column(String, nullable=True)
     is_verified = Column(Boolean, default=False)
     is_onboarded = Column(Boolean, default=False)
-
-    def __init__(self, **kwargs):
-        for key, value in kwargs.items():
-            if hasattr(self, key) or key in self.__table__.columns:
-                setattr(self, key, value)
-        super().__init__()
-
+    registration_number = Column(String, nullable=True)
 class Patient(Base):
     __tablename__ = "patients"
     __table_args__ = {'extend_existing': True}
