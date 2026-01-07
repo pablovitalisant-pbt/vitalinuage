@@ -16,3 +16,4 @@ requests
 sqlalchemy
 uvicorn
 weasyprint
+resend==0.6.0
