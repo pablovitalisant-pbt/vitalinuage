@@ -1,4 +1,4 @@
-﻿from pydantic import BaseModel, ConfigDict, EmailStr
+﻿from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from typing import Optional
 
 class UserBase(BaseModel):
@@ -33,7 +33,9 @@ class UserCreateResponse(BaseModel):
     email: EmailStr
 
 class OnboardingUpdate(BaseModel):
-    professional_name: Optional[str] = None
+    professional_name: Optional[str] = Field(None, alias="professionalName")
     specialty: Optional[str] = None
-    medical_license: Optional[str] = None
-    registration_number: Optional[str] = None
+    medical_license: Optional[str] = Field(None, alias="medicalLicense")
+    registration_number: Optional[str] = Field(None, alias="registrationNumber")
+
+    model_config = ConfigDict(populate_by_name=True)

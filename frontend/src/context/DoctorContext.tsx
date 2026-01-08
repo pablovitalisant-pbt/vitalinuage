@@ -78,15 +78,21 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
 
             if (profileRes.ok) {
                 const data = await profileRes.json();
-                setProfile({
-                    professionalName: data.professional_name || "Dr. Vitali",
-                    specialty: data.specialty || "",
-                    address: "",
-                    phone: "",
-                    registrationNumber: data.registration_number || "",
-                    isOnboarded: data.is_onboarded || false,
-                    email: data.email || ""
-                });
+
+                // Slice 12: Handle non-onboarded state
+                if (data.has_profile === false) {
+                    setProfile({ ...defaultProfile, isOnboarded: false, email: data.email || "" });
+                } else {
+                    setProfile({
+                        professionalName: data.professionalName || data.professional_name || "Dr. Vitali",
+                        specialty: data.specialty || "",
+                        address: "",
+                        phone: "",
+                        registrationNumber: data.registrationNumber || data.registration_number || "",
+                        isOnboarded: data.isOnboarded !== undefined ? data.isOnboarded : (data.is_onboarded || false),
+                        email: data.email || ""
+                    });
+                }
             } else if (profileRes.status !== 401) {
                 setProfile(defaultProfile);
             }
@@ -119,41 +125,31 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
         if (!token) return;
 
         try {
-            // Step 1: Update Profile Details
-            const updateRes = await fetch(getApiUrl('/api/doctors/profile'), {
-                method: 'PUT',
+            // Slice 12: Consolidated Onboarding to single POST
+            const response = await fetch(getApiUrl('/api/doctors/profile'), {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    professional_name: data.professionalName,
+                    professionalName: data.professionalName,
                     specialty: data.specialty,
-                    medical_license: data.registrationNumber || "", // Map to medical_license for backend compatibility 
-                    registration_number: data.registrationNumber || ""
+                    medicalLicense: data.registrationNumber || "",
+                    registrationNumber: data.registrationNumber || ""
                 })
             });
 
-            if (!updateRes.ok) throw new Error('Failed to update profile details');
+            if (!response.ok) throw new Error('Failed to complete onboarding');
 
-            // Step 2: Finalize Onboarding (Trigger)
-            const completeRes = await fetch(getApiUrl('/api/doctors/onboarding/complete'), {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            const updated = await response.json();
 
-            if (!completeRes.ok) throw new Error('Failed to finalize onboarding');
-
-            const updated = await completeRes.json();
-
-            // Step 3: Sync Local State
+            // Sync Local State
             setProfile(prev => ({
                 ...prev,
-                professionalName: updated.professional_name,
+                professionalName: updated.professionalName || updated.professional_name,
                 specialty: updated.specialty,
-                registrationNumber: updated.registration_number,
+                registrationNumber: updated.registrationNumber || updated.registration_number,
                 isOnboarded: true,
                 email: updated.email || prev.email
             }));

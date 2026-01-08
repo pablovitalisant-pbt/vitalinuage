@@ -8,8 +8,14 @@ router = APIRouter(
     tags=["doctor"]
 )
 
-@router.get("/profile", response_model=schemas.DoctorProfile)
+from typing import Union
+
+@router.get("/profile", response_model=Union[schemas.DoctorProfile, dict])
 def get_profile(current_user: User = Depends(get_current_user)):
+    # Slice 12: Check onboarding status
+    if not current_user.is_onboarded:
+        return {"has_profile": False}
+        
     return {
         "id": current_user.id,
         "email": current_user.email,
@@ -26,12 +32,17 @@ from sqlalchemy.orm import Session
 from backend.database import get_db
 from backend.schemas import auth_schemas
 
-@router.post("/onboarding", response_model=auth_schemas.User)
-def complete_onboarding(
+# Slice 12: POST /profile for Onboarding "Save" action
+@router.post("/profile", response_model=schemas.DoctorProfile)
+def create_profile(
     data: auth_schemas.OnboardingUpdate, 
     current_user: User = Depends(get_current_user), 
     db: Session = Depends(get_db)
 ):
+    """
+    Creates/Updates profile and marks user as onboarded.
+    Used by the Onboarding flow.
+    """
     # Update profile fields
     if data.professional_name:
         current_user.professional_name = data.professional_name
@@ -50,6 +61,13 @@ def complete_onboarding(
     db.refresh(current_user)
     
     return current_user
+
+# Keep existing POST /onboarding endpoint for backward compatibility if needed, 
+# or aliased. But for cleanliness, we defined POST /profile above.
+# We will remove the old 'complete_onboarding' at /onboarding if it conflicts 
+# or just ensure they don't overlap improperly.
+# The original file had @router.post("/onboarding") at line 29.
+# I will replace lines 11-52 with the new get_profile and create_profile logic.
 
 from backend.schemas.user import UserUpdate
 
