@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, Calendar, CheckSquare, Activity, FileText, BarChart2, TrendingUp } from 'lucide-react';
+import { Users, Calendar, Activity, FileText, BarChart2, TrendingUp } from 'lucide-react';
 import StatsCard from '../components/dashboard/StatsCard';
 import { useDashboardStats } from '../hooks/useDashboardStats';
 
@@ -22,15 +22,10 @@ export default function DashboardPage() {
     });
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Panel de Control</h1>
-                    <p className="text-sm text-slate-500">Resumen y métricas clave</p>
-                </div>
-                <span className="text-sm text-slate-500 font-medium bg-white px-3 py-1 rounded-full border border-slate-200">
-                    {new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                </span>
+        <div className="space-y-4">
+            <div>
+                <h1 className="text-2xl font-bold text-slate-900">Panel de Control</h1>
+                <p className="text-sm text-slate-500">Resumen y métricas clave</p>
             </div>
 
             {/* Stats Grid */}

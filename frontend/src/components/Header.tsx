@@ -30,12 +30,13 @@ export default function Header() {
 
     return (
         <header className="sticky top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-gray-100 z-40 flex items-center justify-between px-6 transition-all">
-            {/* Logo Area - Clickable to go home */}
+            {/* Date Display (moved from Dashboard) */}
             <div
-                onClick={() => navigate('/search')}
-                className="text-xl font-bold text-[#1e3a8a] cursor-pointer tracking-tight"
+                data-testid="header-date-display"
+                className="hidden md:block text-sm font-medium text-slate-500"
             >
-                Vitalinuage
+                {new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+                    .replace(/^\w/, c => c.toUpperCase())}
             </div>
 
             {/* User Area */}
