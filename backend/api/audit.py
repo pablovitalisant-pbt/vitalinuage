@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from database import get_db
-from models import PrescriptionVerification, ClinicalConsultation, Patient, User
-from schemas.audit import DispatchAuditResponse, DispatchSummaryItem, DispatchStatus
+from backend.database import get_db
+from backend.models import PrescriptionVerification, ClinicalConsultation, Patient, User
+from backend.schemas.audit import DispatchAuditResponse, DispatchSummaryItem, DispatchStatus
 from datetime import datetime
 from typing import Optional
-from dependencies import get_current_user
+from backend.dependencies import get_current_user
 import json
 import os
 

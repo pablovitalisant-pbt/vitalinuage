@@ -3,9 +3,9 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from typing import List
 from backend import models
-import schemas.patients_schema as schemas
-import schemas.patients as search_schemas
-from schemas.patient import (
+import backend.schemas.patients_schema as schemas
+import backend.schemas.patients as search_schemas
+from backend.schemas.patient import (
     PatientListResponse, 
     ClinicalRecord,
     ConsultationItem,
@@ -14,17 +14,17 @@ from schemas.patient import (
     PrescriptionResponse,
     MedicationItem
 )
-from database import get_db
+from backend.database import get_db
 
 router = APIRouter(
-    prefix="/api/patients",
+    # Prefix managed in main.py
     tags=["patients"],
     responses={404: {"description": "Not found"}},
 )
 
-from dependencies import get_current_user
-import crud
-import schemas as schemas_auth
+from backend.dependencies import get_current_user
+import backend.crud as crud
+import backend.schemas as schemas_auth
 
 @router.post("", response_model=schemas.Patient)
 def create_patient(

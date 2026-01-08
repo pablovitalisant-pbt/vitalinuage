@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
-from schemas import doctor as schemas
-from dependencies import get_current_user
-from models import User
+from backend.schemas import doctor as schemas
+from backend.dependencies import get_current_user
+from backend.models import User
 
 router = APIRouter(
     prefix="/api/doctor",
@@ -23,8 +23,8 @@ def get_profile(current_user: User = Depends(get_current_user)):
     }
 
 from sqlalchemy.orm import Session
-from database import get_db
-from schemas import auth_schemas
+from backend.database import get_db
+from backend.schemas import auth_schemas
 
 @router.post("/onboarding", response_model=auth_schemas.User)
 def complete_onboarding(
@@ -51,7 +51,7 @@ def complete_onboarding(
     
     return current_user
 
-from schemas.user import UserUpdate
+from backend.schemas.user import UserUpdate
 
 @router.put("/profile", response_model=auth_schemas.User)
 def update_profile(
@@ -110,7 +110,7 @@ def finalize_onboarding(
     
     return current_user
 
-from schemas import dashboard as dash_schemas
+from backend.schemas import dashboard as dash_schemas
 
 @router.get("/dashboard/stats", response_model=dash_schemas.DashboardStats)
 def get_dashboard_stats(
@@ -120,7 +120,7 @@ def get_dashboard_stats(
     """
     Returns statistics for the doctor's dashboard.
     """
-    from models import Patient, ClinicalConsultation, Prescription
+    from backend.models import Patient, ClinicalConsultation, Prescription
     from sqlalchemy import func, desc, and_
     from datetime import datetime, time, timedelta
 

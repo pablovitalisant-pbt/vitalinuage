@@ -6,7 +6,7 @@ from backend.schemas import user as schemas
 from backend.dependencies import get_current_user
 
 router = APIRouter(
-    prefix="/api/user",
+    # Prefix managed in main.py
     tags=["user"]
 )
 

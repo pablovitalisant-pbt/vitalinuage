@@ -5,8 +5,8 @@ from pydantic import BaseModel
 from backend import models
 import json
 import os
-from database import get_db
-from dependencies import get_current_user
+from backend.database import get_db
+from backend.dependencies import get_current_user
 import datetime
 
 router = APIRouter(

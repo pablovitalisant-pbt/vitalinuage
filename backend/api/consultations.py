@@ -5,9 +5,9 @@ from backend import models
 import json
 import os
 import datetime
-from database import get_db
-from dependencies import get_current_user
-from schemas.consultations import ConsultationCreate, ConsultationResponse
+from backend.database import get_db
+from backend.dependencies import get_current_user
+from backend.schemas.consultations import ConsultationCreate, ConsultationResponse
 from sqlalchemy import desc
 
 router = APIRouter(
