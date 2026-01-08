@@ -131,7 +131,7 @@ def register(
         email=user.email,
         hashed_password=hashed_pwd,
         # Default flags
-        is_active=True, # Simplified for MVP, or False if email verification required
+        # is_active removed as per model definition
         is_verified=False,
         professional_name="Dr. " # Placeholder
     )
