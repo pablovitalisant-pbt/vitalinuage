@@ -41,3 +41,26 @@ class Patient(PatientBase):
     id: int
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+
+class PatientUpdate(BaseModel):
+    nombre: Optional[str] = None
+    apellido_paterno: Optional[str] = None
+    apellido_materno: Optional[str] = None
+    dni: Optional[str] = None
+    fecha_nacimiento: Optional[str] = None
+    sexo: Optional[str] = None
+    
+    telefono: Optional[str] = None
+    email: Optional[EmailStr] = None
+    direccion: Optional[str] = None
+    
+    ocupacion: Optional[str] = None
+    estado_civil: Optional[str] = None
+    
+    peso: Optional[float] = None
+    talla: Optional[float] = None
+    imc: Optional[float] = None
+    
+    grupo_sanguineo: Optional[str] = None
+    alergias: Optional[str] = None
+    observaciones: Optional[str] = None
