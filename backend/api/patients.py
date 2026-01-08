@@ -279,14 +279,14 @@ def create_patient_consultation(
     if not patient:
         raise HTTPException(status_code=404, detail="Patient not found")
         
-    # 2. Create Consultation
+    # 2. Create Consultation (map English schema to Spanish model columns)
     db_consultation = models.ClinicalConsultation(
         patient_id=patient_id,
         owner_id=current_user.email,
-        reason=consultation.reason,
-        diagnosis=consultation.diagnosis,
-        treatment=consultation.treatment,
-        notes=consultation.notes
+        motivo_consulta=consultation.reason,  # reason -> motivo_consulta
+        diagnostico=consultation.diagnosis,    # diagnosis -> diagnostico
+        plan_tratamiento=consultation.treatment,  # treatment -> plan_tratamiento
+        examen_fisico=consultation.notes or ""  # notes -> examen_fisico
         # created_at is auto
     )
     
@@ -294,11 +294,16 @@ def create_patient_consultation(
     db.commit()
     db.refresh(db_consultation)
     
-    # Map 'date' for response
-    if not hasattr(db_consultation, 'date'):
-        db_consultation.date = db_consultation.created_at
-        
-    return db_consultation
+    # 3. Map Spanish model fields back to English schema for response
+    return ConsultationItem(
+        id=db_consultation.id,
+        reason=db_consultation.motivo_consulta,
+        diagnosis=db_consultation.diagnostico,
+        treatment=db_consultation.plan_tratamiento,
+        notes=db_consultation.examen_fisico,
+        date=db_consultation.created_at,
+        created_at=db_consultation.created_at
+    )
 
 @router.post("/consultations/{consultation_id}/prescription", status_code=201, response_model=PrescriptionResponse)
 def create_prescription(

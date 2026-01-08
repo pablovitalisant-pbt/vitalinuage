@@ -1,9 +1,17 @@
 ﻿# Tablero de Estado PBT-IA - Vitalinuage
 
-## MÃ©tricas Globales
-* **Progreso:** 85%
-* **Slices Totales (estimados):** 16
-* **Slices Completados:** 16
+## Métricas Globales
+* **Progreso:** 10%
+* **Slices Totales (estimados):** 20
+* **Slices Completados:** 2
+
+## Registro de Slices (Fase 3: Estabilización)
+
+| ID | Slice/Funcionalidad | Estado | Horas Est. |
+| :--- | :--- | :--- | :--- |
+| 01 | Patient Profile Fix (Slice 18) | Completado | 2 |
+| 02 | Hotfix: Mapping Consultas (Slice 19.1) | Completado | 1 |
+| - | - | - | - |
 
 ## Registro de Slices (Fase 2: Multitenancy)
 
