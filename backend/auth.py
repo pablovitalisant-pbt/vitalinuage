@@ -154,3 +154,25 @@ def register(
     )
     
     return {"message": "User created successfully", "email": new_user.email}
+
+@router.get("/verify", status_code=200)
+def verify_email(
+    token: str,
+    db: Session = Depends(get_db)
+):
+    # 1. Find user with verification_token
+    user = db.query(models.User).filter(models.User.verification_token == token).first()
+    
+    if not user:
+        raise HTTPException(
+            status_code=400,
+            detail="Token inválido o expirado"
+        )
+    
+    # 2. Verify user
+    user.is_verified = True
+    user.verification_token = None # Invalidate token (One-time use)
+    
+    db.commit()
+    
+    return {"message": "Email verificado correctamente"}

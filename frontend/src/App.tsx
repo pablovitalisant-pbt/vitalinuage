@@ -2,7 +2,7 @@
 import { BrowserRouter, Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Login from './pages/Login';
-import VerifyEmail from './pages/VerifyEmail';
+import VerifyAccount from './pages/VerifyAccount';
 import PublicValidation from './pages/PublicValidation';
 import SearchPage from './pages/Search';
 import PatientProfile from './pages/PatientProfile';
@@ -881,7 +881,7 @@ function App() {
                 <Toaster position="top-right" />
                 <Routes>
                     <Route path="/" element={<Login />} />
-                    <Route path="/verify" element={<VerifyEmail />} />
+                    <Route path="/verify" element={<VerifyAccount />} />
                     <Route path="/v/:token" element={<PublicValidation />} />
 
                     {/* Protected Routes */}
