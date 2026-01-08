@@ -9,6 +9,20 @@ if not os.environ.get("PYTEST_CURRENT_TEST") and not os.environ.get("TESTING"):
     Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Vitalinuage API")
 
+origins = [
+    "http://localhost:5173",      # Local Frontend Dev
+    "http://localhost:8080",      # Docker Local
+    "https://vitalinuage.web.app", # Production
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Centralized Router Registration (The Switchboard)
 app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
 app.include_router(user.router, prefix="/api/users", tags=["Users"])

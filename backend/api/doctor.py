@@ -196,3 +196,28 @@ def get_dashboard_stats(
         "weekly_patient_flow": weekly_patient_flow,
         "efficiency_rate": round(efficiency_rate, 1)
     }
+
+@router.get("/preferences")
+def get_preferences(current_user: User = Depends(get_current_user)):
+    """
+    Stub for doctor preferences (Frontend requirement).
+    Returns default values until implemented.
+    """
+    return {
+        "paper_size": "A4",
+        "template_id": "classic",
+        "header_text": "",
+        "footer_text": "",
+        "primary_color": "#000000",
+        "secondary_color": "#ffffff"
+    }
+
+@router.put("/preferences")
+def update_preferences(
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Stub for updating preferences.
+    """
+    # No-op for now, just success
+    return {"status": "success"}

@@ -20,7 +20,7 @@ export default function MedicalBackgroundManager({ patientId }: Props) {
     const fetchData = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`/api/pacientes/${patientId}/antecedentes`, {
+            const res = await fetch(`/api/medical-background/pacientes/${patientId}/antecedentes`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -52,7 +52,7 @@ export default function MedicalBackgroundManager({ patientId }: Props) {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`/api/pacientes/${patientId}/antecedentes`, {
+            const res = await fetch(`/api/medical-background/pacientes/${patientId}/antecedentes`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

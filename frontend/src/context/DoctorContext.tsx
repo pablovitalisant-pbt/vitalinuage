@@ -68,10 +68,10 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
 
         try {
             const [profileRes, prefsRes] = await Promise.all([
-                fetch(getApiUrl('/api/doctor/profile'), {
+                fetch(getApiUrl('/api/doctors/profile'), {
                     headers: { 'Authorization': `Bearer ${token}` }
                 }).catch(() => ({ ok: false } as Response)),
-                fetch(getApiUrl('/api/doctor/preferences'), {
+                fetch(getApiUrl('/api/doctors/preferences'), {
                     headers: { 'Authorization': `Bearer ${token}` }
                 }).catch(() => ({ ok: false } as Response))
             ]);
@@ -120,7 +120,7 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
 
         try {
             // Step 1: Update Profile Details
-            const updateRes = await fetch(getApiUrl('/api/doctor/profile'), {
+            const updateRes = await fetch(getApiUrl('/api/doctors/profile'), {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -137,7 +137,7 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
             if (!updateRes.ok) throw new Error('Failed to update profile details');
 
             // Step 2: Finalize Onboarding (Trigger)
-            const completeRes = await fetch(getApiUrl('/api/doctor/onboarding/complete'), {
+            const completeRes = await fetch(getApiUrl('/api/doctors/onboarding/complete'), {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -169,7 +169,7 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
         if (!token) return;
 
         try {
-            await fetch(getApiUrl('/api/doctor/preferences'), {
+            await fetch(getApiUrl('/api/doctors/preferences'), {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
