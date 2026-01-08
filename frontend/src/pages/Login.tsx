@@ -17,7 +17,7 @@ const Login: React.FC = () => {
 
     setError('');
     setIsLoading(true);
-    const endpoint = isRegister ? '/register' : '/login';
+    const endpoint = isRegister ? '/api/auth/register' : '/api/auth/login';
 
     try {
       const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';

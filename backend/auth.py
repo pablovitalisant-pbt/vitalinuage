@@ -106,8 +106,37 @@ def login_for_access_token(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)
     access_token = create_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+@router.post("/register", status_code=201, response_model=auth_schemas.UserCreateResponse)
+def register(
+    user: auth_schemas.UserCreate,
+    db: Session = Depends(get_db)
+):
+    # 1. Check if email exists
+    db_user = db.query(models.User).filter(models.User.email == user.email).first()
+    if db_user:
+        raise HTTPException(
+            status_code=400,
+            detail="Email already registered"
+        )
+    
+    # 2. Hash password & Create User
+    hashed_pwd = get_password_hash(user.password)
+    new_user = models.User(
+        email=user.email,
+        hashed_password=hashed_pwd,
+        # Default flags
+        is_active=True, # Simplified for MVP, or False if email verification required
+        is_verified=False,
+        professional_name="Dr. " # Placeholder
+    )
+    
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    
+    return {"message": "User created successfully", "email": new_user.email}

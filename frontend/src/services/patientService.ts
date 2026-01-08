@@ -1,13 +1,13 @@
 export const patientService = {
     getAll: async (token: string) => {
-        const res = await fetch('/api/pacientes', {
+        const res = await fetch('/api/patients', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!res.ok) throw new Error('Error fetching patients');
         return res.json();
     },
     search: async (token: string, query: string) => {
-        const res = await fetch(`/api/pacientes/search?q=${encodeURIComponent(query)}`, {
+        const res = await fetch(`/api/patients/search?q=${encodeURIComponent(query)}`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!res.ok) throw new Error('Error searching patients');
