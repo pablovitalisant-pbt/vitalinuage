@@ -39,7 +39,7 @@ jobs:
         run: |
           docker build -t ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/vitalinuage/${{ env.SERVICE_NAME }}:${{ github.sha }} \
                        -t ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/vitalinuage/${{ env.SERVICE_NAME }}:latest \
-                       ./backend
+                       -f backend/Dockerfile .
 
       - name: Push Docker image to Artifact Registry
         run: |
