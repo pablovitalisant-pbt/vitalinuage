@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { toast } from 'react-hot-toast';
 import { getApiUrl } from '../config/api';
 import { PacienteSchema } from '../contracts/paciente';
+import { useDoctor } from '../context/DoctorContext';
 
 // Extension of schema for form only (fullName is split later)
 const RegisterFormSchema = PacienteSchema.pick({
@@ -24,6 +25,7 @@ export default function RegisterPatient() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { token } = useDoctor();
 
     const { register, handleSubmit, setValue, formState: { errors } } = useForm<RegisterForm>({
         resolver: zodResolver(RegisterFormSchema),
@@ -62,9 +64,17 @@ export default function RegisterPatient() {
                 imc: 0
             };
 
-            const response = await fetch(getApiUrl('/api/pacientes'), {
+            const headers: Record<string, string> = {
+                'Content-Type': 'application/json'
+            };
+
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            const response = await fetch(getApiUrl('/api/patients'), {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers,
                 body: JSON.stringify(payload)
             });
 

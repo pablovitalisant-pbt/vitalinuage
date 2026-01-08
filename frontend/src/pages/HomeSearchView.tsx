@@ -15,9 +15,9 @@ interface PatientResult {
     imc: number;
 }
 
-export default function HomeSearchView() {
+export default function SearchPage() {
     const navigate = useNavigate();
-    const { profile } = useDoctor();
+    const { profile, token } = useDoctor();
     const [results, setResults] = useState<PatientResult[] | null>(null);
     const [hasSearched, setHasSearched] = useState(false);
     const [searchError, setSearchError] = useState<string | null>(null);
@@ -57,7 +57,17 @@ export default function HomeSearchView() {
         setIsLoading(true);
 
         try {
-            const response = await fetch(getApiUrl(`/api/patients/search?q=${encodeURIComponent(data.query)}`));
+            const headers: Record<string, string> = {
+                'Content-Type': 'application/json'
+            };
+
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            const response = await fetch(getApiUrl(`/api/patients/search?q=${encodeURIComponent(data.query)}`), {
+                headers
+            });
 
             if (response.status === 503) {
                 setSearchError("El servicio de búsqueda no está disponible momentáneamente.");
