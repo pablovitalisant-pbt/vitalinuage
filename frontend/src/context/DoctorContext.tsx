@@ -79,20 +79,16 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
             if (profileRes.ok) {
                 const data = await profileRes.json();
 
-                // Slice 12: Handle non-onboarded state
-                if (data.has_profile === false) {
-                    setProfile({ ...defaultProfile, isOnboarded: false, email: data.email || "" });
-                } else {
-                    setProfile({
-                        professionalName: data.professionalName || data.professional_name || "Dr. Vitali",
-                        specialty: data.specialty || "",
-                        address: "",
-                        phone: "",
-                        registrationNumber: data.registrationNumber || data.registration_number || "",
-                        isOnboarded: data.isOnboarded !== undefined ? data.isOnboarded : (data.is_onboarded || false),
-                        email: data.email || ""
-                    });
-                }
+                // Slice 20: State-Aware. Always use the returned profile.
+                setProfile({
+                    professionalName: data.professionalName || data.professional_name || "Dr. Vitali",
+                    specialty: data.specialty || "",
+                    address: "",
+                    phone: "",
+                    registrationNumber: data.registrationNumber || data.registration_number || "",
+                    isOnboarded: data.isOnboarded !== undefined ? data.isOnboarded : (data.is_onboarded || false),
+                    email: data.email || ""
+                });
             } else if (profileRes.status !== 401) {
                 setProfile(defaultProfile);
             }

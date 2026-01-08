@@ -10,11 +10,13 @@ router = APIRouter(
 
 from typing import Union
 
-@router.get("/profile", response_model=Union[schemas.DoctorProfile, dict])
+@router.get("/profile", response_model=schemas.DoctorProfile)
 def get_profile(current_user: User = Depends(get_current_user)):
     # Slice 12: Check onboarding status
-    if not current_user.is_onboarded:
-        return {"has_profile": False}
+    # Slice 12: Check onboarding status
+    # Removed logic: "if not current_user.is_onboarded: return {'has_profile': False}"
+    # Slice 20: State-Aware Architecture. Always return profile.
+
         
     return {
         "id": current_user.id,
