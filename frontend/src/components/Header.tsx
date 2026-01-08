@@ -29,7 +29,7 @@ export default function Header() {
     };
 
     return (
-        <header className="fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-gray-100 z-50 flex items-center justify-between px-6 transition-all">
+        <header className="sticky top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-gray-100 z-40 flex items-center justify-between px-6 transition-all">
             {/* Logo Area - Clickable to go home */}
             <div
                 onClick={() => navigate('/search')}

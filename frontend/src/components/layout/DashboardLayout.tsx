@@ -7,12 +7,30 @@ import { Menu } from 'lucide-react';
 
 export default function DashboardLayout() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    // Slice 13.1: Sidebar Collapse State Persistence
+    const [isCollapsed, setIsCollapsed] = useState(() => {
+        const saved = localStorage.getItem('sidebar_collapsed');
+        return saved === 'true';
+    });
+
+    const toggleCollapse = () => {
+        setIsCollapsed(prev => {
+            const newState = !prev;
+            localStorage.setItem('sidebar_collapsed', String(newState));
+            return newState;
+        });
+    };
 
     return (
         <div className="flex h-screen bg-slate-50 overflow-hidden">
-            <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+            <Sidebar
+                isOpen={isSidebarOpen}
+                onClose={() => setIsSidebarOpen(false)}
+                isCollapsed={isCollapsed}
+                toggleCollapse={toggleCollapse}
+            />
 
-            <div className="flex-1 flex flex-col min-w-0">
+            <div className="flex-1 flex flex-col min-w-0 transition-all duration-300">
                 {/* Mobile Header Toggle */}
                 <div className="md:hidden bg-white border-b border-slate-200 p-4 flex items-center">
                     <button
@@ -25,8 +43,6 @@ export default function DashboardLayout() {
                 </div>
 
                 {/* Main Header (Desktop hidden if we want specific layout, but users requested Header Sync) */}
-                {/* Actually, user requested "Header should extract professional_name". The existing Header handles this internally via DoctorContext logic.
-                    We just render it here. */}
                 <div className="hidden md:block">
                     <Header />
                 </div>
