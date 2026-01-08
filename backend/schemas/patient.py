@@ -2,6 +2,17 @@ from pydantic import BaseModel, ConfigDict, field_validator
 from typing import Optional, List
 from datetime import datetime
 import html
+import re
+
+# Security Util (Inline for now or moved to utils/security later)
+def sanitize_text(value: str) -> str:
+    if not value: return value
+    # 1. Remove script tags and their content efficiently
+    # allow dot to match newlines
+    clean_text = re.sub(r'<script[\s\S]*?>[\s\S]*?</script>', '', value, flags=re.IGNORECASE)
+    # 2. Remove other HTML tags
+    clean_text = re.sub(r'<[^>]*>', '', clean_text)
+    return clean_text.strip()
 
 class PatientItem(BaseModel):
     id: int
@@ -19,18 +30,6 @@ class PatientListResponse(BaseModel):
     size: int
     
     model_config = ConfigDict(from_attributes=True)
-
-import re
-
-# Security Util (Inline for now or moved to utils/security later)
-def sanitize_text(value: str) -> str:
-    if not value: return value
-    # 1. Remove script tags and their content efficiently
-    # allow dot to match newlines
-    clean_text = re.sub(r'<script[\s\S]*?>[\s\S]*?</script>', '', value, flags=re.IGNORECASE)
-    # 2. Remove other HTML tags
-    clean_text = re.sub(r'<[^>]*>', '', clean_text)
-    return clean_text.strip()
 
 class ClinicalRecord(BaseModel):
     blood_type: Optional[str] = None
@@ -78,6 +77,21 @@ class ConsultationItem(ConsultationBase):
     date: datetime
     created_at: datetime
     
+    model_config = ConfigDict(from_attributes=True)
+
+# New Spanish Schema for Frontend Display (SP-02)
+class ConsultationItemSpanish(BaseModel):
+    id: int
+    motivo_consulta: str
+    diagnostico: str
+    plan_tratamiento: str
+    examen_fisico: Optional[str] = None
+    created_at: datetime
+    
+    # Optional fields for tracking
+    email_sent_at: Optional[datetime] = None
+    whatsapp_sent_at: Optional[datetime] = None
+
     model_config = ConfigDict(from_attributes=True)
 
 class MedicationItem(BaseModel):

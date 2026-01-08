@@ -12,7 +12,8 @@ from backend.schemas.patient import (
     ConsultationCreate,
     PrescriptionCreate,
     PrescriptionResponse,
-    MedicationItem
+    MedicationItem,
+    ConsultationItemSpanish # Added for SP-02
 )
 from backend.database import get_db
 
@@ -93,10 +94,41 @@ def get_patient_by_id(
         models.Patient.owner_id == current_user.email
     ).first()
     
+    
     if not patient:
         raise HTTPException(status_code=404, detail="Patient not found")
     
     return patient
+
+@router.patch("/{patient_id}", response_model=schemas.Patient)
+def update_patient(
+    patient_id: int,
+    patient_update: schemas.PatientUpdate,
+    db: Session = Depends(get_db),
+    current_user: schemas_auth.User = Depends(get_current_user)
+):
+    """
+    Update patient details (partial update).
+    """
+    # 1. Verify Ownership
+    db_patient = db.query(models.Patient).filter(
+        models.Patient.id == patient_id,
+        models.Patient.owner_id == current_user.email
+    ).first()
+    
+    if not db_patient:
+        raise HTTPException(status_code=404, detail="Patient not found")
+        
+    # 2. Update fields
+    # Using exclude_unset=True to only update fields sent in the request
+    update_data = patient_update.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_patient, key, value)
+        
+    db.commit()
+    db.refresh(db_patient)
+    
+    return db_patient
 
 
 @router.get("", response_model=PatientListResponse)
@@ -226,7 +258,7 @@ def update_clinical_record(
     return db_record
 
 
-@router.get("/{patient_id}/consultations", response_model=List[ConsultationItem])
+@router.get("/{patient_id}/consultations", response_model=List[ConsultationItemSpanish])
 def get_patient_consultations(
     patient_id: int,
     db: Session = Depends(get_db),
@@ -247,22 +279,8 @@ def get_patient_consultations(
         models.ClinicalConsultation.patient_id == patient_id
     ).order_by(models.ClinicalConsultation.created_at.desc()).all()
     
-    # 3. Map to Response (Translate Spanish model to English schema)
-    results = []
-    for c in consultations:
-        # Explicit mapping to resolve "Field required" errors for aliases
-        item = ConsultationItem(
-            id=c.id,
-            reason=c.motivo_consulta,  # motivo_consulta -> reason
-            diagnosis=c.diagnostico,    # diagnostico -> diagnosis
-            treatment=c.plan_tratamiento, # plan_tratamiento -> treatment
-            notes=c.examen_fisico,      # examen_fisico -> notes
-            date=c.created_at,
-            created_at=c.created_at
-        )
-        results.append(item)
-        
-    return results
+    # 3. Return directly (Auto-mapped to Spanish Schema)
+    return consultations
 
 @router.post("/{patient_id}/consultations", response_model=ConsultationItem, status_code=201)
 def create_patient_consultation(

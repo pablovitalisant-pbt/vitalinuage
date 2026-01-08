@@ -61,7 +61,8 @@ async def test_list_consultations_persistence_fail(auth_client, test_db, create_
     # Assert (RED): We expect the item we 'tried' to create to be there. 
     # Since create returns 501 and does nothing, list returns empty.
     assert len(items) > 0
-    assert items[0]["reason"] == "Checkup"
+    # SP-02 Update: Key is now 'motivo_consulta' (Spanish)
+    assert items[0]["motivo_consulta"] == "Checkup"
 
 # 3. Security Test (Should work as 404/403 even in Red if stubbed correctly or fail if stub allows all)
 @pytest.mark.asyncio
