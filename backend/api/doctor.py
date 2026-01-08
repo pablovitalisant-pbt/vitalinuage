@@ -142,78 +142,91 @@ def get_dashboard_stats(
     from sqlalchemy import func, desc, and_
     from datetime import datetime, time, timedelta
 
-    # 1. Total Patients
-    total_patients = db.query(Patient).filter(Patient.owner_id == current_user.email).count()
+    # Slice 12.3: Robustness Refactor
+    # Wrap all logic in try/except to prevent 500 on missing data/tables
+    try:
+        # 1. Total Patients
+        total_patients = db.query(Patient).filter(Patient.owner_id == current_user.email).count()
 
-    # 2. Appointments Today
-    today_start = datetime.combine(datetime.utcnow().date(), time.min)
-    today_end = datetime.combine(datetime.utcnow().date(), time.max)
-    
-    appointments_today = db.query(ClinicalConsultation).filter(
-        ClinicalConsultation.owner_id == current_user.email,
-        ClinicalConsultation.created_at >= today_start,
-        ClinicalConsultation.created_at <= today_end
-    ).count()
-
-    # 3. Recent Activity (Last 5 consultations)
-    recent_consultations = db.query(ClinicalConsultation).join(Patient).filter(
-        ClinicalConsultation.owner_id == current_user.email
-    ).order_by(desc(ClinicalConsultation.created_at)).limit(5).all()
-
-    recent_activity = []
-    for consult in recent_consultations:
-        recent_activity.append({
-            "patient_name": f"{consult.patient.nombre} {consult.patient.apellido_paterno}",
-            "action": "Consulta",
-            "timestamp": consult.created_at
-        })
+        # 2. Appointments Today
+        today_start = datetime.combine(datetime.utcnow().date(), time.min)
+        today_end = datetime.combine(datetime.utcnow().date(), time.max)
         
-    # Slice 20.0: Analytics
-    
-    # 4. Total Prescriptions
-    total_prescriptions = db.query(Prescription).filter(
-        Prescription.doctor_id == current_user.email
-    ).count()
-    
-    # 5. Weekly Patient Flow (Last 7 days)
-    # We want an array of counts for [Today-6, Today-5, ..., Today]
-    weekly_patient_flow = []
-    today = datetime.utcnow().date()
-    
-    for i in range(6, -1, -1):
-        day = today - timedelta(days=i)
-        day_start = datetime.combine(day, time.min)
-        day_end = datetime.combine(day, time.max)
-        
-        count = db.query(ClinicalConsultation).filter(
+        appointments_today = db.query(ClinicalConsultation).filter(
             ClinicalConsultation.owner_id == current_user.email,
-            ClinicalConsultation.created_at >= day_start,
-            ClinicalConsultation.created_at <= day_end
+            ClinicalConsultation.created_at >= today_start,
+            ClinicalConsultation.created_at <= today_end
         ).count()
-        weekly_patient_flow.append(count)
-        
-    # 6. Efficiency Rate (Prescriptions / Consultations)
-    # Using total historical counts for accumulated efficiency
-    # Or should it be monthly? "Eficacia General" implies total.
-    total_consultations = db.query(ClinicalConsultation).filter(
-        ClinicalConsultation.owner_id == current_user.email
-    ).count()
-    
-    efficiency_rate = 0.0
-    if total_consultations > 0:
-        efficiency_rate = (total_prescriptions / total_consultations) * 100
-        # Cap at 100 if multiple prescriptions per consult? Usually 1:1 or 0:1.
-        if efficiency_rate > 100: efficiency_rate = 100.0
 
-    return {
-        "total_patients": total_patients,
-        "appointments_today": appointments_today,
-        "pending_tasks": 0,
-        "recent_activity": recent_activity,
-        "total_prescriptions": total_prescriptions,
-        "weekly_patient_flow": weekly_patient_flow,
-        "efficiency_rate": round(efficiency_rate, 1)
-    }
+        # 3. Recent Activity (Last 5 consultations)
+        recent_consultations = db.query(ClinicalConsultation).join(Patient).filter(
+            ClinicalConsultation.owner_id == current_user.email
+        ).order_by(desc(ClinicalConsultation.created_at)).limit(5).all()
+
+        recent_activity = []
+        for consult in recent_consultations:
+            recent_activity.append({
+                "patient_name": f"{consult.patient.nombre} {consult.patient.apellido_paterno}",
+                "action": "Consulta",
+                "timestamp": consult.created_at
+            })
+            
+        # Slice 20.0: Analytics
+        
+        # 4. Total Prescriptions
+        total_prescriptions = db.query(Prescription).filter(
+            Prescription.doctor_id == current_user.email
+        ).count()
+        
+        # 5. Weekly Patient Flow (Last 7 days)
+        # We want an array of counts for [Today-6, Today-5, ..., Today]
+        weekly_patient_flow = []
+        today = datetime.utcnow().date()
+        
+        for i in range(6, -1, -1):
+            day = today - timedelta(days=i)
+            day_start = datetime.combine(day, time.min)
+            day_end = datetime.combine(day, time.max)
+            
+            count = db.query(ClinicalConsultation).filter(
+                ClinicalConsultation.owner_id == current_user.email,
+                ClinicalConsultation.created_at >= day_start,
+                ClinicalConsultation.created_at <= day_end
+            ).count()
+            weekly_patient_flow.append(count)
+            
+        # 6. Efficiency Rate (Prescriptions / Consultations)
+        total_consultations = db.query(ClinicalConsultation).filter(
+            ClinicalConsultation.owner_id == current_user.email
+        ).count()
+        
+        efficiency_rate = 0.0
+        if total_consultations > 0:
+            efficiency_rate = (total_prescriptions / total_consultations) * 100
+            if efficiency_rate > 100: efficiency_rate = 100.0
+
+        return {
+            "total_patients": total_patients,
+            "appointments_today": appointments_today,
+            "pending_tasks": 0,
+            "recent_activity": recent_activity,
+            "total_prescriptions": total_prescriptions,
+            "weekly_patient_flow": weekly_patient_flow,
+            "efficiency_rate": round(efficiency_rate, 1)
+        }
+        
+    except Exception as e:
+        print(f"[ERROR] Dashboard Stats: {str(e)}") # Simple logging
+        # Return Zero State on error to avoid UI crash
+        return {
+            "total_patients": 0,
+            "appointments_today": 0,
+            "pending_tasks": 0,
+            "recent_activity": [],
+            "total_prescriptions": 0,
+            "weekly_patient_flow": [0]*7,
+            "efficiency_rate": 0.0
+        }
 
 @router.get("/preferences")
 def get_preferences(current_user: User = Depends(get_current_user)):

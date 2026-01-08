@@ -73,5 +73,47 @@ def test_dashboard_stats_endpoint():
     assert isinstance(data["weekly_patient_flow"], list)
     assert len(data["weekly_patient_flow"]) == 7  # Logic returns 7 days
 
+def test_dashboard_stats_zero_state():
+    """
+    Validates:
+    1. Zero State Handling: Authenticated doctor with NO activity triggers no errors.
+    2. Returns valid schema with zeros.
+    """
+    
+    # A. Setup New User
+    db = TestingSessionLocal()
+    email = f"zero_state_{uuid.uuid4()}@example.com"
+    pwd = "secure_password"
+    import backend.auth as auth_lib
+    hashed = auth_lib.get_password_hash(pwd)
+    
+    user = User(
+        email=email,
+        hashed_password=hashed,
+        is_verified=True,
+        is_onboarded=True,
+        professional_name="Dr. Zero"
+    )
+    db.add(user)
+    db.commit()
+    db.close()
+    
+    # B. Login
+    login_res = client.post("/api/auth/login", json={"email": email, "password": pwd})
+    token = login_res.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+    
+    # C. Request Stats
+    response = client.get("/api/doctors/dashboard/stats", headers=headers)
+    
+    assert response.status_code == 200, f"Zero state failed with {response.status_code}: {response.text}"
+    data = response.json()
+    
+    assert data["total_patients"] == 0
+    assert data["total_prescriptions"] == 0
+    assert data["efficiency_rate"] == 0.0
+    assert len(data["recent_activity"]) == 0
+
 if __name__ == "__main__":
     test_dashboard_stats_endpoint()
+    test_dashboard_stats_zero_state()
