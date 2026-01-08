@@ -4,7 +4,7 @@ from backend.dependencies import get_current_user
 from backend.models import User
 
 router = APIRouter(
-    prefix="/api/doctor",
+    # Prefix managed in main.py
     tags=["doctor"]
 )
 

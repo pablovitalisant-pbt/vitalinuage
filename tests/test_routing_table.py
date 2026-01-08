@@ -20,7 +20,14 @@ def test_routing_integrity():
         ("GET", "/api/patients"),
         
         # 3. Audit (Missing import)
+        # 3. Audit (Missing import)
         ("GET", "/api/audit/dispatch-summary"),
+
+        # 4. Doctor Profile (Fixing double prefix)
+        ("GET", "/api/doctors/profile"),
+
+        # 5. Medical Background (Fixing redundant prefix)
+        ("GET", "/api/medical-background/pacientes/1/antecedentes"),
     ]
     
     failures = []

@@ -12,7 +12,7 @@ from sqlalchemy import desc
 
 router = APIRouter(
     prefix="/api/pacientes/{patient_id}/consultas",
-    tags=["consultas"]
+    tags=["Consultations"]
 )
 
 def check_feature_flag():
@@ -95,7 +95,7 @@ def list_consultations(
 # New router for consultation-level operations (not patient-scoped)
 verification_router = APIRouter(
     prefix="/api/consultas",
-    tags=["consultas"]
+    tags=["Consultations"]
 )
 
 @verification_router.post("/{consultation_id}/create-verification")
