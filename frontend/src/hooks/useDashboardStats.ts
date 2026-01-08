@@ -16,7 +16,7 @@ export function useDashboardStats() {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await fetch(getApiUrl('/api/doctor/dashboard/stats'), {
+            const response = await fetch(getApiUrl('/api/doctors/dashboard/stats'), {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

@@ -42,7 +42,7 @@ export default function OnboardingView() {
                 registrationNumber: data.medical_license,
                 isOnboarded: true, email: "doctor@vitalinuage.com"
             });
-            toast.success("Perfil configurado con ??xito");
+            toast.success("Perfil configurado con éxito");
             navigate('/dashboard');
         } catch (error) {
             toast.error("Error al guardar el perfil");
@@ -75,7 +75,7 @@ export default function OnboardingView() {
                                     type="text"
                                     {...register("professional_name")}
                                     className="appearance-none block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                    placeholder="Ej. Dr. Juan P??rez"
+                                    placeholder="Ej. Dr. Juan Pérez"
                                 />
                                 {errors.professional_name && <p className="mt-1 text-sm text-red-600">{errors.professional_name.message}</p>}
                             </div>
@@ -91,7 +91,7 @@ export default function OnboardingView() {
                                     type="text"
                                     {...register("specialty")}
                                     className="appearance-none block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                    placeholder="Ej. Cardiolog??a"
+                                    placeholder="Ej. Cardiología"
                                 />
                                 {errors.specialty && <p className="mt-1 text-sm text-red-600">{errors.specialty.message}</p>}
                             </div>
@@ -99,7 +99,7 @@ export default function OnboardingView() {
 
                         <div>
                             <label htmlFor="medical_license" className="block text-sm font-medium text-slate-700">
-                                Matr??cula / Licencia
+                                Matrícula / Licencia
                             </label>
                             <div className="mt-1">
                                 <input
@@ -118,7 +118,7 @@ export default function OnboardingView() {
                                 disabled={isSubmitting}
                                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
                             >
-                                {isSubmitting ? 'Guardando...' : 'Finalizar Configuraci??n'}
+                                {isSubmitting ? 'Guardando...' : 'Finalizar Configuración'}
                             </button>
                         </div>
                     </form>
