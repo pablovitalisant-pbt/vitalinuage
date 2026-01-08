@@ -72,14 +72,42 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Docker Build Placeholder
-        # Fix: Usar contexto raiz (.) y referenciar Dockerfile (-f backend/Dockerfile)
-        run: docker build -t vitalinuage-app -f Dockerfile .
+      # 1. Google Auth
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      # 2. Docker Auth
+      - name: Docker Auth
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev
+
+      # 3. Build & Push
+      - name: Build and Push Container
+        run: |
+          IMAGE_TAG="us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REPOSITORY }}/vitalinuage-backend:${{ github.sha }}"
+          docker build -t $IMAGE_TAG -f Dockerfile .
+          docker push $IMAGE_TAG
 
   deploy:
     needs: build
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy Placeholder
-        run: echo "Deploy logic via Google Cloud Actions would go here"
+      # 1. Google Auth (Required again for Deploy Job)
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      # 2. Deploy to Cloud Run
+      - id: 'deploy'
+        uses: 'google-github-actions/deploy-cloudrun@v2'
+        with:
+          service: 'vitalinuage-backend'
+          region: 'us-central1'
+          image: 'us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REPOSITORY }}/vitalinuage-backend:${{ github.sha }}'
+          env_vars: |-
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            SECRET_KEY=${{ secrets.SECRET_KEY }}
+            ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}
