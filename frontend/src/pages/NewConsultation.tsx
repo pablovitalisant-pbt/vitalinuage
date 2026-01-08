@@ -1,18 +1,21 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Save, Stethoscope, FileText, Activity, Pill } from 'lucide-react';
+import { ArrowLeft, Save, Stethoscope, FileText, Activity, Pill, Weight, Ruler } from 'lucide-react';
 import { useDoctor } from '../context/DoctorContext';
+import { getApiUrl } from '../config/api';
 
 export default function NewConsultation() {
     const navigate = useNavigate();
     const { id: patientId } = useParams();
-    const { profile } = useDoctor();
+    const { profile, token } = useDoctor();
 
     const [formData, setFormData] = useState({
         reason: '',
         notes: '',
         diagnosis: '',
-        treatment: ''
+        treatment: '',
+        weight: '',
+        height: ''
     });
 
     const [saving, setSaving] = useState(false);
@@ -24,25 +27,46 @@ export default function NewConsultation() {
         setError(null);
 
         try {
+            // Prepare payload matching backend schema
             const payload = {
-                patient_id: patientId,
                 reason: formData.reason,
-                notes: formData.notes,
                 diagnosis: formData.diagnosis,
                 treatment: formData.treatment,
-                doctor_name: profile.professionalName,
-                doctor_address: profile.address
+                notes: formData.notes || undefined
             };
 
-            const res = await fetch('/api/consultations', {
+            // Prepare headers with authentication
+            const headers: Record<string, string> = {
+                'Content-Type': 'application/json'
+            };
+
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            const res = await fetch(getApiUrl(`/api/patients/${patientId}/consultations`), {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers,
                 body: JSON.stringify(payload)
             });
 
             if (!res.ok) {
-                if (res.status === 503) throw new Error("El sistema de consultas está deshabilitado temporalmente.");
-                throw new Error("Error al guardar la consulta");
+                const errorData = await res.json().catch(() => ({}));
+                throw new Error(errorData.detail || "Error al guardar la consulta");
+            }
+
+            // If weight and height provided, update patient IMC
+            if (formData.weight && formData.height) {
+                const weight = parseFloat(formData.weight);
+                const heightInMeters = parseFloat(formData.height) / 100;
+                const imc = weight / (heightInMeters * heightInMeters);
+
+                // Update patient IMC (optional - could be done in backend)
+                await fetch(getApiUrl(`/api/patients/${patientId}`), {
+                    method: 'PATCH',
+                    headers,
+                    body: JSON.stringify({ imc: parseFloat(imc.toFixed(1)) })
+                }).catch(console.error); // Don't fail if IMC update fails
             }
 
             // Success
@@ -142,6 +166,43 @@ export default function NewConsultation() {
                                 placeholder="Ej: Gastritis Aguda"
                                 className="w-full border-0 border-b-2 border-slate-200 focus:border-[#1e3a8a] focus:ring-0 px-0 py-2 text-lg font-medium text-slate-800 bg-transparent transition-colors"
                             />
+                        </div>
+
+                        {/* Constantes Vitales */}
+                        <div className="space-y-3 bg-blue-50/30 p-6 -mx-6 md:-mx-8 border-y border-blue-100/50">
+                            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Constantes Vitales (Opcional)</h3>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                                        <Weight className="h-4 w-4 text-[#1e3a8a]" />
+                                        Peso (kg)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        name="weight"
+                                        step="0.1"
+                                        value={formData.weight}
+                                        onChange={handleChange}
+                                        placeholder="75.5"
+                                        className="w-full mt-2 rounded-md border-slate-200 focus:border-[#1e3a8a] focus:ring-[#1e3a8a] bg-white"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                                        <Ruler className="h-4 w-4 text-[#1e3a8a]" />
+                                        Talla (cm)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        name="height"
+                                        step="0.1"
+                                        value={formData.height}
+                                        onChange={handleChange}
+                                        placeholder="175"
+                                        className="w-full mt-2 rounded-md border-slate-200 focus:border-[#1e3a8a] focus:ring-[#1e3a8a] bg-white"
+                                    />
+                                </div>
+                            </div>
                         </div>
 
                         {/* Tratamiento (Area Grande) */}
