@@ -247,19 +247,20 @@ def get_patient_consultations(
         models.ClinicalConsultation.patient_id == patient_id
     ).order_by(models.ClinicalConsultation.created_at.desc()).all()
     
-    # 3. Map to Response (Ensure date is present)
-    # If model doesn't have 'date', we map created_at to date for the schema
+    # 3. Map to Response (Translate Spanish model to English schema)
     results = []
     for c in consultations:
-        # Ensure we handle the 'date' requirement if it's missing in model but required in schema
-        # We assume 'c' respects Pydantic from_attributes, but let's be explicit if needed.
-        # However, due to property limits, we rely on Pydantic mapping 'created_at' -> 'created_at'.
-        # For 'date', if missing, we default to created_at logic if we added a property or if we modify dict.
-        # Let's trust Pydantic or add a dynamic fix.
-        # Hack: Add 'date' attribute dynamically if missing
-        if not hasattr(c, 'date'):
-            c.date = c.created_at 
-        results.append(c)
+        # Explicit mapping to resolve "Field required" errors for aliases
+        item = ConsultationItem(
+            id=c.id,
+            reason=c.motivo_consulta,  # motivo_consulta -> reason
+            diagnosis=c.diagnostico,    # diagnostico -> diagnosis
+            treatment=c.plan_tratamiento, # plan_tratamiento -> treatment
+            notes=c.examen_fisico,      # examen_fisico -> notes
+            date=c.created_at,
+            created_at=c.created_at
+        )
+        results.append(item)
         
     return results
 
