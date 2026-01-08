@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from backend.schemas import doctor as schemas
 from backend.dependencies import get_current_user
-from backend.models import User
+from backend.models import User, Patient, ClinicalConsultation, Prescription
 
 router = APIRouter(
     # Prefix managed in main.py
@@ -138,7 +138,6 @@ def get_dashboard_stats(
     """
     Returns statistics for the doctor's dashboard.
     """
-    from backend.models import Patient, ClinicalConsultation, Prescription
     from sqlalchemy import func, desc, and_
     from datetime import datetime, time, timedelta
 

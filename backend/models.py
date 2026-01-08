@@ -176,3 +176,14 @@ Patient.clinical_record = relationship("ClinicalRecord", back_populates="patient
 
 
 
+
+class Prescription(Base):
+    """
+    Stub for Prescription model to satisfy doctor.py import.
+    Slice 12.2 Polish requirement regarding backend verification.
+    """
+    __tablename__ = "prescriptions"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    doctor_id = Column(String, index=True, nullable=False)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
