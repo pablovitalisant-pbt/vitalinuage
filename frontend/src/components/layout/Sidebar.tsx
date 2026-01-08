@@ -1,7 +1,9 @@
 
 import React, { ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Users, Calendar, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Home, Users, Calendar, X, ChevronLeft, ChevronRight, LogOut, BarChart2 } from 'lucide-react';
+import { useDoctor } from '../../context/DoctorContext';
+import { useNavigate } from 'react-router-dom';
 
 export interface NavItem {
     label: string;
@@ -19,12 +21,21 @@ interface SidebarProps {
 
 export const navItems = [
     { label: 'Inicio', path: '/dashboard', icon: <Home size={20} /> },
+    { label: 'Panel de Control', path: '/metrics', icon: <BarChart2 size={20} /> },
     { label: 'Pacientes', path: '/patients', icon: <Users size={20} /> },
     { label: 'Citas', path: '/appointments', icon: <Calendar size={20} /> },
     // Removed Configuración as per Slice 13 Contract
 ];
 
 export default function Sidebar({ isOpen, onClose, isCollapsed = false, toggleCollapse }: SidebarProps) {
+    const { setToken } = useDoctor();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        setToken(null);
+        navigate('/');
+    };
+
     return (
         <>
             {/* Mobile Overlay */}
@@ -40,10 +51,11 @@ export default function Sidebar({ isOpen, onClose, isCollapsed = false, toggleCo
                 fixed md:static inset-y-0 left-0 z-50
                 bg-white border-r border-slate-200 shadow-sm
                 transform transition-all duration-300 ease-in-out
+                flex flex-col
                 ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
                 ${isCollapsed ? 'w-20' : 'w-64'}
             `}>
-                <div className="h-16 flex items-center justify-between px-4 border-b border-slate-100 relative">
+                <div className="h-16 flex items-center justify-between px-4 border-b border-slate-100 relative shrink-0">
                     {!isCollapsed && (
                         <span className="text-xl font-bold text-slate-800 animate-in fade-in duration-300">
                             Vitalinuage
@@ -58,16 +70,7 @@ export default function Sidebar({ isOpen, onClose, isCollapsed = false, toggleCo
                     </button>
                 </div>
 
-                {/* Toggle Button (Desktop Only) */}
-                <button
-                    onClick={toggleCollapse}
-                    aria-label="toggle sidebar"
-                    className="hidden md:flex absolute -right-3 top-20 bg-white border border-slate-200 rounded-full p-1 shadow-sm text-slate-500 hover:text-slate-800 z-50"
-                >
-                    {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-                </button>
-
-                <nav className="p-3 space-y-1">
+                <nav className="p-3 space-y-1 flex-1 overflow-y-auto">
                     {navItems.map((item) => (
                         <NavLink
                             key={item.path}
@@ -87,6 +90,37 @@ export default function Sidebar({ isOpen, onClose, isCollapsed = false, toggleCo
                         </NavLink>
                     ))}
                 </nav>
+
+                {/* Footer Actions: Logout & Toggle */}
+                <div className="p-3 border-t border-slate-100 shrink-0 flex flex-col gap-2">
+
+                    {/* Logout Button */}
+                    <button
+                        onClick={handleLogout}
+                        className={`
+                            flex items-center ${isCollapsed ? 'justify-center' : ''} gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors
+                            text-red-600 hover:bg-red-50
+                        `}
+                        title="Cerrar Sesión"
+                    >
+                        <LogOut size={20} />
+                        {!isCollapsed && <span>Cerrar Sesión</span>}
+                    </button>
+
+                    {/* Toggle Button (Desktop Only) Moved to Footer */}
+                    <div className="hidden md:flex justify-end pt-2">
+                        <button
+                            onClick={toggleCollapse}
+                            aria-label="toggle sidebar"
+                            className={`
+                                p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors
+                                ${isCollapsed ? 'w-full flex justify-center' : ''}
+                            `}
+                        >
+                            {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+                        </button>
+                    </div>
+                </div>
             </aside>
         </>
     );

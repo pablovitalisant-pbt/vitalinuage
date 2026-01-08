@@ -12,6 +12,7 @@ import NewConsultation from './pages/NewConsultation';
 import TalonarioSettings from './pages/TalonarioSettings';
 import AuditPanel from './pages/AuditPanel';
 import DashboardLayout from './components/layout/DashboardLayout';
+import DashboardPage from './pages/DashboardPage';
 import HomeSearchView from './pages/HomeSearchView';
 import { DoctorProvider, useDoctor } from './context/DoctorContext';
 import OnboardingView from './pages/OnboardingView';
@@ -894,6 +895,7 @@ function App() {
                     }>
                         {/* Main Dashboard */}
                         <Route path="/dashboard" element={<HomeSearchView />} />
+                        <Route path="/metrics" element={<DashboardPage />} />
 
                         {/* Feature Routes */}
                         <Route path="/patients" element={<PatientsPage />} />

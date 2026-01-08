@@ -51,6 +51,7 @@ describe('Slice 13: Layout Architecture Red Tests', () => {
     // causing a TypeScript compilation error or runtime prop check failure if we were strictly typed.
     // Since we can't easily compile-fail in this runtime test, we check for the toggle button presence.
 
+
     test('Sidebar has collapse toggle', () => {
         render(
             <BrowserRouter>
@@ -62,6 +63,33 @@ describe('Slice 13: Layout Architecture Red Tests', () => {
         // This should FAIL because we haven't added it yet.
         const toggleBtn = screen.getByLabelText(/toggle sidebar/i);
         expect(toggleBtn).toBeInTheDocument();
+    });
+
+    // Slice 13.5 Polish Tests
+    test('Header visual polish: No "Vitalinuage" text, contains Date', () => {
+        render(
+            <BrowserRouter>
+                <DoctorProvider>
+                    <Header />
+                </DoctorProvider>
+            </BrowserRouter>
+        );
+
+        // Header should NOT contain "Vitalinuage" logo text anymore
+        // We assume the logo was using specific text. 
+        const logoText = screen.queryByText('Vitalinuage');
+        // This should pass if logo is removed, or fail if it's still there. 
+        // Wait, TDD says we write a failing test. The code currently HAS 'Vitalinuage'.
+        // So expectations should be that it is NOT there, which will fail.
+        expect(logoText).not.toBeInTheDocument();
+
+        // Header SHOULD contain the date
+        // We look for a known date element structure or class, 
+        // or just heuristic current date.
+        // Let's assume we add a testid 'header-date-display'
+        const dateDisplay = screen.getByTestId('header-date-display');
+        expect(dateDisplay).toBeInTheDocument();
+        expect(dateDisplay).toHaveClass('hidden md:block');
     });
 
 });

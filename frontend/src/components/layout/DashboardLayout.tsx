@@ -1,12 +1,15 @@
 
 import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from '../Header';
 import { Menu } from 'lucide-react';
 
 export default function DashboardLayout() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const location = useLocation();
+    const isHome = location.pathname === '/dashboard';
+
     // Slice 13.1: Sidebar Collapse State Persistence
     const [isCollapsed, setIsCollapsed] = useState(() => {
         const saved = localStorage.getItem('sidebar_collapsed');
@@ -23,7 +26,7 @@ export default function DashboardLayout() {
     };
 
     return (
-        <div className="flex h-screen bg-slate-50 overflow-hidden">
+        <div className={`flex h-screen ${isHome ? 'bg-white' : 'bg-slate-50'} overflow-hidden`}>
             <Sidebar
                 isOpen={isSidebarOpen}
                 onClose={() => setIsSidebarOpen(false)}
