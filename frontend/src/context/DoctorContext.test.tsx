@@ -57,7 +57,7 @@ describe('DoctorContext Integration', () => {
         // Wait for Fetch
         await waitFor(() => {
             expect(global.fetch).toHaveBeenCalledWith(
-                expect.stringContaining('/api/doctor/profile'),
+                expect.stringContaining('/api/doctors/profile'),
                 expect.anything()
             );
         });

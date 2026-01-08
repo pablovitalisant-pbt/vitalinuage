@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent, waitFor, screen } from '@testing-library/react';
-import Search from '../pages/Search';
+import HomeSearchView from '../pages/HomeSearchView';
 import { DoctorProvider } from '../context/DoctorContext';
 import '@testing-library/jest-dom';
 
@@ -39,31 +39,31 @@ describe('Search Component Integration', () => {
     };
 
     it('should NOT call Search API if query length < 3', async () => {
-        renderWithContext(<Search />);
-        const input = screen.getByRole('textbox');
+        renderWithContext(<HomeSearchView />);
+        const input = screen.getByPlaceholderText(/Buscar paciente por nombre o DNI/i);
 
         fireEvent.change(input, { target: { value: 'Te' } });
-        fireEvent.submit(input);
+        fireEvent.submit(input.closest('form')!);
 
         await new Promise(r => setTimeout(r, 500));
 
         // DoctorProvider might fetch profile, so we specifically check Search API wasn't called
         expect(global.fetch).not.toHaveBeenCalledWith(
-            expect.stringContaining('/api/pacientes/search')
+            expect.stringContaining('/api/patients/search')
         );
     });
 
     it('should call Search API if query length >= 3', async () => {
-        renderWithContext(<Search />);
-        const input = screen.getByRole('textbox');
+        renderWithContext(<HomeSearchView />);
+        const input = screen.getByPlaceholderText(/Buscar paciente por nombre o DNI/i);
 
         fireEvent.change(input, { target: { value: 'Test' } });
-        fireEvent.submit(input);
+        fireEvent.submit(input.closest('form')!);
 
         // Green Phase: Logic Implemented
         await waitFor(() => {
             expect(global.fetch).toHaveBeenCalledWith(
-                expect.stringContaining('/api/pacientes/search?q=Test')
+                expect.stringContaining('/api/patients/search?q=Test')
             );
         });
     });
@@ -76,16 +76,16 @@ describe('Search Component Integration', () => {
                 return Promise.resolve({ ok: true, json: async () => ({}) });
             }
 
-            if (typeof url === 'string' && url.includes('/pacientes/search')) {
+            if (typeof url === 'string' && url.includes('/patients/search')) {
                 return new Promise(() => { }); // Pending
             }
             return Promise.resolve({ ok: true, json: async () => ({}) });
         });
 
-        renderWithContext(<Search />);
-        const input = screen.getByRole('textbox');
+        renderWithContext(<HomeSearchView />);
+        const input = screen.getByPlaceholderText(/Buscar paciente por nombre o DNI/i);
         fireEvent.change(input, { target: { value: 'LoadingCheck' } });
-        fireEvent.submit(input);
+        fireEvent.submit(input.closest('form')!);
 
         await waitFor(() => {
             expect(screen.getByText(/buscando/i)).toBeInTheDocument();

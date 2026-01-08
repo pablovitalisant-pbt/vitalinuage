@@ -10,6 +10,7 @@ export default function DashboardLayout() {
     // Slice 13.1: Sidebar Collapse State Persistence
     const [isCollapsed, setIsCollapsed] = useState(() => {
         const saved = localStorage.getItem('sidebar_collapsed');
+        if (saved === null) return true; // Default to collapsed
         return saved === 'true';
     });
 

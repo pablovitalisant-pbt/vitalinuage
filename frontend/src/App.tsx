@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Login from './pages/Login';
 import VerifyAccount from './pages/VerifyAccount';
 import PublicValidation from './pages/PublicValidation';
-import SearchPage from './pages/Search';
+
 import PatientProfile from './pages/PatientProfile';
 import ProfileSettings from './pages/ProfileSettings';
 import RegisterPatient from './pages/RegisterPatient';
@@ -12,7 +12,7 @@ import NewConsultation from './pages/NewConsultation';
 import TalonarioSettings from './pages/TalonarioSettings';
 import AuditPanel from './pages/AuditPanel';
 import DashboardLayout from './components/layout/DashboardLayout';
-import DashboardPage from './pages/DashboardPage';
+import HomeSearchView from './pages/HomeSearchView';
 import { DoctorProvider, useDoctor } from './context/DoctorContext';
 import OnboardingView from './pages/OnboardingView';
 import OnboardingGuard from './components/auth/OnboardingGuard';
@@ -893,12 +893,12 @@ function App() {
                         </ProtectedRoute>
                     }>
                         {/* Main Dashboard */}
-                        <Route path="/dashboard" element={<DashboardPage />} />
+                        <Route path="/dashboard" element={<HomeSearchView />} />
 
                         {/* Feature Routes */}
                         <Route path="/patients" element={<PatientsPage />} />
                         <Route path="/patients/:id" element={<PatientDetailPage />} />
-                        <Route path="/search" element={<SearchPage />} />
+                        <Route path="/search" element={<HomeSearchView />} />
                         <Route path="/register" element={<RegisterPatient />} />
 
                         {/* Detail Routes */}
