@@ -99,7 +99,7 @@ jobs:
           echo "Target Image Tag: $IMAGE_TAG"
           
           # 3. Build & Push
-          docker build -t "$IMAGE_TAG" -f Dockerfile .
+          docker build -t "$IMAGE_TAG" -f backend/Dockerfile .
           docker push "$IMAGE_TAG"
 
   deploy:
