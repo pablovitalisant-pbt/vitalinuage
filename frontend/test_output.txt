@@ -1,75 +1,133 @@
+  console.warn
+    ÔÜá´©Å React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
 
-> vitalinuage-frontend@0.0.0 test
-> jest ConsultationManager.dispatch.test.tsx
+    [0m [90m 15 |[39m     test([32m'Header is sticky and not fixed'[39m[33m,[39m () [33m=>[39m {
+     [90m 16 |[39m         [90m// Render Header component[39m
+    [31m[1m>[22m[39m[90m 17 |[39m         render(
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 18 |[39m             [33m<[39m[33mBrowserRouter[39m[33m>[39m
+     [90m 19 |[39m                 [33m<[39m[33mDoctorProvider[39m[33m>[39m
+     [90m 20 |[39m                     [33m<[39m[33mHeader[39m [33m/[39m[33m>[39m[0m
 
-FAIL src/components/ConsultationManager.dispatch.test.tsx
-  ConsultationManager - Dispatch Tracking (Slice 07.3)
-    ├ù should fetch dispatch status on load (75 ms)
-    ├ù should display email sent badge when status confirms it (1062 ms)
-    ├ù should call mark-whatsapp-sent when WhatsApp button is clicked (1056 ms)
+      at warn (node_modules/react-router/lib/deprecations.ts:9:13)
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:14:3)
+      at Object.logDeprecation [as UNSAFE_logV6DeprecationWarnings] (node_modules/react-router/lib/deprecations.ts:26:5)
+      at logV6DeprecationWarnings (node_modules/react-router-dom/index.tsx:816:25)
+      at commitHookEffectListMount (node_modules/react-dom/cjs/react-dom.development.js:23189:26)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom.development.js:24970:11)
+      at commitPassiveMountEffects_complete (node_modules/react-dom/cjs/react-dom.development.js:24930:9)
+      at commitPassiveMountEffects_begin (node_modules/react-dom/cjs/react-dom.development.js:24917:7)
+      at commitPassiveMountEffects (node_modules/react-dom/cjs/react-dom.development.js:24905:3)
+      at flushPassiveEffectsImpl (node_modules/react-dom/cjs/react-dom.development.js:27078:3)
+      at flushPassiveEffects (node_modules/react-dom/cjs/react-dom.development.js:27023:14)
+      at node_modules/react-dom/cjs/react-dom.development.js:26808:9
+      at flushActQueue (node_modules/react/cjs/react.development.js:2667:24)
+      at act (node_modules/react/cjs/react.development.js:2582:11)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:189:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:291:10)
+      at Object.<anonymous> (src/tests/layout_v2.test.tsx:17:15)
 
-  ÔùÅ ConsultationManager - Dispatch Tracking (Slice 07.3) ÔÇ║ should fetch dispatch status on load
+  console.warn
+    ÔÜá´©Å React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
 
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+    [0m [90m 15 |[39m     test([32m'Header is sticky and not fixed'[39m[33m,[39m () [33m=>[39m {
+     [90m 16 |[39m         [90m// Render Header component[39m
+    [31m[1m>[22m[39m[90m 17 |[39m         render(
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 18 |[39m             [33m<[39m[33mBrowserRouter[39m[33m>[39m
+     [90m 19 |[39m                 [33m<[39m[33mDoctorProvider[39m[33m>[39m
+     [90m 20 |[39m                     [33m<[39m[33mHeader[39m [33m/[39m[33m>[39m[0m
 
-    Expected: StringContaining "/api/consultas/1/dispatch-status", Anything
-    Received: "/api/pacientes/1/consultas", {"headers": {"Authorization": "Bearer test-token"}}
+      at warn (node_modules/react-router/lib/deprecations.ts:9:13)
+      at warnOnce (node_modules/react-router/lib/deprecations.ts:14:3)
+      at Object.logDeprecation [as UNSAFE_logV6DeprecationWarnings] (node_modules/react-router/lib/deprecations.ts:37:5)
+      at logV6DeprecationWarnings (node_modules/react-router-dom/index.tsx:816:25)
+      at commitHookEffectListMount (node_modules/react-dom/cjs/react-dom.development.js:23189:26)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom.development.js:24970:11)
+      at commitPassiveMountEffects_complete (node_modules/react-dom/cjs/react-dom.development.js:24930:9)
+      at commitPassiveMountEffects_begin (node_modules/react-dom/cjs/react-dom.development.js:24917:7)
+      at commitPassiveMountEffects (node_modules/react-dom/cjs/react-dom.development.js:24905:3)
+      at flushPassiveEffectsImpl (node_modules/react-dom/cjs/react-dom.development.js:27078:3)
+      at flushPassiveEffects (node_modules/react-dom/cjs/react-dom.development.js:27023:14)
+      at node_modules/react-dom/cjs/react-dom.development.js:26808:9
+      at flushActQueue (node_modules/react/cjs/react.development.js:2667:24)
+      at act (node_modules/react/cjs/react.development.js:2582:11)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:189:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:291:10)
+      at Object.<anonymous> (src/tests/layout_v2.test.tsx:17:15)
 
-    Number of calls: 1
+FAIL src/tests/layout_v2.test.tsx
+  Slice 13: Layout Architecture Red Tests
+    ├ù Header is sticky and not fixed (140 ms)
+    ├ù Sidebar "Configuracion" migration contract (2 ms)
+    ├ù Sidebar has collapse toggle (19 ms)
 
-      94 |         // Verify fetch was called for dispatch status
-      95 |         // This will fail because implementation doesn't call it yet
-    > 96 |         expect(global.fetch).toHaveBeenCalledWith(
-         |                              ^
-      97 |             expect.stringContaining('/api/consultas/1/dispatch-status'),
-      98 |             expect.anything()
-      99 |         );
+  ÔùÅ Slice 13: Layout Architecture Red Tests ÔÇ║ Header is sticky and not fixed
 
-      at Object.<anonymous> (src/components/ConsultationManager.dispatch.test.tsx:96:30)
+    expect(received).toContain(expected) // indexOf
 
-  ÔùÅ ConsultationManager - Dispatch Tracking (Slice 07.3) ÔÇ║ should display email sent badge when status confirms it
+    Expected substring: "sticky"
+    Received string:    "fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-gray-100 z-50 flex items-center justify-between px-6 transition-all"
 
-    Unable to find an element with the title: /Enviado por Email el/i.
+      26 |
+      27 |         // This should FAIL currently because it is 'fixed'
+    > 28 |         expect(header.className).toContain('sticky');
+         |                                  ^
+      29 |         expect(header.className).not.toContain('fixed');
+      30 |     });
+      31 |
+
+      at Object.<anonymous> (src/tests/layout_v2.test.tsx:28:34)
+
+  ÔùÅ Slice 13: Layout Architecture Red Tests ÔÇ║ Sidebar "Configuracion" migration contract
+
+    expect(received).toBeUndefined()
+
+    Received: {"icon": <Settings size={20} />, "label": "Configuraci├│n", "path": "/settings"}
+
+      36 |
+      37 |         // This should FAIL currently because it IS in the list
+    > 38 |         expect(settingsInSidebar).toBeUndefined();
+         |                                   ^
+      39 |
+      40 |         // 2. Header Dropdown should contain "Configuraci├│n"
+      41 |         // Note: Header dropdown logic puts Settings in menu. 
+
+      at Object.<anonymous> (src/tests/layout_v2.test.tsx:38:35)
+
+  ÔùÅ Slice 13: Layout Architecture Red Tests ÔÇ║ Sidebar has collapse toggle
+
+    TestingLibraryElementError: Unable to find a label with the text of: /toggle sidebar/i
 
     Ignored nodes: comments, script, style
     <body>
       <div>
         <div
-          class="bg-white rounded-xl shadow-sm border border-slate-100 p-6"
+          class="fixed inset-0 bg-black/50 z-40 md:hidden"
+        />
+        <aside
+          class="
+                    fixed md:static inset-y-0 left-0 z-50
+                    w-64 bg-white border-r border-slate-200 shadow-sm
+                    transform transition-transform duration-200 ease-in-out
+                    translate-x-0
+                "
         >
           <div
-            class="flex justify-between items-center mb-6"
+            class="h-16 flex items-center justify-between px-6 border-b border-slate-100"
           >
-            <div
-              class="flex items-center gap-2"
+            <span
+              class="text-xl font-bold text-slate-800"
             >
-              <svg
-                class="lucide lucide-activity text-[#1e3a8a] w-5 h-5"
-                fill="none"
-                height="24"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                viewBox="0 0 24 24"
-                width="24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M22 12h-4l-3 9L9 3l-3 9H2"
-                />
-              </svg>
-              <h2
-                class="text-lg font-semibold text-[#1e3a8a]"
-              >
-                Evoluci├â┬│n Cl├â┬¡nica
-              </h2>
-            </div>
+              Vitalinuage
+            </span>
             <button
-              class="flex items-center gap-2 bg-[#1e3a8a] text-white px-4 py-2 rounded-lg hover:bg-blue-900 transition-colors text-sm font-medium shadow-sm"
+              class="md:hidden text-slate-500"
             >
               <svg
-                class="lucide lucide-plus w-4 h-4"
+                class="lucide lucide-x "
                 fill="none"
                 height="24"
                 stroke="currentColor"
@@ -81,470 +139,180 @@ FAIL src/components/ConsultationManager.dispatch.test.tsx
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
-                  d="M5 12h14"
+                  d="M18 6 6 18"
                 />
                 <path
-                  d="M12 5v14"
+                  d="m6 6 12 12"
                 />
               </svg>
-              Nueva Consulta
             </button>
           </div>
-          <div
-            class="space-y-4"
+          <nav
+            class="p-4 space-y-1"
           >
-            <div
-              class="group border border-slate-100 rounded-lg p-5 hover:shadow-md transition-all bg-white relative"
+            <a
+              class="
+                                    flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors
+                                    text-slate-600 hover:bg-slate-50 hover:text-slate-900
+                                "
+              href="/dashboard"
             >
-              <div
-                class="absolute top-5 right-5 flex items-center gap-3"
+              <svg
+                class="lucide lucide-home "
+                fill="none"
+                height="20"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="20"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <button
-                  class="flex items-center gap-1 px-3 py-1.5 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors text-xs font-medium shadow-sm"
-                  title="Enviar por WhatsApp"
-                >
-                  <svg
-                    class="lucide lucide-message-circle w-3.5 h-3.5"
-                    fill="none"
-                    height="24"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    viewBox="0 0 24 24"
-                    width="24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"
-                    />
-                  </svg>
-                  WhatsApp
-                </button>
-                <button
-                  class="flex items-center gap-1 px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors text-xs font-medium shadow-sm"
-                  title="Enviar por Email"
-                >
-                  <svg
-                    class="lucide lucide-mail w-3.5 h-3.5"
-                    fill="none"
-                    height="24"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    viewBox="0 0 24 24"
-                    width="24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <rect
-                      height="16"
-                      rx="2"
-                      width="20"
-                      x="2"
-                      y="4"
-                    />
-                    <path
-                      d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"
-                    />
-                  </svg>
-                  Email
-                </button>
-                <button
-                  class="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-xs font-medium shadow-sm"
-                  title="Descargar Receta PDF"
-                >
-                  <svg
-                    class="lucide lucide-file-text w-3.5 h-3.5"
-                    fill="none"
-                    height="24"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    viewBox="0 0 24 24"
-                    width="24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"
-                    />
-                    <polyline
-                      points="14 2 14 8 20 8"
-                    />
-                    <line
-                      x1="16"
-                      x2="8"
-                      y1="13"
-                      y2="13"
-                    />
-                    <line
-                      x1="16"
-                      x2="8"
-                      y1="17"
-                      y2="17"
-                    />
-                    <line
-                      x1="10"
-                      x2="8"
-                      y1="9"
-                      y2="9"
-                    />
-                  </svg>
-                  Receta PDF
-                </button>
-                <div
-                  class="text-xs text-slate-400 flex items-center gap-1"
-                >
-                  <svg
-                    class="lucide lucide-calendar w-3 h-3"
-                    fill="none"
-                    height="24"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    viewBox="0 0 24 24"
-                    width="24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <rect
-                      height="18"
-                      rx="2"
-                      ry="2"
-                      width="18"
-                      x="3"
-                      y="4"
-                    />
-                    <line
-                      x1="16"
-                      x2="16"
-                      y1="2"
-                      y2="6"
-                    />
-                    <line
-                      x1="8"
-                      x2="8"
-                      y1="2"
-                      y2="6"
-                    />
-                    <line
-                      x1="3"
-                      x2="21"
-                      y1="10"
-                      y2="10"
-                    />
-                  </svg>
-                  Fecha desc.
-                </div>
-              </div>
-              <h3
-                class="text-md font-semibold text-[#1e3a8a] mb-1"
-              />
-              <p
-                class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3"
+                <path
+                  d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
+                />
+                <polyline
+                  points="9 22 9 12 15 12 15 22"
+                />
+              </svg>
+              Inicio
+            </a>
+            <a
+              class="
+                                    flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors
+                                    text-slate-600 hover:bg-slate-50 hover:text-slate-900
+                                "
+              href="/patients"
+            >
+              <svg
+                class="lucide lucide-users "
+                fill="none"
+                height="20"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="20"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                DX: 
-              </p>
-              <div
-                class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-slate-600"
+                <path
+                  d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
+                />
+                <circle
+                  cx="9"
+                  cy="7"
+                  r="4"
+                />
+                <path
+                  d="M22 21v-2a4 4 0 0 0-3-3.87"
+                />
+                <path
+                  d="M16 3.13a4 4 0 0 1 0 7.75"
+                />
+              </svg>
+              Pacientes
+            </a>
+            <a
+              class="
+                                    flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors
+                                    text-slate-600 hover:bg-slate-50 hover:text-slate-900
+                                "
+              href="/appointments"
+            >
+              <svg
+                class="lucide lucide-calendar "
+                fill="none"
+                height="20"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="20"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <div
-                  class="bg-slate-50 p-3 rounded border border-slate-100"
-                >
-                  <p
-                    class="font-semibold text-xs text-slate-400 mb-1"
-                  >
-                    TRATAMIENTO
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+                <rect
+                  height="18"
+                  rx="2"
+                  ry="2"
+                  width="18"
+                  x="3"
+                  y="4"
+                />
+                <line
+                  x1="16"
+                  x2="16"
+                  y1="2"
+                  y2="6"
+                />
+                <line
+                  x1="8"
+                  x2="8"
+                  y1="2"
+                  y2="6"
+                />
+                <line
+                  x1="3"
+                  x2="21"
+                  y1="10"
+                  y2="10"
+                />
+              </svg>
+              Citas
+            </a>
+            <a
+              class="
+                                    flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors
+                                    text-slate-600 hover:bg-slate-50 hover:text-slate-900
+                                "
+              href="/settings"
+            >
+              <svg
+                class="lucide lucide-settings "
+                fill="none"
+                height="20"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"
+                />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="3"
+                />
+              </svg>
+              Configuraci├│n
+            </a>
+          </nav>
+        </aside>
       </div>
     </body>
 
-      128 |         // Adjust text regex to whatever UI visual cue we decide on. E.g. "Enviado"
-      129 |         // This will fail
-    > 130 |         expect(await screen.findByTitle(/Enviado por Email el/i)).toBeInTheDocument();
-          |                             ^
-      131 |     });
-      132 |
-      133 |     it('should call mark-whatsapp-sent when WhatsApp button is clicked', async () => {
+      61 |         // Try to find the toggle button. 
+      62 |         // This should FAIL because we haven't added it yet.
+    > 63 |         const toggleBtn = screen.getByLabelText(/toggle sidebar/i);
+         |                                  ^
+      64 |         expect(toggleBtn).toBeInTheDocument();
+      65 |     });
+      66 |
 
-      at waitForWrapper (node_modules/@testing-library/dom/dist/wait-for.js:163:27)
-      at node_modules/@testing-library/dom/dist/query-helpers.js:86:33
-      at Object.<anonymous> (src/components/ConsultationManager.dispatch.test.tsx:130:29)
-
-  ÔùÅ ConsultationManager - Dispatch Tracking (Slice 07.3) ÔÇ║ should call mark-whatsapp-sent when WhatsApp button is clicked
-
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-    Expected: StringContaining "/api/consultas/1/mark-whatsapp-sent", ObjectContaining {"method": "POST"}
-    Received
-           1: "/api/pacientes/1/consultas", {"headers": {"Authorization": "Bearer test-token"}}
-           2: "http://test-api/api/consultas/1/create-verification", {"headers": {"Authorization": "Bearer test-token"}, "method": "POST"}
-
-    Number of calls: 2
-
-    Ignored nodes: comments, script, style
-    <html>
-      <head />
-      <body>
-        <div>
-          <div
-            class="bg-white rounded-xl shadow-sm border border-slate-100 p-6"
-          >
-            <div
-              class="flex justify-between items-center mb-6"
-            >
-              <div
-                class="flex items-center gap-2"
-              >
-                <svg
-                  class="lucide lucide-activity text-[#1e3a8a] w-5 h-5"
-                  fill="none"
-                  height="24"
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                  width="24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M22 12h-4l-3 9L9 3l-3 9H2"
-                  />
-                </svg>
-                <h2
-                  class="text-lg font-semibold text-[#1e3a8a]"
-                >
-                  Evoluci├â┬│n Cl├â┬¡nica
-                </h2>
-              </div>
-              <button
-                class="flex items-center gap-2 bg-[#1e3a8a] text-white px-4 py-2 rounded-lg hover:bg-blue-900 transition-colors text-sm font-medium shadow-sm"
-              >
-                <svg
-                  class="lucide lucide-plus w-4 h-4"
-                  fill="none"
-                  height="24"
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                  width="24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M5 12h14"
-                  />
-                  <path
-                    d="M12 5v14"
-                  />
-                </svg>
-                Nueva Consulta
-              </button>
-            </div>
-            <div
-              class="space-y-4"
-            >
-              <div
-                class="group border border-slate-100 rounded-lg p-5 hover:shadow-md transition-all bg-white relative"
-              >
-                <div
-                  class="absolute top-5 right-5 flex items-center gap-3"
-                >
-                  <button
-                    class="flex items-center gap-1 px-3 py-1.5 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors text-xs font-medium shadow-sm"
-                    title="Enviar por WhatsApp"
-                  >
-                    <svg
-                      class="lucide lucide-message-circle w-3.5 h-3.5"
-                      fill="none"
-                      height="24"
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      viewBox="0 0 24 24"
-                      width="24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"
-                      />
-                    </svg>
-                    WhatsApp
-                  </button>
-                  <button
-                    class="flex items-center gap-1 px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors text-xs font-medium shadow-sm"
-                    title="Enviar por Email"
-                  >
-                    <svg
-                      class="lucide lucide-mail w-3.5 h-3.5"
-                      fill="none"
-                      height="24"
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      viewBox="0 0 24 24"
-                      width="24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <rect
-                        height="16"
-                        rx="2"
-                        width="20"
-                        x="2"
-                        y="4"
-                      />
-                      <path
-                        d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"
-                      />
-                    </svg>
-                    Email
-                  </button>
-                  <button
-                    class="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-xs font-medium shadow-sm"
-                    title="Descargar Receta PDF"
-                  >
-                    <svg
-                      class="lucide lucide-file-text w-3.5 h-3.5"
-                      fill="none"
-                      height="24"
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      viewBox="0 0 24 24"
-                      width="24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"
-                      />
-                      <polyline
-                        points="14 2 14 8 20 8"
-                      />
-                      <line
-                        x1="16"
-                        x2="8"
-                        y1="13"
-                        y2="13"
-                      />
-                      <line
-                        x1="16"
-                        x2="8"
-                        y1="17"
-                        y2="17"
-                      />
-                      <line
-                        x1="10"
-                        x2="8"
-                        y1="9"
-                        y2="9"
-                      />
-                    </svg>
-                    Receta PDF
-                  </button>
-                  <div
-                    class="text-xs text-slate-400 flex items-center gap-1"
-                  >
-                    <svg
-                      class="lucide lucide-calendar w-3 h-3"
-                      fill="none"
-                      height="24"
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      viewBox="0 0 24 24"
-                      width="24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <rect
-                        height="18"
-                        rx="2"
-                        ry="2"
-                        width="18"
-                        x="3"
-                        y="4"
-                      />
-                      <line
-                        x1="16"
-                        x2="16"
-                        y1="2"
-                        y2="6"
-                      />
-                      <line
-                        x1="8"
-                        x2="8"
-                        y1="2"
-                        y2="6"
-                      />
-                      <line
-                        x1="3"
-                        x2="21"
-                        y1="10"
-                        y2="10"
-                      />
-                    </svg>
-                    04-01-2026
-                  </div>
-                </div>
-                <h3
-                  class="text-md font-semibold text-[#1e3a8a] mb-1"
-                >
-                  Test tracking
-                </h3>
-                <p
-                  class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3"
-                >
-                  DX: 
-                  Flu
-                </p>
-                <div
-                  class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-slate-600"
-                >
-                  <div
-                    class="bg-slate-50 p-3 rounded border border-slate-100"
-                  >
-                    <p
-                      class="font-semibold text-xs text-slate-400 mb-1"
-                    >
-                      TRATAMIENTO
-                    </p>
-                    Rest
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </body>
-    </html>
-
-      143 |         await waitFor(() => {
-      144 |             // This will fail because we haven't added this call yet
-    > 145 |             expect(global.fetch).toHaveBeenCalledWith(
-          |                                  ^
-      146 |                 expect.stringContaining('/api/consultas/1/mark-whatsapp-sent'),
-      147 |                 expect.objectContaining({ method: 'POST' })
-      148 |             );
-
-      at src/components/ConsultationManager.dispatch.test.tsx:145:34
-      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/dom/dist/config.js:47:12)
-      at checkCallback (node_modules/@testing-library/dom/dist/wait-for.js:124:77)
-      at checkRealTimersCallback (node_modules/@testing-library/dom/dist/wait-for.js:118:16)
-      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at getAllByLabelText (node_modules/@testing-library/dom/dist/queries/label-text.js:111:38)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.<anonymous> (src/tests/layout_v2.test.tsx:63:34)
 
 Test Suites: 1 failed, 1 total
 Tests:       3 failed, 3 total
 Snapshots:   0 total
-Time:        3.6 s
-Ran all test suites matching ConsultationManager.dispatch.test.tsx.
+Time:        1.449 s
+Ran all test suites matching src/tests/layout_v2.test.tsx.
