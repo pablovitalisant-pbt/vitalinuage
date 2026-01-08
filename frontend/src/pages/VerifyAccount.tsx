@@ -18,7 +18,8 @@ const VerifyAccount: React.FC = () => {
         const verifyToken = async () => {
             try {
                 const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-                const response = await fetch(`${baseUrl}/auth/verify?token=${encodeURIComponent(token)}`, {
+                // Ensure we hit the correct backend endpoint mounted at /api/auth
+                const response = await fetch(`${baseUrl}/api/auth/verify?token=${encodeURIComponent(token)}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',

@@ -160,6 +160,9 @@ def verify_email(
     token: str,
     db: Session = Depends(get_db)
 ):
+    # Sanitize token input
+    token = token.strip()
+    
     # 1. Find user with verification_token
     user = db.query(models.User).filter(models.User.verification_token == token).first()
     
