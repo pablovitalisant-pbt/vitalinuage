@@ -12,6 +12,15 @@ export default function OnboardingView() {
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    // Defensive Check: Redirect if already onboarded
+
+    React.useEffect(() => {
+        if (profile.isOnboarded) {
+            navigate('/dashboard', { replace: true });
+        }
+    }, [profile.isOnboarded, navigate]);
+
+
     const { register, handleSubmit, formState: { errors } } = useForm<OnboardingData>({
         resolver: zodResolver(OnboardingSchema),
         defaultValues: {

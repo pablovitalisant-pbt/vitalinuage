@@ -19,12 +19,11 @@ const VerifyEmail: React.FC = () => {
         const verifyToken = async () => {
             try {
                 const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-                const response = await fetch(`${baseUrl}/auth/verify`, {
-                    method: 'POST',
+                const response = await fetch(`${baseUrl}/auth/verify?token=${encodeURIComponent(token)}`, {
+                    method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ token }),
                 });
 
                 if (!response.ok) {

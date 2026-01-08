@@ -9,8 +9,13 @@ interface OnboardingGuardProps {
 }
 
 export default function OnboardingGuard({ children }: OnboardingGuardProps) {
-    const { profile } = useDoctor();
+    const { profile, token } = useDoctor();
     const location = useLocation();
+
+    // 0. Auth Check (Critical since we sometimes bypass ProtectedRoute)
+    if (!token) {
+        return <Navigate to="/" replace />;
+    }
 
     // 1. Feature Flag Check
     if (!featureFlags.onboarding_workflow) {

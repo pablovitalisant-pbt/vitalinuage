@@ -1,5 +1,5 @@
 
-import { BrowserRouter, Routes, Route, useParams, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useParams, useNavigate, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Login from './pages/Login';
 import VerifyAccount from './pages/VerifyAccount';
@@ -913,10 +913,17 @@ function App() {
                         {/* Print Routes */}
                         <Route path="/print/prescription/:id" element={<PrintPrescription />} />
 
-                        {/* Onboarding Flow (if revisited) */}
-                        <Route path="/setup-profile" element={<OnboardingView />} />
-                        <Route path="/onboarding" element={<OnboardingView />} /> {/* Specific Onboarding Route */}
                     </Route>
+
+                    {/* Standalone Onboarding Route - Protected by Logic within Guard */}
+                    <Route path="/setup-profile" element={
+                        <OnboardingGuard>
+                            <OnboardingView />
+                        </OnboardingGuard>
+                    } />
+                    {/* Maintain partial computability with ProtectedRoute redirect */}
+                    <Route path="/onboarding" element={<Navigate to="/setup-profile" replace />} />
+
                 </Routes>
             </BrowserRouter>
         </DoctorProvider>
