@@ -92,23 +92,25 @@ export default function Sidebar({ isOpen, onClose, isCollapsed = false, toggleCo
                 </nav>
 
                 {/* Footer Actions: Logout & Toggle */}
-                <div className="p-3 border-t border-slate-100 shrink-0 flex flex-col gap-2">
+                <div className={`
+                    p-3 border-t border-slate-100 shrink-0 flex
+                    ${isCollapsed ? 'flex-col gap-2' : 'flex-row justify-between items-center'}
+                `}>
 
                     {/* Logout Button */}
-                    <button
-                        onClick={handleLogout}
-                        className={`
-                            flex items-center ${isCollapsed ? 'justify-center' : ''} gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors
-                            text-red-600 hover:bg-red-50
-                        `}
-                        title="Cerrar Sesión"
-                    >
-                        <LogOut size={20} />
-                        {!isCollapsed && <span>Cerrar Sesión</span>}
-                    </button>
+                    {!isCollapsed && (
+                        <button
+                            onClick={handleLogout}
+                            className="flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors text-red-600 hover:bg-red-50"
+                            title="Cerrar Sesión"
+                        >
+                            <LogOut size={20} />
+                            <span>Cerrar Sesión</span>
+                        </button>
+                    )}
 
                     {/* Toggle Button (Desktop Only) Moved to Footer */}
-                    <div className="hidden md:flex justify-end pt-2">
+                    <div className="hidden md:flex">
                         <button
                             onClick={toggleCollapse}
                             aria-label="toggle sidebar"
