@@ -6,6 +6,8 @@ import secrets
 import hashlib
 import bcrypt
 import logging
+import uuid
+from backend.services.email_service import EmailService
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -127,17 +129,28 @@ def register(
     
     # 2. Hash password & Create User
     hashed_pwd = get_password_hash(user.password)
+    verification_token = str(uuid.uuid4())
+    
     new_user = models.User(
         email=user.email,
         hashed_password=hashed_pwd,
         # Default flags
         # is_active removed as per model definition
         is_verified=False,
+        verification_token=verification_token,
         professional_name="Dr. " # Placeholder
     )
     
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+    
+    # 3. Send Verification Email
+    # We call this asynchronously ideally, but synchronous for MVP is acceptable given low volume
+    EmailService.send_verification_email(
+        to_email=new_user.email,
+        verification_token=verification_token,
+        professional_name=new_user.professional_name or "Doctor"
+    )
     
     return {"message": "User created successfully", "email": new_user.email}

@@ -1,6 +1,7 @@
 import resend
 from jinja2 import Template
 import os
+import logging
 from typing import Optional
 
 class EmailService:
@@ -76,4 +77,64 @@ class EmailService:
             
         except Exception as e:
             print(f"Error sending email: {e}")
+            return False
+
+    @staticmethod
+    def send_verification_email(
+        to_email: str,
+        verification_token: str,
+        professional_name: str
+    ) -> bool:
+        """
+        Envía email de verificación de cuenta.
+        
+        Args:
+            to_email: Email del nuevo usuario
+            verification_token: Token UUID generado
+            professional_name: Nombre del profesional
+            
+        Returns:
+            bool: True si se envió correctamente
+        """
+        try:
+            api_key = os.getenv('RESEND_API_KEY')
+            if not api_key:
+                # Log warning in production, but don't crash
+                logging.getLogger(__name__).warning("RESEND_API_KEY not configured. Email skipped.")
+                return False
+                
+            resend.api_key = api_key
+            
+            # Determine Base URL (Prod vs Local)
+            # In a real scenario, this comes from env var, defaulting to localhost for safety
+            base_url = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+            verify_url = f"{base_url}/verify?token={verification_token}"
+            
+            # Simple Template for Verification
+            html_content = f"""
+            <div style="font-family: Arial, sans-serif; padding: 20px;">
+                <h1>Bienvenido a Vitalinuage</h1>
+                <p>Estimado/a {professional_name},</p>
+                <p>Gracias por registrarse. Para activar su cuenta, por favor verifique su correo electrónico haciendo clic en el siguiente enlace:</p>
+                <div style="margin: 20px 0;">
+                    <a href="{verify_url}" style="background-color: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Verificar Email</a>
+                </div>
+                <p>O copie y pegue este enlace en su navegador:</p>
+                <p><small>{verify_url}</small></p>
+                <p>Este enlace expirará en 24 horas.</p>
+            </div>
+            """
+            
+            params = {
+                "from": f"{os.getenv('EMAIL_FROM_NAME', 'Vitalinuage Security')} <{os.getenv('EMAIL_FROM_ADDRESS', 'security@vitalinuage.com')}>",
+                "to": [to_email],
+                "subject": "Verifique su cuenta Vitalinuage",
+                "html": html_content,
+            }
+
+            resend.Emails.send(params)
+            return True
+            
+        except Exception as e:
+            logging.getLogger(__name__).error(f"Error sending verification email: {e}")
             return False
