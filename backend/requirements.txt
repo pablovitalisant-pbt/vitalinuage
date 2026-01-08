@@ -7,3 +7,17 @@ psycopg2-binary
 pytest
 httpx
 pytest-xdist
+
+# Auth & Validation
+email-validator
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+
+# Business Services (PDF, Email, QR)
+qrcode
+Pillow
+resend
+reportlab
+weasyprint
+jinja2
