@@ -24,7 +24,21 @@ def test_pipeline_integrity():
     # Check 3: No Placeholder
     if 'echo "Deploy logic via Google Cloud Actions would go here"' in content:
         errors.append("Found placeholder echo statement")
-        
+
+    # Check 4: Tag Format Vulnerability (Empty Variable Simulation)
+    lines = content.splitlines()
+    for line in lines:
+        if "IMAGE_TAG=" in line:
+            raw_value = line.split("IMAGE_TAG=")[1].strip('"').strip("'")
+            
+            # Simulated environment: GCP_REPOSITORY is empty
+            simulated_value = raw_value.replace("${{ secrets.GCP_PROJECT_ID }}", "my-project")
+            simulated_value = simulated_value.replace("${{ secrets.GCP_REPOSITORY }}", "") # EMPTY!
+            simulated_value = simulated_value.replace("${{ github.sha }}", "abc1234")
+            
+            if "//" in simulated_value:
+                errors.append(f"VULNERABILITY: Empty GCP_REPOSITORY causes double slash in: {simulated_value}")
+
     if errors:
         print("FAIL: Pipeline integrity checks failed:")
         for err in errors:

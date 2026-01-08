@@ -85,9 +85,22 @@ jobs:
       # 3. Build & Push
       - name: Build and Push Container
         run: |
-          IMAGE_TAG="us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REPOSITORY }}/vitalinuage-backend:${{ github.sha }}"
-          docker build -t $IMAGE_TAG -f Dockerfile .
-          docker push $IMAGE_TAG
+          # 1. Validación de Variables Críticas
+          if [ -z "${{ secrets.GCP_PROJECT_ID }}" ]; then echo "ERROR: GCP_PROJECT_ID secret is empty"; exit 1; fi
+          if [ -z "${{ secrets.GCP_REPOSITORY }}" ]; then echo "ERROR: GCP_REPOSITORY secret is empty"; exit 1; fi
+
+          # 2. Construcción Segura de Tag (Sanitización de Slashes)
+          RAW_BASE="us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REPOSITORY }}"
+          # Eliminar dobles slashes accidentales, protegiendo protocolos si los hubiera (aunque aqui no aplican)
+          CLEAN_BASE=$(echo "$RAW_BASE" | sed 's#//#/#g')
+          
+          IMAGE_TAG="${CLEAN_BASE}/vitalinuage-backend:${{ github.sha }}"
+          
+          echo "Target Image Tag: $IMAGE_TAG"
+          
+          # 3. Build & Push
+          docker build -t "$IMAGE_TAG" -f Dockerfile .
+          docker push "$IMAGE_TAG"
 
   deploy:
     needs: build
