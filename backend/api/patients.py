@@ -35,6 +35,70 @@ def create_patient(
     # Inject owner_id from authenticated user
     return crud.create_patient(db=db, patient=patient, owner_id=current_user.email)
 
+@router.get("/search", response_model=search_schemas.PatientSearchResponse)
+def search_patients(
+    q: str,
+    db: Session = Depends(get_db),
+    current_user: schemas_auth.User = Depends(get_current_user)
+):
+    """
+    Search patients by name or DNI.
+    
+    IMPORTANT: This route MUST be defined BEFORE /{patient_id} to avoid route conflicts.
+    """
+    if len(q) < 2:
+        return {"results": []}
+
+    query = db.query(models.Patient).filter(models.Patient.owner_id == current_user.email)
+    
+    search_filter = or_(
+        models.Patient.nombre.ilike(f"%{q}%"),
+        models.Patient.apellido_paterno.ilike(f"%{q}%"),
+        models.Patient.dni.ilike(f"%{q}%")
+    )
+    query = query.filter(search_filter)
+    
+    ps = query.all()
+    
+    mapped_results = []
+    for p in ps:
+        nombre_completo = f"{p.nombre} {p.apellido_paterno}"
+        if p.apellido_materno:
+            nombre_completo += f" {p.apellido_materno}"
+            
+        mapped_results.append({
+            "id": p.id,
+            "nombre_completo": nombre_completo,
+            "dni": p.dni,
+            "imc": p.imc
+        })
+        
+
+    return {"results": mapped_results}
+
+@router.get("/{patient_id}", response_model=schemas.Patient)
+def get_patient_by_id(
+    patient_id: int,
+    db: Session = Depends(get_db),
+    current_user: schemas_auth.User = Depends(get_current_user)
+):
+    """
+    Get a single patient by ID.
+    
+    Security: Enforces multi-tenancy by verifying owner_id matches current user.
+    Returns 404 if patient not found or belongs to different user (prevents enumeration).
+    """
+    patient = db.query(models.Patient).filter(
+        models.Patient.id == patient_id,
+        models.Patient.owner_id == current_user.email
+    ).first()
+    
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found")
+    
+    return patient
+
+
 @router.get("", response_model=PatientListResponse)
 def read_patients(
     page: int = Query(1, ge=1),
@@ -161,41 +225,6 @@ def update_clinical_record(
     
     return db_record
 
-@router.get("/search", response_model=search_schemas.PatientSearchResponse)
-def search_patients(
-    q: str,
-    db: Session = Depends(get_db),
-    current_user: schemas_auth.User = Depends(get_current_user)
-):
-    if len(q) < 2:
-        return {"results": []}
-
-    query = db.query(models.Patient).filter(models.Patient.owner_id == current_user.email)
-    
-    search_filter = or_(
-        models.Patient.nombre.ilike(f"%{q}%"),
-        models.Patient.apellido_paterno.ilike(f"%{q}%"),
-        models.Patient.dni.ilike(f"%{q}%")
-    )
-    query = query.filter(search_filter)
-    
-    ps = query.all()
-    
-    mapped_results = []
-    for p in ps:
-        nombre_completo = f"{p.nombre} {p.apellido_paterno}"
-        if p.apellido_materno:
-            nombre_completo += f" {p.apellido_materno}"
-            
-        mapped_results.append({
-            "id": p.id,
-            "nombre_completo": nombre_completo,
-            "dni": p.dni,
-            "imc": p.imc
-        })
-        
-
-    return {"results": mapped_results}
 
 @router.get("/{patient_id}/consultations", response_model=List[ConsultationItem])
 def get_patient_consultations(

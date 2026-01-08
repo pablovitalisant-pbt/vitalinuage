@@ -5,6 +5,7 @@ import { PrintSettingsModal } from '../components/PrintSettingsModal';
 import PrescriptionDelivery from '../components/PrescriptionDelivery';
 import MedicalBackgroundManager from '../components/MedicalBackgroundManager';
 import ConsultationManager from '../components/ConsultationManager';
+import { getApiUrl } from '../config/api';
 
 // Simplified interface for view
 interface PatientData {
@@ -23,7 +24,7 @@ import { useDoctor } from '../context/DoctorContext';
 export default function PatientProfile() {
     const navigate = useNavigate();
     const { id } = useParams();
-    const { profile } = useDoctor(); // Consuming context
+    const { profile, token } = useDoctor(); // Consuming context + token for auth
     const [patient, setPatient] = useState<PatientData | null>(null);
     const [loading, setLoading] = useState(true);
     const [consultations, setConsultations] = useState<any[]>([]);
@@ -71,13 +72,22 @@ export default function PatientProfile() {
     useEffect(() => {
         if (!id) return;
 
+        // Prepare auth headers
+        const headers: Record<string, string> = {
+            'Content-Type': 'application/json'
+        };
+
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
         // Parallel fetch for Patient and Consultations
-        const fetchPatient = fetch(`/api/pacientes/${id}`).then(res => {
+        const fetchPatient = fetch(getApiUrl(`/api/patients/${id}`), { headers }).then(res => {
             if (!res.ok) throw new Error("Patient not found");
             return res.json();
         });
 
-        const fetchConsultations = fetch(`/api/patients/${id}/consultations`).then(res => {
+        const fetchConsultations = fetch(getApiUrl(`/api/patients/${id}/consultations`), { headers }).then(res => {
             if (res.ok) return res.json();
             return [];
         });
