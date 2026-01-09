@@ -89,6 +89,7 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
 
             if (profileRes.ok) {
                 const data = await profileRes.json();
+                console.log("DEBUG PROFILE SUCCESS:", data);
 
                 // Slice 20: State-Aware. Always use the returned profile.
                 setProfile({
@@ -101,6 +102,7 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
                     email: data.email || ""
                 });
             } else if (profileRes.status !== 401) {
+                console.error("DEBUG PROFILE ERROR:", profileRes.status, profileRes.statusText);
                 setProfile(defaultProfile);
             }
 
@@ -114,7 +116,7 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
                 });
             }
         } catch (error) {
-            console.error('Error refreshing profile:', error);
+            console.error('DEBUG FETCH CRASH:', error);
             setProfile(defaultProfile);
         } finally {
             // Slice SP-04: Ensure loading stops
