@@ -33,6 +33,7 @@ interface DoctorContextType {
     token: string | null;
     setToken: (token: string | null) => void;
     completeOnboarding: (data: DoctorProfile) => Promise<void>;
+    isLoading: boolean;
 }
 
 const defaultProfile: DoctorProfile = {
@@ -56,17 +57,27 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
     const [preferences, setPreferences] = useState<PrintPreferences>(defaultPreferences);
 
     const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+    // Slice SP-04: Loading Guard State
+    const [isLoading, setIsLoading] = useState<boolean>(true);
 
     const refreshProfile = async () => {
         // Feature Flag Check
         if (!featureFlags.identity_search_v1) {
             setProfile(defaultProfile);
+            setIsLoading(false);
             return;
         }
 
-        if (!token) return;
+        if (!token) {
+            setIsLoading(false);
+            return;
+        }
 
         try {
+            // Ensure loading is true (useful for retries)
+            // Note: If already loading, this is a no-op, but safe.
+            setIsLoading(true);
+
             const [profileRes, prefsRes] = await Promise.all([
                 fetch(getApiUrl('/api/doctors/profile'), {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -105,6 +116,9 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
         } catch (error) {
             console.error('Error refreshing profile:', error);
             setProfile(defaultProfile);
+        } finally {
+            // Slice SP-04: Ensure loading stops
+            setIsLoading(false);
         }
     };
 
@@ -190,7 +204,8 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
             refreshProfile,
             token,
             setToken,
-            completeOnboarding
+            completeOnboarding,
+            isLoading
         }}>
             {children}
         </DoctorContext.Provider>
