@@ -13,7 +13,7 @@ def create_user(db: Session, user: schemas.UserCreate):
         print(f"[CRUD] Password hashed successfully (bcrypt)")
         print(f"[CRUD] Hash preview: {hashed_password[:30]}...")
         
-        db_user = models.User(email=user.email, hashed_password=hashed_password)
+        db_user = models.User(email=user.email, hashed_password=hashed_password, is_verified=True)
         print(f"[CRUD] User model created, adding to session")
         
         db.add(db_user)
