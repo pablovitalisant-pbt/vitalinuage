@@ -1,7 +1,7 @@
 # Tablero de Estado PBT-IA - Vitalinuage
 
 ## MÃ©tricas Globales
-* **Progreso:** 15%
+* **Progreso: 25% [¦¦¦¦¦¦¦¦¦¦]
 * **Slices Totales (estimados):** 20
 * **Slices Completados:** 3
 
@@ -14,5 +14,5 @@
 | SP-03 | Onboarding Verification Fix (Auto-Verify) | Completado | 0.5h |
 | SP-04 | Onboarding Flicker Fix (Loading Guard) | Completado | 0.5h |
 | SP-05 | Mapping Diagnosis | Completado | 0.2h |
-| SP-06 | Polish: Logging de Emergencia | Completado (DEBUG OK) | 0.2h |
-| 20.1 | Final Fix: Mismatch isOnboarded vs is_onboarded | Completado | 0.5h | 0.5h |
+| SP-06 | Polish: Logging de Emergencia | Completado (Verificado)
+| 20.1 | Final Fix: Mismatch CamelCase | Completado (Éxito)
