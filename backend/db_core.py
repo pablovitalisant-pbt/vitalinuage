@@ -8,7 +8,12 @@ if IS_TESTING:
     engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
 else:
     db_url = os.getenv("DATABASE_URL", "sqlite:///./vitalinuage.db")
-    engine = create_engine(db_url, connect_args={"check_same_thread": False} if "sqlite" in db_url else {})
+    engine = create_engine(
+        db_url,
+        connect_args={"check_same_thread": False} if "sqlite" in db_url else {},
+        pool_pre_ping=True,
+        pool_recycle=300
+    )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 def get_db():
     db = SessionLocal()

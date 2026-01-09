@@ -1,7 +1,7 @@
 # Tablero de Estado PBT-IA - Vitalinuage
 
 ## MÃƒÂ©tricas Globales
-* **Progreso: 62% [¦¦¦¦¦¦?¦¦¦]
+* **Progreso: 68% [¦¦¦¦¦¦?¦¦¦]
 * **Slices Totales (estimados):** 20
 * **Slices Completados:** 3
 
