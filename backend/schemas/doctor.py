@@ -28,3 +28,12 @@ class DoctorProfile(BaseModel):
     class Config:
         from_attributes = True
         populate_by_name = True  # Allow populating by alias too
+
+class DoctorPreferencesUpdate(BaseModel):
+    paper_size: Optional[str] = Field(None, alias="paper_size")
+    template_id: Optional[str] = Field(None, alias="template_id")
+    header_text: Optional[str] = Field(None, alias="header_text")
+    footer_text: Optional[str] = Field(None, alias="footer_text")
+    primary_color: Optional[str] = Field(None, alias="primary_color")
+    secondary_color: Optional[str] = Field(None, alias="secondary_color")
+

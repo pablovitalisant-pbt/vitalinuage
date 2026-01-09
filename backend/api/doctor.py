@@ -246,10 +246,20 @@ def get_preferences(current_user: User = Depends(get_current_user)):
 
 @router.put("/preferences")
 def update_preferences(
-    current_user: User = Depends(get_current_user)
+    data: schemas.DoctorPreferencesUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
     """
-    Stub for updating preferences.
+    Updates the doctor's preferences (e.g., printing templates).
+    Currently behaves as a persistent stub (fields not yet in User model).
     """
-    # No-op for now, just success
-    return {"status": "success"}
+    # Logic: For now, since User model lacks these fields, we will just validate input 
+    # and return success, essentially acknowledging the data.
+    # In a full migration, we would add these columns to the User table.
+    
+    # Debug log to verify data reception
+    print(f"[PREFERENCES] Received update for {current_user.email}: {data.dict(exclude_unset=True)}")
+    
+    # Return success
+    return {"status": "success", "received": data.dict(exclude_unset=True)}
