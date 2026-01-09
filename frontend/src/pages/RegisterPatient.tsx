@@ -27,7 +27,7 @@ export default function RegisterPatient() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { token } = useDoctor();
 
-    const { register, handleSubmit, setValue, formState: { errors } } = useForm<RegisterForm>({
+    const { register, handleSubmit, setValue, setError, setFocus, clearErrors, formState: { errors } } = useForm<RegisterForm>({
         resolver: zodResolver(RegisterFormSchema),
         defaultValues: {
             sexo: "M"
@@ -81,18 +81,19 @@ export default function RegisterPatient() {
             if (response.ok) {
                 const result = await response.json();
                 toast.success('Paciente registrado correctamente');
-                // Optional: reset(); // Not resetting if navigating away immediately, but spec asked to 'clean form automatically'. 
-                // However, logic here navigates away. If we navigate away, reset is redundant unless we stay.
-                // The spec says 'Limpiar el formulario automáticamente tras un registro exitoso'.
-                // But the code navigates to /patient/:id. 
-                // Let's add reset() anyway for correctness if navigation is delayed or cancelled.
-                // Or maybe we should allow creating another patient? 
-                // The current flow navigates to the patient profile. So user leaves the form. 
-                // I will add the toast before navigation.
                 navigate(`/patient/${result.id}`);
             } else {
-                console.error("Failed to register");
-                toast.error("Error al registrar: Verifique los datos o intente más tarde");
+                if (response.status === 409) {
+                    setError('dni', {
+                        type: 'manual',
+                        message: 'Este DNI ya está registrado en tu lista'
+                    });
+                    setFocus('dni');
+                    // No generic toast for this specific validation error
+                } else {
+                    console.error("Failed to register");
+                    toast.error("Error al registrar: Verifique los datos o intente más tarde");
+                }
             }
         } catch (error) {
             console.error(error);
@@ -132,9 +133,18 @@ export default function RegisterPatient() {
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-slate-700">DNI / Identificación</label>
                             <input
-                                {...register("dni")}
+                                {...register("dni", {
+                                    onChange: () => {
+                                        if (errors.dni?.type === 'manual') {
+                                            clearErrors('dni');
+                                        }
+                                    }
+                                })}
                                 type="text"
-                                className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none transition-all text-slate-800"
+                                className={`w-full px-4 py-3 border rounded-lg outline-none transition-all text-slate-800 ${errors.dni
+                                        ? 'border-red-500 focus:ring-2 focus:ring-red-100 focus:border-red-500'
+                                        : 'border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a]'
+                                    }`}
                                 placeholder="Ej: 12345678"
                             />
                             {errors.dni && <p className="text-red-500 text-xs">{errors.dni.message}</p>}
