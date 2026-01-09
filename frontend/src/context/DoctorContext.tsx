@@ -1,6 +1,7 @@
 import React, { createContext, useState, ReactNode, useContext, useEffect } from 'react';
 import { getApiUrl } from '../config/api';
-import { DoctorProfile as DoctorProfileDTO } from '../contracts/dashboard';
+// Remove unused import if not needed, or keep if used elsewhere
+// import { DoctorProfile as DoctorProfileDTO } from '../contracts/dashboard'; 
 import featureFlags from '../../../config/feature-flags.json';
 
 export interface DoctorProfile {
@@ -34,6 +35,7 @@ interface DoctorContextType {
     setToken: (token: string | null) => void;
     completeOnboarding: (data: DoctorProfile) => Promise<void>;
     isLoading: boolean;
+    authStatusMessage: string | null; // Slice 23: Feedback State
 }
 
 const defaultProfile: DoctorProfile = {
@@ -59,6 +61,8 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
     const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
     // Slice SP-04: Loading Guard State
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    // Slice 23: Latency Feedback
+    const [authStatusMessage, setAuthStatusMessage] = useState<string | null>(null);
 
     const refreshProfile = async () => {
         // Feature Flag Check
@@ -73,23 +77,43 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
             return;
         }
 
+        const startTime = Date.now();
+        // Slice 23: AbortController for 12s timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s Security Timeout
+
+        // Slice 23: Feedback timer for 7s
+        const feedbackTimer = setTimeout(() => {
+            setAuthStatusMessage("Despertando servidor...");
+        }, 7000);
+
         try {
             // Ensure loading is true (useful for retries)
-            // Note: If already loading, this is a no-op, but safe.
             setIsLoading(true);
+            setAuthStatusMessage(null);
 
             const [profileRes, prefsRes] = await Promise.all([
                 fetch(getApiUrl('/api/doctors/profile'), {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                }).catch(() => ({ ok: false } as Response)),
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    signal: controller.signal
+                }).catch((err) => {
+                    // Start manually handling fetch errors vs HTTP errors
+                    if (err.name === 'AbortError') {
+                        throw new Error('Request timed out (12s)');
+                    }
+                    return { ok: false, status: 500 } as Response;
+                }),
                 fetch(getApiUrl('/api/doctors/preferences'), {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                }).catch(() => ({ ok: false } as Response))
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    signal: controller.signal
+                }).catch((err) => {
+                    if (err.name === 'AbortError') throw err;
+                    return { ok: false, status: 500 } as Response;
+                })
             ]);
 
             if (profileRes.ok) {
                 const data = await profileRes.json();
-                console.log("DEBUG PROFILE SUCCESS:", data);
 
                 // Slice 20: State-Aware. Always use the returned profile.
                 setProfile({
@@ -102,7 +126,7 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
                     email: data.email || ""
                 });
             } else if (profileRes.status !== 401) {
-                console.error("DEBUG PROFILE ERROR:", profileRes.status, profileRes.statusText);
+                // If 401, we might want to logout, but for now just clear profile
                 setProfile(defaultProfile);
             }
 
@@ -115,12 +139,19 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
                     signatureUrl: data.signature_url || null
                 });
             }
+
+            const endTime = Date.now();
+            console.log(`DEBUG [Auth]: Perfil cargado en ${endTime - startTime}ms`);
+
         } catch (error) {
             console.error('DEBUG FETCH CRASH:', error);
             setProfile(defaultProfile);
         } finally {
             // Slice SP-04: Ensure loading stops
             setIsLoading(false);
+            setAuthStatusMessage(null);
+            clearTimeout(timeoutId);
+            clearTimeout(feedbackTimer);
         }
     };
 
@@ -207,7 +238,8 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
             token,
             setToken,
             completeOnboarding,
-            isLoading
+            isLoading,
+            authStatusMessage
         }}>
             {children}
         </DoctorContext.Provider>
