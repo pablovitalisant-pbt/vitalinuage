@@ -5,6 +5,7 @@ import { PrintSettingsModal } from '../components/PrintSettingsModal';
 import PrescriptionDelivery from '../components/PrescriptionDelivery';
 import MedicalBackgroundManager from '../components/MedicalBackgroundManager';
 import ConsultationManager from '../components/ConsultationManager';
+import ClinicalSummaryCards from '../components/patients/ClinicalSummaryCards';
 import { getApiUrl } from '../config/api';
 
 // Simplified interface for view
@@ -16,6 +17,10 @@ interface PatientData {
     fecha_nacimiento: string;
     imc: number;
     email?: string;
+    blood_type?: string | null;
+    allergies?: string[];
+    chronic_conditions?: string[];
+    current_medications?: string[];
 }
 
 import { useDoctor } from '../context/DoctorContext';
@@ -35,9 +40,15 @@ export default function PatientProfile() {
     const [editForm, setEditForm] = useState<any>(null);
     const [showPrintSettings, setShowPrintSettings] = useState(false);
     const [isEditingPatient, setIsEditingPatient] = useState(false);
+    const [isEditingClinical, setIsEditingClinical] = useState(false);
 
     // Moved import to top of file
     // import MedicalBackgroundManager from '../components/MedicalBackgroundManager';
+
+    const handleClinicalUpdate = (field: keyof PatientData, value: any) => {
+        if (!patient) return;
+        setPatient({ ...patient, [field]: value });
+    };
 
     const handleSave = async () => {
         if (!selectedConsultation || !editForm) return;
@@ -180,6 +191,32 @@ export default function PatientProfile() {
                     >
                         <Settings className="h-5 w-5" />
                     </button>
+                </div>
+
+                {/* Clinical Summary Cards - Consolidated Design */}
+                <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                        <h2 className="text-lg font-semibold text-slate-900">Información Clínica</h2>
+                        <button
+                            onClick={() => setIsEditingClinical(!isEditingClinical)}
+                            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${isEditingClinical
+                                    ? 'bg-slate-100 text-slate-800 border border-slate-300'
+                                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                                }`}
+                        >
+                            {isEditingClinical ? 'Cancelar Edición' : 'Editar Información Clínica'}
+                        </button>
+                    </div>
+                    <ClinicalSummaryCards
+                        data={{
+                            blood_type: patient.blood_type || null,
+                            allergies: patient.allergies || [],
+                            chronic_conditions: patient.chronic_conditions || [],
+                            current_medications: patient.current_medications || []
+                        }}
+                        isEditing={isEditingClinical}
+                        onUpdate={handleClinicalUpdate}
+                    />
                 </div>
 
             </div>
