@@ -221,9 +221,9 @@ export default function PatientProfile() {
                             <div className="space-y-3">
 
 
-                                // ... imports
+                                {/* ... imports */}
 
-                                // ... inside component ...
+                                {/* ... inside component ... */}
 
                                 <button
                                     onClick={() => navigate(`/patient/${id}/new-consultation`)}
