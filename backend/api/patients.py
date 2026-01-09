@@ -27,6 +27,8 @@ from backend.dependencies import get_current_user
 import backend.crud as crud
 import backend.schemas as schemas_auth
 
+from sqlalchemy.exc import IntegrityError
+
 @router.post("", response_model=schemas.Patient)
 def create_patient(
     patient: schemas.PatientCreate, 
@@ -34,7 +36,15 @@ def create_patient(
     current_user: schemas_auth.User = Depends(get_current_user)
 ):
     # Inject owner_id from authenticated user
-    return crud.create_patient(db=db, patient=patient, owner_id=current_user.email)
+    try:
+        return crud.create_patient(db=db, patient=patient, owner_id=current_user.email)
+    except IntegrityError:
+        # Check if error is due to DNI uniqueness
+        # This catch is generic for now but covers the immediate requirement
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Ya tienes un paciente registrado con este DNI"
+        )
 
 @router.get("/search", response_model=search_schemas.PatientSearchResponse)
 def search_patients(
@@ -129,7 +139,13 @@ def update_patient(
     for key, value in update_data.items():
         setattr(db_patient, key, value)
         
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Ya tienes un paciente registrado con este DNI"
+        )
     db.refresh(db_patient)
     
     return db_patient

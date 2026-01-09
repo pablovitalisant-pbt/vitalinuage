@@ -1,4 +1,4 @@
-﻿from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float, Boolean, JSON
+﻿from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float, Boolean, JSON, UniqueConstraint
 from sqlalchemy.orm import relationship
 from backend.db_core import Base
 import datetime
@@ -29,7 +29,8 @@ class Patient(Base):
     nombre = Column(String, index=True, nullable=False)
     apellido_paterno = Column(String, index=True, nullable=False)
     apellido_materno = Column(String, nullable=True)
-    dni = Column(String, unique=True, index=True, nullable=False)
+    # Slice 24: Removed global unique=True. Uniqueness is now scoped by owner_id via __table_args__
+    dni = Column(String, index=True, nullable=False)
     fecha_nacimiento = Column(String, nullable=False) 
     sexo = Column(String, default="M")
 
@@ -57,6 +58,10 @@ class Patient(Base):
 
     # Relationships
     medical_background = relationship("MedicalBackground", back_populates="patient", uselist=False, cascade="all, delete-orphan")
+
+    __table_args__ = (
+        UniqueConstraint('dni', 'owner_id', name='uix_patient_dni_owner'),
+    )
 
 class MedicalBackground(Base):
     __tablename__ = "medical_backgrounds"

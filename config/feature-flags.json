@@ -14,5 +14,6 @@
     "prescription_coords_v1": true,
     "tracking_envios": true,
     "audit_panel": true,
-    "onboarding_workflow": true
+    "onboarding_workflow": true,
+    "scoped_dni_uniqueness": false
 }
