@@ -105,6 +105,7 @@ export default function SearchPage() {
                     <input
                         {...register('query')}
                         type="text"
+                        autoFocus
                         autoComplete="off"
                         placeholder="Buscar paciente por nombre o DNI..."
                         className="w-full pl-12 pr-4 py-3.5 rounded-full border border-gray-200 shadow-sm focus:shadow-md focus:border-transparent focus:ring-2 focus:ring-blue-100 outline-none transition-all text-gray-800 text-lg"

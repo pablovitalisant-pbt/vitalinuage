@@ -91,7 +91,7 @@ describe('Slice 19: ConsultationManager.tsx - Encoding and Cleanup Verification'
 
     it('RED TEST: should have correct UTF-8 encoding for "Evolución Clínica"', () => {
         const hasCorrectEncoding = ConsultationManagerSource.includes('Evolución Clínica');
-        const hasBadEncoding = ConsultationManagerSource.includes('EvoluclÃ³n ClÃ­nica') ||
+        const hasBadEncoding = ConsultationManagerSource.includes('Evolución ClÃ­nica') ||
             ConsultationManagerSource.includes('EvoluciÃ³n ClÃ­nica');
 
         // This will FAIL because current code has encoding issues

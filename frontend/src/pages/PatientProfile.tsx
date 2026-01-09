@@ -34,6 +34,7 @@ export default function PatientProfile() {
     const [isEditing, setIsEditing] = useState(false);
     const [editForm, setEditForm] = useState<any>(null);
     const [showPrintSettings, setShowPrintSettings] = useState(false);
+    const [isEditingPatient, setIsEditingPatient] = useState(false);
 
     // Moved import to top of file
     // import MedicalBackgroundManager from '../components/MedicalBackgroundManager';
@@ -136,16 +137,39 @@ export default function PatientProfile() {
                             <User className="h-8 w-8 text-[#1e3a8a]" />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-bold text-[#1e3a8a]">{fullName}</h1>
-                            <div className="flex items-center gap-4 text-slate-500 mt-1 text-sm">
-                                <span>DNI: {patient.dni}</span>
-                                <span>•</span>
-                                <span>{age} años</span>
-                                <span>•</span>
-                                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${patient.imc > 25 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
-                                    }`}>
-                                    IMC: {patient.imc.toFixed(1)}
-                                </span>
+                            <div>
+                                <div className="flex gap-2 mb-1">
+                                    <input
+                                        disabled={!isEditingPatient}
+                                        value={patient.nombre}
+                                        onChange={(e) => setPatient({ ...patient, nombre: e.target.value })}
+                                        className="text-2xl font-bold text-[#1e3a8a] bg-transparent border-b border-transparent disabled:border-transparent focus:border-[#1e3a8a] outline-none w-1/2"
+                                    />
+                                    <input
+                                        disabled={!isEditingPatient}
+                                        value={patient.apellido_paterno}
+                                        onChange={(e) => setPatient({ ...patient, apellido_paterno: e.target.value })}
+                                        className="text-2xl font-bold text-[#1e3a8a] bg-transparent border-b border-transparent disabled:border-transparent focus:border-[#1e3a8a] outline-none w-1/2"
+                                    />
+                                </div>
+                                <div className="flex items-center gap-4 text-slate-500 mt-1 text-sm">
+                                    <div className="flex items-center gap-1">
+                                        <span>DNI:</span>
+                                        <input
+                                            disabled={!isEditingPatient}
+                                            value={patient.dni}
+                                            onChange={(e) => setPatient({ ...patient, dni: e.target.value })}
+                                            className="bg-transparent border-b border-transparent disabled:border-transparent focus:border-[#1e3a8a] outline-none w-24"
+                                        />
+                                    </div>
+                                    <span>•</span>
+                                    <span>{age} años</span>
+                                    <span>•</span>
+                                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${patient.imc > 25 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
+                                        }`}>
+                                        IMC: {patient.imc.toFixed(1)}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -195,6 +219,12 @@ export default function PatientProfile() {
                         <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 h-fit">
                             <h2 className="text-lg font-semibold text-slate-800 mb-4">Acciones Rápidas</h2>
                             <div className="space-y-3">
+
+
+                                // ... imports
+
+                                // ... inside component ...
+
                                 <button
                                     onClick={() => navigate(`/patient/${id}/new-consultation`)}
                                     className="w-full flex items-center justify-center gap-2 bg-[#1e3a8a] hover:bg-blue-900 text-white font-medium py-3 px-4 rounded-lg transition-all shadow-sm hover:shadow-md"
@@ -202,8 +232,11 @@ export default function PatientProfile() {
                                     <FilePlus className="h-5 w-5" />
                                     Nueva Consulta
                                 </button>
-                                <button className="w-full flex items-center justify-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium py-3 px-4 rounded-lg transition-colors">
-                                    Editar Datos
+                                <button
+                                    onClick={() => setIsEditingPatient(!isEditingPatient)}
+                                    className={`w-full flex items-center justify-center gap-2 border hover:bg-slate-50 font-medium py-3 px-4 rounded-lg transition-colors ${isEditingPatient ? 'bg-slate-100 text-slate-800 border-slate-300' : 'bg-white border-slate-200 text-slate-700'}`}
+                                >
+                                    {isEditingPatient ? 'Cancelar Edición' : 'Editar Datos'}
                                 </button>
                             </div>
                         </div>

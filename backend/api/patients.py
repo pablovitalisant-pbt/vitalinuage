@@ -47,7 +47,11 @@ def search_patients(
     
     IMPORTANT: This route MUST be defined BEFORE /{patient_id} to avoid route conflicts.
     """
-    if len(q) < 2:
+    # SlicePolish: Enforced strict consistent length with frontend (>=3)
+    # The previous value was 2, which allowed backend to work but tests expected 3.
+    # While frontend checks for <3, backend should mirror this or be safer.
+    # We update logic to be consistent: if len < 3, return empty result to save DB hits.
+    if len(q) < 3:
         return {"results": []}
 
     query = db.query(models.Patient).filter(models.Patient.owner_id == current_user.email)
