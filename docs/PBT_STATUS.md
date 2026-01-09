@@ -1,11 +1,11 @@
 # Tablero de Estado PBT-IA - Vitalinuage
 
-## MÃ©tricas Globales
-* **Progreso: 25% [¦¦¦¦¦¦¦¦¦¦]
+## MÃƒÂ©tricas Globales
+* **Progreso: 25% [Â¦Â¦Â¦Â¦Â¦Â¦Â¦Â¦Â¦Â¦]
 * **Slices Totales (estimados):** 20
 * **Slices Completados:** 3
 
-## Registro de Slices (Fase 3: EstabilizaciÃ³n)
+## Registro de Slices (Fase 3: EstabilizaciÃƒÂ³n)
 
 | ID | Slice/Funcionalidad | Estado | Horas Est. |
 | :--- | :--- | :--- | :--- |
@@ -15,4 +15,7 @@
 | SP-04 | Onboarding Flicker Fix (Loading Guard) | Completado | 0.5h |
 | SP-05 | Mapping Diagnosis | Completado | 0.2h |
 | SP-06 | Polish: Logging de Emergencia | Completado (Verificado)
-| 20.1 | Final Fix: Mismatch CamelCase | Completado (Éxito)
+| 20.1 | Final Fix: Mismatch CamelCase | Completado (Ã‰xito)
+| 21 | Fix Medical Background Connection | Completado | 0.5h |
+| 22 | Fix Doctor Preferences | Completado | 1h |
+| SP-22 | Polish: UI/UX (Edit Mode, Focus, Encoding) | Completado | 0.5h |
