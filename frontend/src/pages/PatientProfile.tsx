@@ -201,7 +201,7 @@ export default function PatientProfile() {
                 </div>
 
                 {/* Clinical Summary Cards - Consolidated Design */}
-                <div className="space-y-4 mb-10">
+                <div className="space-y-4 mb-14 border-b border-gray-100 pb-8">
                     <div className="flex justify-between items-center">
                         <h2 className="text-lg font-semibold text-slate-900">Información Clínica</h2>
                         <button
@@ -307,9 +307,16 @@ export default function PatientProfile() {
                             <FilePlus className="h-8 w-8 text-[#1e3a8a]" />
                         </div>
                         <h3 className="text-xl font-bold text-slate-800 mb-2">Gestión de Recetas</h3>
-                        <p className="text-slate-500 max-w-md mx-auto">
+                        <p className="text-slate-500 max-w-md mx-auto mb-6">
                             Módulo de gestión de recetas electrónicas activado. Aquí podrá visualizar y generar nuevas recetas para el paciente.
                         </p>
+                        <button
+                            onClick={() => navigate(`/patient/${id}/new-prescription`)}
+                            className="inline-flex items-center gap-2 bg-[#1e3a8a] text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-900 transition-colors shadow-md"
+                        >
+                            <ScrollText className="h-5 w-5" />
+                            + Nueva Receta / Licencia
+                        </button>
                     </div>
                 )}
             </div>
