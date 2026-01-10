@@ -49,6 +49,9 @@ const PublicVerification = () => {
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
             <div className="bg-white max-w-md w-full rounded-2xl shadow-xl overflow-hidden border border-slate-100">
+                <div className="bg-slate-900 p-4 text-center">
+                    <h1 className="text-white font-bold tracking-wider text-sm uppercase">Vitalinuage Secure Verify</h1>
+                </div>
                 <div className="p-8 text-center">
                     {error ? (
                         <>
@@ -63,8 +66,8 @@ const PublicVerification = () => {
                             <div className="mx-auto flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-6">
                                 <CheckCircle className="w-8 h-8 text-green-600" />
                             </div>
-                            <h2 className="text-2xl font-bold text-slate-800 mb-2">Receta Válida</h2>
-                            <p className="text-slate-500 mb-6">El documento coincida con nuestros registros.</p>
+                            <h2 className="text-2xl font-bold text-slate-800 mb-2">Documento Auténtico</h2>
+                            <p className="text-slate-500 mb-6">Esta receta digital ha sido verificada exitosamente en la plataforma Vitalinuage.</p>
 
                             <div className="bg-slate-50 rounded-xl p-4 text-left space-y-3">
                                 <div className="flex justify-between border-b pb-2">
