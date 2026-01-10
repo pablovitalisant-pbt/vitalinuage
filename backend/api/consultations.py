@@ -100,8 +100,16 @@ verification_router = APIRouter(
     tags=["Consultations"]
 )
 
-# Fix: Use absolute import for services
-from backend.services.pdf_service import PDFService
+# Fix: Use dynamic import for PDFService to avoid startup crash
+try:
+    from backend.services.pdf_service import PDFService
+except ImportError:
+    # Fallback for local testing if path differs
+    try:
+        from services.pdf_service import PDFService
+    except ImportError:
+        print("WARNING: PDFService could not be imported. PDF generation will fail.")
+        PDFService = None
 
 @verification_router.post("/{consultation_id}/create-verification")
 async def create_verification(

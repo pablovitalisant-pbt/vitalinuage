@@ -1,7 +1,8 @@
-﻿from reportlab.pdfgen import canvas
-from reportlab.lib.units import mm as reportlab_mm
-from reportlab.lib.pagesizes import A5
-from weasyprint import HTML
+﻿# Imports moved inside methods for lazy loading
+# from reportlab.pdfgen import canvas
+# from reportlab.lib.units import mm as reportlab_mm
+# from reportlab.lib.pagesizes import A5
+# from weasyprint import HTML
 from sqlalchemy.orm import Session
 from typing import Optional
 from backend import models
@@ -95,6 +96,10 @@ class PDFService:
         import uuid as uuid_lib
         import datetime
         
+        import uuid as uuid_lib
+        import datetime
+        from reportlab.pdfgen import canvas
+        
         # 1. Crear canvas con dimensiones del mapa
         width_pt = cls.mm_to_points(prescription_map.canvas_width_mm)
         height_pt = cls.mm_to_points(prescription_map.canvas_height_mm)
@@ -186,8 +191,14 @@ class PDFService:
         Returns:
             bytes: Contenido del PDF generado
         """
-        from pdf_templates import MINIMAL_TEMPLATE, MODERN_TEMPLATE, CLASSIC_TEMPLATE
+        """
+        from backend.pdf_templates import MINIMAL_TEMPLATE, MODERN_TEMPLATE, CLASSIC_TEMPLATE
         from jinja2 import Template
+        try:
+            from weasyprint import HTML
+        except ImportError:
+             raise Exception("WeasyPrint module not found. Please install backend dependencies.")
+
         
         # 1. Seleccionar template
         templates = {
@@ -285,8 +296,16 @@ class PDFService:
         
         html_content = template.render(**context)
         
+        
+        html_content = template.render(**context)
+        
         # WeasyPrint
         # Ensure we are in backend root or set base_url for assets if needed
+        try:
+             from weasyprint import HTML
+        except ImportError:
+             raise Exception("WeasyPrint module not found. PDF generation unavailable.")
+
         pdf_bytes = HTML(string=html_content, base_url=base_dir).write_pdf()
         return pdf_bytes
 
