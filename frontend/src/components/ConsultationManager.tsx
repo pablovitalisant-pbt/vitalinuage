@@ -215,14 +215,16 @@ export default function ConsultationManager({ patientId }: Props) {
                                     <Mail className="w-3.5 h-3.5" />
                                     Email
                                 </button>
-                                <button
-                                    onClick={() => handleDownloadPDF(c.id)}
-                                    className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-xs font-medium shadow-sm"
-                                    title="Descargar Receta PDF"
-                                >
-                                    <FileText className="w-3.5 h-3.5" />
-                                    Receta PDF
-                                </button>
+                                {c.plan_tratamiento && (
+                                    <button
+                                        onClick={() => handleDownloadPDF(c.id)}
+                                        className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-xs font-medium shadow-sm"
+                                        title="Descargar Receta PDF"
+                                    >
+                                        <FileText className="w-3.5 h-3.5" />
+                                        Receta PDF
+                                    </button>
+                                )}
                                 <div className="text-xs text-slate-400 flex items-center gap-1">
                                     <Calendar className="w-3 h-3" />
                                     {c.created_at ? new Date(c.created_at).toLocaleDateString() : 'Fecha desc.'}

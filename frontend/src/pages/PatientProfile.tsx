@@ -277,13 +277,6 @@ export default function PatientProfile() {
                                     Nueva Consulta
                                 </button>
                                 <button
-                                    onClick={() => setActiveTab('recipes')}
-                                    className="w-full flex items-center justify-center gap-2 bg-white border border-[#1e3a8a] text-[#1e3a8a] font-medium py-3 px-4 rounded-lg transition-all hover:bg-blue-50 shadow-sm"
-                                >
-                                    <ScrollText className="h-5 w-5" />
-                                    Emitir Receta
-                                </button>
-                                <button
                                     onClick={() => setIsEditingPatient(!isEditingPatient)}
                                     className={`w-full flex items-center justify-center gap-2 border hover:bg-slate-50 font-medium py-3 px-4 rounded-lg transition-colors ${isEditingPatient ? 'bg-slate-100 text-slate-800 border-slate-300' : 'bg-white border-slate-200 text-slate-700'}`}
                                 >
