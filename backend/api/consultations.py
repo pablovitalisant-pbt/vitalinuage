@@ -100,6 +100,9 @@ verification_router = APIRouter(
     tags=["Consultations"]
 )
 
+# Fix: Use absolute import for services
+from backend.services.pdf_service import PDFService
+
 @verification_router.post("/{consultation_id}/create-verification")
 async def create_verification(
     consultation_id: int,
@@ -317,7 +320,8 @@ async def get_prescription_pdf(
         raise HTTPException(status_code=404, detail="Consulta no encontrada")
 
     # 2. Generar PDF
-    from services.pdf_service import PDFService
+    # Import already handled globally or needs to be absolute if local
+    # from backend.services.pdf_service import PDFService
     try:
         pdf_bytes = PDFService.generate_prescription_pdf(
             consultation=consultation, 
