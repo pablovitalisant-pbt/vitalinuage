@@ -296,8 +296,7 @@ class PDFService:
         
         html_content = template.render(**context)
         
-        
-        html_content = template.render(**context)
+
         
         # WeasyPrint
         # Ensure we are in backend root or set base_url for assets if needed
@@ -317,9 +316,9 @@ class PDFService:
         db: Session
     ) -> bytes:
         """
-        MÃ©todo principal: decide quÃ© estrategia usar (coordenadas vs template).
+        Metodo principal: decide que estrategia usar (coordenadas vs template).
         """
-        # 1. Buscar mapa activo del mÃ©dico
+        # 1. Buscar mapa activo del medico
         prescription_map = cls.get_active_map(doctor_email, db)
         
         # 2. Decidir estrategia
@@ -350,8 +349,8 @@ class PDFService:
             
             uuid_str = verification.uuid if verification else "PENDING"
             
-            # Si no existe verificacion, quizás deberíamos crearla?
-            # Para solo generar PDF (preview), 'PENDING' está bien o generamos al vuelo.
+            # Si no existe verificacion, quizas deberiamos crearla?
+            # Para solo generar PDF (preview), 'PENDING' esta bien o generamos al vuelo.
             # El requerimiento anterior implicaba crear verification al enviar.
             # Aqui solo estamos descargando PDF. Dejala como PENDING o "" si no existe.
             
