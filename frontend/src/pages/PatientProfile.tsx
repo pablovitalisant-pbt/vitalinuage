@@ -1,5 +1,5 @@
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { FilePlus, ArrowLeft, History, User, Printer, Settings } from 'lucide-react';
+import { FilePlus, ArrowLeft, History, User, Printer, Settings, ScrollText } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { PrintSettingsModal } from '../components/PrintSettingsModal';
 import PrescriptionDelivery from '../components/PrescriptionDelivery';
@@ -201,7 +201,7 @@ export default function PatientProfile() {
                 </div>
 
                 {/* Clinical Summary Cards - Consolidated Design */}
-                <div className="space-y-4">
+                <div className="space-y-4 mb-10">
                     <div className="flex justify-between items-center">
                         <h2 className="text-lg font-semibold text-slate-900">Información Clínica</h2>
                         <button
@@ -275,6 +275,13 @@ export default function PatientProfile() {
                                 >
                                     <FilePlus className="h-5 w-5" />
                                     Nueva Consulta
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab('recipes')}
+                                    className="w-full flex items-center justify-center gap-2 bg-white border border-[#1e3a8a] text-[#1e3a8a] font-medium py-3 px-4 rounded-lg transition-all hover:bg-blue-50 shadow-sm"
+                                >
+                                    <ScrollText className="h-5 w-5" />
+                                    Emitir Receta
                                 </button>
                                 <button
                                     onClick={() => setIsEditingPatient(!isEditingPatient)}
