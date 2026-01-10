@@ -296,5 +296,48 @@ async def get_dispatch_status(
     }
 
 
+@verification_router.get("/{consultation_id}/pdf")
+async def get_prescription_pdf(
+    consultation_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """
+    Genera y descarga el PDF de la receta.
+    """
+    check_feature_flag()
+
+    # 1. Verificar propiedad
+    consultation = db.query(models.ClinicalConsultation).filter(
+        models.ClinicalConsultation.id == consultation_id,
+        models.ClinicalConsultation.owner_id == current_user.email
+    ).first()
+    
+    if not consultation:
+        raise HTTPException(status_code=404, detail="Consulta no encontrada")
+
+    # 2. Generar PDF
+    from services.pdf_service import PDFService
+    try:
+        pdf_bytes = PDFService.generate_prescription_pdf(
+            consultation=consultation, 
+            doctor_email=current_user.email,
+            db=db
+        )
+    except Exception as e:
+        print(f"Error generating PDF: {e}")
+        # Return 500 but detail it
+        raise HTTPException(status_code=500, detail=f"Error al generar PDF: {str(e)}")
+
+    # 3. Retornar stream
+    return StreamingResponse(
+        io.BytesIO(pdf_bytes),
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f"attachment; filename=receta_{consultation_id}.pdf"
+        }
+    )
+
+
 
 
