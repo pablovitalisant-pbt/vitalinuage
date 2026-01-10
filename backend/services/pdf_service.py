@@ -191,13 +191,13 @@ class PDFService:
         Returns:
             bytes: Contenido del PDF generado
         """
-        """
         from backend.pdf_templates import MINIMAL_TEMPLATE, MODERN_TEMPLATE, CLASSIC_TEMPLATE
         from jinja2 import Template
         try:
             from weasyprint import HTML
         except ImportError:
              raise Exception("WeasyPrint module not found. Please install backend dependencies.")
+
 
         
         # 1. Seleccionar template
