@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { FilePlus, ArrowLeft, History, User, Printer, Settings } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { PrintSettingsModal } from '../components/PrintSettingsModal';
@@ -29,6 +29,7 @@ import { useDoctor } from '../context/DoctorContext';
 export default function PatientProfile() {
     const navigate = useNavigate();
     const { id } = useParams();
+    const location = useLocation();
     const { profile, token } = useDoctor(); // Consuming context + token for auth
     const [patient, setPatient] = useState<PatientData | null>(null);
     const [loading, setLoading] = useState(true);
@@ -48,6 +49,12 @@ export default function PatientProfile() {
     const handleClinicalUpdate = (field: keyof PatientData, value: any) => {
         if (!patient) return;
         setPatient({ ...patient, [field]: value });
+    };
+
+    // Smart Back: Navigate to origin or fallback to /search
+    const handleBack = () => {
+        const from = location.state?.from || '/search';
+        navigate(from);
     };
 
     const handleSave = async () => {
@@ -134,7 +141,7 @@ export default function PatientProfile() {
 
                 {/* Back Navigation */}
                 <button
-                    onClick={() => navigate('/search')}
+                    onClick={handleBack}
                     className="flex items-center text-slate-500 hover:text-[#1e3a8a] transition-colors mb-2"
                 >
                     <ArrowLeft className="h-4 w-4 mr-1" />
@@ -200,8 +207,8 @@ export default function PatientProfile() {
                         <button
                             onClick={() => setIsEditingClinical(!isEditingClinical)}
                             className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${isEditingClinical
-                                    ? 'bg-slate-100 text-slate-800 border border-slate-300'
-                                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                                ? 'bg-slate-100 text-slate-800 border border-slate-300'
+                                : 'bg-blue-600 text-white hover:bg-blue-700'
                                 }`}
                         >
                             {isEditingClinical ? 'Cancelar Edición' : 'Editar Información Clínica'}

@@ -29,7 +29,7 @@ export default function Dashboard() {
             <h2 className="text-xl font-bold text-[#1e3a8a] mb-4">Mis Pacientes ({patients.length})</h2>
             <ul className="divide-y divide-gray-100">
                 {patients.map((patient: any) => (
-                    <li key={patient.id} className="py-4 flex justify-between items-center hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => navigate(`/patient/${patient.id}`)}>
+                    <li key={patient.id} className="py-4 flex justify-between items-center hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => navigate(`/patient/${patient.id}`, { state: { from: '/dashboard' } })}>
                         <div className="flex flex-col">
                             <span className="font-medium text-gray-900">{patient.nombre} {patient.apellido_paterno}</span>
                             <span className="text-sm text-gray-500">DNI: {patient.dni}</span>
