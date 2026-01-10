@@ -1,6 +1,6 @@
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { FilePlus, ArrowLeft, History, User, Printer, Settings } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PrintSettingsModal } from '../components/PrintSettingsModal';
 import PrescriptionDelivery from '../components/PrescriptionDelivery';
 import MedicalBackgroundManager from '../components/MedicalBackgroundManager';
@@ -86,7 +86,7 @@ export default function PatientProfile() {
     };
 
     // Tab State
-    const [activeTab, setActiveTab] = useState<'consultations' | 'background'>('consultations');
+    const [activeTab, setActiveTab] = useState<'consultations' | 'background' | 'recipes'>('consultations');
 
     useEffect(() => {
         if (!id) return;
@@ -136,7 +136,7 @@ export default function PatientProfile() {
     const age = new Date().getFullYear() - new Date(patient.fecha_nacimiento).getFullYear();
 
     return (
-        <div className="min-h-screen bg-slate-50 font-sans p-6 pt-24 relative">
+        <div className="min-h-screen bg-slate-50 font-sans px-8 pt-28 relative">
             <div className={`max-w-4xl mx-auto space-y-6 ${selectedConsultation || showPrintSettings ? 'blur-sm brightness-50 pointer-events-none' : ''} transition-all duration-300`}>
 
                 {/* Back Navigation */}
@@ -243,10 +243,10 @@ export default function PatientProfile() {
                     Antecedentes
                 </button>
                 <button
-                    disabled
-                    className="pb-3 text-sm font-medium text-slate-300 cursor-not-allowed border-b-2 border-transparent"
+                    onClick={() => setActiveTab('recipes')}
+                    className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeTab === 'recipes' ? 'border-[#1e3a8a] text-[#1e3a8a]' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
                 >
-                    Recetas (Próximamente)
+                    Recetas
                 </button>
             </div>
 
@@ -291,6 +291,18 @@ export default function PatientProfile() {
                 {activeTab === 'background' && (
                     <div className="animate-in fade-in slide-in-from-left-4 duration-300">
                         <MedicalBackgroundManager patientId={parseInt(id || "0")} />
+                    </div>
+                )}
+
+                {activeTab === 'recipes' && (
+                    <div className="animate-in fade-in slide-in-from-left-4 duration-300 bg-white p-12 rounded-xl text-center border border-slate-100 shadow-sm">
+                        <div className="bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <FilePlus className="h-8 w-8 text-[#1e3a8a]" />
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-800 mb-2">Gestión de Recetas</h3>
+                        <p className="text-slate-500 max-w-md mx-auto">
+                            Módulo de gestión de recetas electrónicas activado. Aquí podrá visualizar y generar nuevas recetas para el paciente.
+                        </p>
                     </div>
                 )}
             </div>
