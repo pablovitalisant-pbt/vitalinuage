@@ -275,14 +275,17 @@ class PDFService:
     def generate_from_html_file(
         cls,
         consultation: models.ClinicalConsultation,
-        verification_uuid: str = ""
+        verification_uuid: str = "",
+        db: Session = None  # New Argument injected from API
     ) -> bytes:
         """
         Generates PDF using the A5 HTML template file.
+        Uses db session to fetch or create PrescriptionVerification.
         """
         import jinja2
         import os
         import datetime
+        import uuid as uuid_lib
         
         # Paths
         base_dir = os.path.dirname(os.path.dirname(__file__)) # backend/
@@ -307,6 +310,41 @@ class PDFService:
         consult_date = cls._parse_date(consultation.created_at)
         date_str = consult_date.strftime('%d/%m/%Y') if consult_date else datetime.date.today().strftime('%d/%m/%Y')
 
+        # --- SLICE 31.1: UUID & QR Rescue ---
+        final_uuid = verification_uuid
+        
+        if db and not final_uuid:
+            # 1. Try to find existing
+            verification = db.query(models.PrescriptionVerification).filter(
+                models.PrescriptionVerification.consultation_id == consultation.id
+            ).first()
+            
+            if verification:
+                final_uuid = verification.uuid
+            else:
+                # 2. Create new if missing
+                try:
+                    new_uuid = str(uuid_lib.uuid4())
+                    
+                    # Resolve Doctor Info for Verification Record
+                    doc_user = db.query(models.User).filter(models.User.email == consultation.owner_id).first()
+                    doc_name = doc_user.professional_name if doc_user and doc_user.professional_name else doctor
+                    
+                    new_verification = models.PrescriptionVerification(
+                        uuid=new_uuid,
+                        consultation_id=consultation.id,
+                        doctor_email=consultation.owner_id,
+                        doctor_name=doc_name,
+                        issue_date=datetime.datetime.utcnow()
+                    )
+                    db.add(new_verification)
+                    db.commit()
+                    db.refresh(new_verification)
+                    final_uuid = new_uuid
+                except Exception as e:
+                    print(f"Error creating verification record: {e}")
+                    final_uuid = "ERROR-GEN-UUID"
+
         context = {
             'doctor': {
                 'name': doctor,
@@ -320,18 +358,20 @@ class PDFService:
             'date': date_str,
             'treatment': consultation.plan_tratamiento or "",
             'diagnosis': consultation.diagnostico or "",
-            'verification_uuid': verification_uuid
+            'verification_uuid': final_uuid
         }
         
-        # Inject QR Code
-        if verification_uuid and verification_uuid != "PENDING":
+        # Inject QR Code (Existing Logic + Context Update)
+        if final_uuid and final_uuid != "PENDING" and final_uuid != "ERROR-GEN-UUID":
              try:
                  from backend.services.qr_service import get_qr_base64
-                 verify_url = f"https://vitalinuage.com/v/{verification_uuid}"
+                 verify_url = f"https://vitalinuage.com/v/{final_uuid}"
                  context['qr_base64'] = get_qr_base64(verify_url)
              except Exception as e:
                  print(f"QR Gen failed: {e}")
                  context['qr_base64'] = None
+        else:
+             context['qr_base64'] = None
         
         html_content = template.render(**context)
         
@@ -382,16 +422,14 @@ class PDFService:
             import datetime
             
             # Buscar verificacion para el footer
+            # SLICE 31.1: Now handled inside generate_from_html_file via db param
+            # We pass existing verification UUID if we have it, or let the function resolve it.
+            
             verification = db.query(models.PrescriptionVerification).filter(
                 models.PrescriptionVerification.consultation_id == consultation.id
             ).first()
             
-            uuid_str = verification.uuid if verification else "PENDING"
+            uuid_str = verification.uuid if verification else ""
             
-            # Si no existe verificacion, quizas deberiamos crearla?
-            # Para solo generar PDF (preview), 'PENDING' esta bien o generamos al vuelo.
-            # El requerimiento anterior implicaba crear verification al enviar.
-            # Aqui solo estamos descargando PDF. Dejala como PENDING o "" si no existe.
-            
-            return cls.generate_from_html_file(consultation, verification_uuid=uuid_str)
+            return cls.generate_from_html_file(consultation, verification_uuid=uuid_str, db=db)
 
