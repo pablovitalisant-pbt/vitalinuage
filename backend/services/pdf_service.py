@@ -323,6 +323,16 @@ class PDFService:
             'verification_uuid': verification_uuid
         }
         
+        # Inject QR Code
+        if verification_uuid and verification_uuid != "PENDING":
+             try:
+                 from backend.services.qr_service import get_qr_base64
+                 verify_url = f"https://vitalinuage.com/v/{verification_uuid}"
+                 context['qr_base64'] = get_qr_base64(verify_url)
+             except Exception as e:
+                 print(f"QR Gen failed: {e}")
+                 context['qr_base64'] = None
+        
         html_content = template.render(**context)
         
 

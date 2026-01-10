@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>Receta Médica</title>
@@ -8,6 +9,7 @@
             size: A5;
             margin: 0;
         }
+
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
             color: #333;
@@ -16,6 +18,7 @@
             line-height: 1.5;
             font-size: 10pt;
         }
+
         .header {
             border-bottom: 2px solid #1e3a8a;
             padding-bottom: 10px;
@@ -24,17 +27,20 @@
             justify-content: space-between;
             align-items: center;
         }
+
         .logo {
             font-size: 18pt;
             font-weight: bold;
             color: #1e3a8a;
             text-transform: uppercase;
         }
+
         .doctor-info {
             text-align: right;
             font-size: 9pt;
             color: #666;
         }
+
         .patient-info {
             background-color: #f8fafc;
             padding: 15px;
@@ -42,23 +48,28 @@
             margin-bottom: 20px;
             border: 1px solid #e2e8f0;
         }
+
         .patient-row {
             display: flex;
             justify-content: space-between;
             margin-bottom: 5px;
         }
+
         .label {
             font-weight: bold;
             color: #64748b;
             font-size: 8pt;
             text-transform: uppercase;
         }
+
         .value {
             font-weight: 600;
         }
+
         .treatment-box {
             min-height: 300px;
         }
+
         .treatment-title {
             font-size: 11pt;
             font-weight: bold;
@@ -67,9 +78,11 @@
             border-bottom: 1px solid #e2e8f0;
             padding-bottom: 5px;
         }
+
         .treatment-content {
             white-space: pre-wrap;
         }
+
         .footer {
             position: fixed;
             bottom: 20mm;
@@ -81,10 +94,12 @@
             font-size: 8pt;
             color: #999;
         }
+
         .signature-box {
             margin-top: 50px;
             text-align: right;
         }
+
         .signature-line {
             display: inline-block;
             width: 200px;
@@ -94,6 +109,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="header">
         <div class="logo">Vitalinuage</div>
@@ -148,8 +164,12 @@
     </div>
 
     <div class="footer">
+        {% if qr_base64 %}
+        <img src="data:image/png;base64,{{ qr_base64 }}" style="width: 25mm; height: 25mm; margin-bottom: 5px;"><br>
+        {% endif %}
         Documento generado electrónicamente por Vitalinuage Platform<br>
         Verifique autenticidad en vitalinuage.com/v/{{ verification_uuid }}
     </div>
 </body>
+
 </html>

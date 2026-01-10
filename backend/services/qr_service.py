@@ -31,3 +31,11 @@ def generate_qr_image(url: str, size_mm: float = 25.0) -> BytesIO:
     buffer.seek(0)
     
     return buffer
+
+def get_qr_base64(url: str) -> str:
+    """
+    Generates QR code and returns it as a Base64 string for HTML embedding.
+    """
+    import base64
+    buffer = generate_qr_image(url)
+    return base64.b64encode(buffer.getvalue()).decode('utf-8')
