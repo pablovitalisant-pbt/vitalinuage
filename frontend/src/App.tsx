@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Login from './pages/Login';
 import VerifyAccount from './pages/VerifyAccount';
 import PublicValidation from './pages/PublicValidation';
+import PublicVerification from './pages/PublicVerification';
 
 import PatientProfile from './pages/PatientProfile';
 import ProfileSettings from './pages/ProfileSettings';
@@ -601,7 +602,9 @@ function App() {
                 <Routes>
                     <Route path="/" element={<Login />} />
                     <Route path="/verify" element={<VerifyAccount />} />
-                    <Route path="/v/:token" element={<PublicValidation />} />
+                    <Route path="/verify" element={<VerifyAccount />} />
+                    <Route path="/v/:uuid" element={<PublicVerification />} />
+                    <Route path="/validate-doc/:docToken" element={<PublicValidation />} />
 
                     {/* Protected Routes */}
                     <Route element={
