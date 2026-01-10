@@ -37,13 +37,41 @@ export default function ConsultationManager({ patientId }: Props) {
 
 
 
-    const handleDownloadPDF = (consultationId: number) => {
-        const token = localStorage.getItem('token');
-        const apiUrl = apiConfig.apiBaseUrl;
-        const pdfUrl = `${apiUrl}/api/consultas/${consultationId}/pdf`;
+    const handleDownloadPDF = async (consultationId: number) => {
+        try {
+            const token = localStorage.getItem('token');
+            const apiUrl = apiConfig.apiBaseUrl;
 
-        // Open PDF in new tab with authorization
-        window.open(pdfUrl, '_blank');
+            const response = await fetch(`${apiUrl}/api/consultas/${consultationId}/pdf`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                toast.error(errorData.detail || 'Error al descargar PDF');
+                return;
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+
+            // Create temporary link and click it
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `receta_${consultationId}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+
+            // Cleanup
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error downloading PDF:', error);
+            toast.error('Error de conexión al descargar PDF');
+        }
     };
 
     const handleSendWhatsApp = async (consultation: ClinicalConsultation) => {
