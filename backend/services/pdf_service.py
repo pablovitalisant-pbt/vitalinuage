@@ -246,6 +246,31 @@ class PDFService:
         
         return pdf_bytes
     
+    @staticmethod
+    def _parse_date(date_value):
+        """
+        Helper safely parse dates from string or datetime objects.
+        Returns datetime.date or None.
+        """
+        import datetime
+        if not date_value:
+            return None
+        
+        if isinstance(date_value, (datetime.date, datetime.datetime)):
+            return date_value
+            
+        if isinstance(date_value, str):
+            try:
+                # Try ISO format first (YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)
+                return datetime.datetime.fromisoformat(date_value.replace('Z', '+00:00')).date()
+            except ValueError:
+                # Try simple date
+                try:
+                    return datetime.datetime.strptime(date_value, '%Y-%m-%d').date()
+                except ValueError:
+                    return None
+        return None
+
     @classmethod
     def generate_from_html_file(
         cls,
@@ -257,6 +282,7 @@ class PDFService:
         """
         import jinja2
         import os
+        import datetime
         
         # Paths
         base_dir = os.path.dirname(os.path.dirname(__file__)) # backend/
@@ -266,10 +292,10 @@ class PDFService:
         
         # Context Data
         age = "N/A"
-        if consultation.patient and consultation.patient.fecha_nacimiento:
-            import datetime
+        dob = cls._parse_date(consultation.patient.fecha_nacimiento) if consultation.patient else None
+        
+        if dob:
             today = datetime.date.today()
-            dob = consultation.patient.fecha_nacimiento
             age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
 
         doctor = "Dr. Vitalinuage" # Fallback
@@ -278,6 +304,9 @@ class PDFService:
         # Try to resolve doctor from owner_id (email) if possible, or use passed data?
         # current_user is not passed here directly, but owner_id is on consultation.
         
+        consult_date = cls._parse_date(consultation.created_at)
+        date_str = consult_date.strftime('%d/%m/%Y') if consult_date else datetime.date.today().strftime('%d/%m/%Y')
+
         context = {
             'doctor': {
                 'name': doctor,
@@ -288,7 +317,7 @@ class PDFService:
                 'dni': consultation.patient.dni or "N/A",
                 'age': age
             },
-            'date': consultation.created_at.strftime('%d/%m/%Y'),
+            'date': date_str,
             'treatment': consultation.plan_tratamiento or "",
             'diagnosis': consultation.diagnostico or "",
             'verification_uuid': verification_uuid
