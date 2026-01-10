@@ -91,7 +91,7 @@ export default function PatientTable() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <button
-                                                onClick={() => navigate(`/patients/${patient.id}`)}
+                                                onClick={() => navigate(`/patients/${patient.id}`, { state: { from: '/patients' } })}
                                                 className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1"
                                             >
                                                 <Eye size={16} /> Ver

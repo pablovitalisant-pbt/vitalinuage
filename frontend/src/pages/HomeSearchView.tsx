@@ -136,7 +136,7 @@ export default function SearchPage() {
                             {results.map((patient) => (
                                 <li
                                     key={patient.id}
-                                    onClick={() => navigate(`/patient/${patient.id}`)}
+                                    onClick={() => navigate(`/patient/${patient.id}`, { state: { from: '/search' } })}
                                     className="border-b border-gray-50 last:border-none hover:bg-slate-50 transition-colors cursor-pointer"
                                 >
                                     <div className="px-4 py-4 flex justify-between items-center">
