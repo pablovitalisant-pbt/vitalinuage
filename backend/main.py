@@ -62,15 +62,11 @@ app.add_middleware(
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    # Esto imprimirá el error real en los logs de Cloud Run
     print(f"CRITICAL ERROR on {request.url.path}: {str(exc)}")
-    origin = request.headers.get("origin")
-    allow_origin = origin if origin in origins else "https://vitalinuage.web.app"
-    
     return JSONResponse(
         status_code=500,
         content={"detail": "Internal Server Error", "error": str(exc)},
-        headers={"Access-Control-Allow-Origin": allow_origin}
+        headers={"Access-Control-Allow-Origin": "https://vitalinuage.web.app"}
     )
 
 # Centralized Router Registration
