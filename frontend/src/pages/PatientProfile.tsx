@@ -5,7 +5,6 @@ import { PrintSettingsModal } from '../components/PrintSettingsModal';
 import PrescriptionDelivery from '../components/PrescriptionDelivery';
 import MedicalBackgroundManager from '../components/MedicalBackgroundManager';
 import ConsultationManager from '../components/ConsultationManager';
-import ClinicalSummaryCards from '../components/patients/ClinicalSummaryCards';
 import VitalSignsCards from '../components/patients/VitalSignsCards';
 import { getApiUrl } from '../config/api';
 
@@ -42,15 +41,9 @@ export default function PatientProfile() {
     const [editForm, setEditForm] = useState<any>(null);
     const [showPrintSettings, setShowPrintSettings] = useState(false);
     const [isEditingPatient, setIsEditingPatient] = useState(false);
-    const [isEditingClinical, setIsEditingClinical] = useState(false);
 
     // Moved import to top of file
     // import MedicalBackgroundManager from '../components/MedicalBackgroundManager';
-
-    const handleClinicalUpdate = (field: keyof PatientData, value: any) => {
-        if (!patient) return;
-        setPatient({ ...patient, [field]: value });
-    };
 
     // Smart Back: Navigate to origin or fallback to /search
     const handleBack = () => {
