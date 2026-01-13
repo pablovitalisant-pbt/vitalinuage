@@ -1,11 +1,12 @@
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { FilePlus, ArrowLeft, History, User, Printer, Settings, ScrollText } from 'lucide-react';
+import { FilePlus, ArrowLeft, History, User, Printer, Settings, ScrollText, AlertTriangle } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { PrintSettingsModal } from '../components/PrintSettingsModal';
 import PrescriptionDelivery from '../components/PrescriptionDelivery';
 import MedicalBackgroundManager from '../components/MedicalBackgroundManager';
 import ConsultationManager from '../components/ConsultationManager';
 import ClinicalSummaryCards from '../components/patients/ClinicalSummaryCards';
+import VitalSignsCards from '../components/patients/VitalSignsCards';
 import { getApiUrl } from '../config/api';
 
 // Simplified interface for view
@@ -199,6 +200,35 @@ export default function PatientProfile() {
                         <Settings className="h-5 w-5" />
                     </button>
                 </div>
+
+                {/* Allergy Alert Banner */}
+                {patient.allergies && patient.allergies.length > 0 ? (
+                    <div
+                        className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-lg flex items-start gap-3"
+                        data-testid="allergy-alert-banner"
+                    >
+                        <AlertTriangle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                            <h3 className="text-red-800 font-semibold text-sm mb-1">⚠️ ALERGIAS REGISTRADAS</h3>
+                            <p className="text-red-700 text-sm">
+                                {patient.allergies.join(', ')}
+                            </p>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="bg-slate-50 border border-slate-200 p-3 mb-6 rounded-lg text-center">
+                        <p className="text-slate-500 text-sm">Sin alergias registradas</p>
+                    </div>
+                )}
+
+                {/* Vital Signs Snapshot */}
+                <VitalSignsCards
+                    imc={patient.imc}
+                    bloodPressure={undefined}
+                    weight={undefined}
+                    height={undefined}
+                    lastConsultationDate={consultations[0]?.fecha}
+                />
 
                 {/* Clinical Summary Cards - Consolidated Design */}
                 <div className="space-y-4 mb-14 border-b border-gray-100 pb-8">
