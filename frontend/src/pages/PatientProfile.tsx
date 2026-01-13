@@ -149,56 +149,41 @@ export default function PatientProfile() {
                     Volver a búsqueda
                 </button>
 
-                {/* Header Card */}
-                <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex justify-between items-start">
-                    <div className="flex items-start gap-4">
-                        <div className="bg-blue-50 p-3 rounded-full">
-                            <User className="h-8 w-8 text-[#1e3a8a]" />
+                {/* Elegant Minimal Header */}
+                <div className="flex justify-between items-start mb-8">
+                    <div>
+                        <div className="flex gap-3 items-baseline mb-2">
+                            <h1 className="text-4xl font-extrabold tracking-tighter text-slate-900">
+                                {patient.nombre} {patient.apellido_paterno}
+                            </h1>
+                            {isEditingPatient && (
+                                <span className="text-xs text-blue-600 font-semibold">Editando</span>
+                            )}
                         </div>
-                        <div>
-                            <div>
-                                <div className="flex gap-2 mb-1">
-                                    <input
-                                        disabled={!isEditingPatient}
-                                        value={patient.nombre}
-                                        onChange={(e) => setPatient({ ...patient, nombre: e.target.value })}
-                                        className="text-2xl font-bold text-[#1e3a8a] bg-transparent border-b border-transparent disabled:border-transparent focus:border-[#1e3a8a] outline-none w-1/2"
-                                    />
-                                    <input
-                                        disabled={!isEditingPatient}
-                                        value={patient.apellido_paterno}
-                                        onChange={(e) => setPatient({ ...patient, apellido_paterno: e.target.value })}
-                                        className="text-2xl font-bold text-[#1e3a8a] bg-transparent border-b border-transparent disabled:border-transparent focus:border-[#1e3a8a] outline-none w-1/2"
-                                    />
-                                </div>
-                                <div className="flex items-center gap-4 text-slate-500 mt-1 text-sm">
-                                    <div className="flex items-center gap-1">
-                                        <span>DNI:</span>
-                                        <input
-                                            disabled={!isEditingPatient}
-                                            value={patient.dni}
-                                            onChange={(e) => setPatient({ ...patient, dni: e.target.value })}
-                                            className="bg-transparent border-b border-transparent disabled:border-transparent focus:border-[#1e3a8a] outline-none w-24"
-                                        />
-                                    </div>
-                                    <span>•</span>
-                                    <span>{age} años</span>
-                                    <span>•</span>
-                                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${patient.imc > 25 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
-                                        }`}>
-                                        IMC: {patient.imc.toFixed(1)}
-                                    </span>
-                                </div>
-                            </div>
+                        <div className="flex items-center gap-3 text-slate-500 font-medium text-sm">
+                            <span>DNI: {patient.dni}</span>
+                            <span>•</span>
+                            <span>{age} años</span>
+                            <span>•</span>
+                            <span>{patient.email || 'Sin email'}</span>
                         </div>
                     </div>
-                    <button
-                        onClick={() => setShowPrintSettings(true)}
-                        className="p-2 text-slate-400 hover:text-[#1e3a8a] transition-colors"
-                        title="Configuración de Impresión"
-                    >
-                        <Settings className="h-5 w-5" />
-                    </button>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => setIsEditingPatient(!isEditingPatient)}
+                            className="p-2 text-slate-400 hover:text-blue-600 transition-colors"
+                            title="Editar Paciente"
+                        >
+                            <Settings className="h-5 w-5" />
+                        </button>
+                        <button
+                            onClick={() => setShowPrintSettings(true)}
+                            className="p-2 text-slate-400 hover:text-blue-600 transition-colors"
+                            title="Configuración de Impresión"
+                        >
+                            <Printer className="h-5 w-5" />
+                        </button>
+                    </div>
                 </div>
 
                 {/* Allergy Alert Banner - PRIORITY #1 */}
@@ -250,31 +235,7 @@ export default function PatientProfile() {
                     lastConsultationDate={consultations[0]?.fecha}
                 />
 
-                {/* Clinical Summary Cards - Consolidated Design */}
-                <div className="space-y-4 mb-14 border-b border-gray-100 pb-8">
-                    <div className="flex justify-between items-center">
-                        <h2 className="text-lg font-semibold text-slate-900">Información Clínica</h2>
-                        <button
-                            onClick={() => setIsEditingClinical(!isEditingClinical)}
-                            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${isEditingClinical
-                                ? 'bg-slate-100 text-slate-800 border border-slate-300'
-                                : 'bg-blue-600 text-white hover:bg-blue-700'
-                                }`}
-                        >
-                            {isEditingClinical ? 'Cancelar Edición' : 'Editar Información Clínica'}
-                        </button>
-                    </div>
-                    <ClinicalSummaryCards
-                        data={{
-                            blood_type: patient.blood_type || null,
-                            allergies: patient.allergies || [],
-                            chronic_conditions: patient.chronic_conditions || [],
-                            current_medications: patient.current_medications || []
-                        }}
-                        isEditing={isEditingClinical}
-                        onUpdate={handleClinicalUpdate}
-                    />
-                </div>
+
 
             </div>
 
