@@ -201,23 +201,35 @@ export default function PatientProfile() {
                     </button>
                 </div>
 
-                {/* Allergy Alert Banner */}
+                {/* Allergy Alert Banner - PRIORITY #1 */}
                 {patient.allergies && patient.allergies.length > 0 ? (
                     <div
-                        className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-lg flex items-start gap-3"
+                        className="bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 p-6 mb-8 rounded-3xl shadow-lg flex items-start gap-4 animate-pulse-slow"
                         data-testid="allergy-alert-banner"
                     >
-                        <AlertTriangle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
-                        <div>
-                            <h3 className="text-red-800 font-semibold text-sm mb-1">⚠️ ALERGIAS REGISTRADAS</h3>
-                            <p className="text-red-700 text-sm">
-                                {patient.allergies.join(', ')}
-                            </p>
+                        <div className="p-3 bg-red-100 rounded-2xl">
+                            <AlertTriangle className="h-6 w-6 text-red-600" strokeWidth={2.5} />
+                        </div>
+                        <div className="flex-1">
+                            <h3 className="text-red-900 font-black text-base mb-2 uppercase tracking-wide flex items-center gap-2">
+                                <span className="text-2xl">⚠️</span>
+                                ALERGIAS REGISTRADAS
+                            </h3>
+                            <div className="flex flex-wrap gap-2">
+                                {patient.allergies.map((allergy, idx) => (
+                                    <span
+                                        key={idx}
+                                        className="px-4 py-2 bg-red-100 text-red-800 rounded-full text-sm font-bold border-2 border-red-200"
+                                    >
+                                        {allergy}
+                                    </span>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 ) : (
-                    <div className="bg-slate-50 border border-slate-200 p-3 mb-6 rounded-lg text-center">
-                        <p className="text-slate-500 text-sm">Sin alergias registradas</p>
+                    <div className="bg-slate-50 border border-slate-200 p-4 mb-8 rounded-2xl text-center">
+                        <p className="text-slate-500 text-sm font-semibold">✓ Sin alergias registradas</p>
                     </div>
                 )}
 

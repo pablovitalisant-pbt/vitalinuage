@@ -37,9 +37,9 @@ describe('Slice 35.1: Clinical Profile Redesign - Component Tests', () => {
             // Check IMC value
             expect(screen.getByText('27.5')).toBeInTheDocument();
 
-            // Check for orange/yellow indicator
+            // Check for orange indicator (updated class)
             const indicator = screen.getByTestId('imc-indicator');
-            expect(indicator).toHaveClass('bg-orange-100');
+            expect(indicator).toHaveClass('bg-orange-50');
             expect(screen.getByText('Sobrepeso')).toBeInTheDocument();
         });
 
@@ -49,7 +49,7 @@ describe('Slice 35.1: Clinical Profile Redesign - Component Tests', () => {
             expect(screen.getByText('22.0')).toBeInTheDocument();
 
             const indicator = screen.getByTestId('imc-indicator');
-            expect(indicator).toHaveClass('bg-green-100');
+            expect(indicator).toHaveClass('bg-emerald-50');
             expect(screen.getByText('Normal')).toBeInTheDocument();
         });
 
@@ -59,7 +59,7 @@ describe('Slice 35.1: Clinical Profile Redesign - Component Tests', () => {
             expect(screen.getByText('32.0')).toBeInTheDocument();
 
             const indicator = screen.getByTestId('imc-indicator');
-            expect(indicator).toHaveClass('bg-red-100');
+            expect(indicator).toHaveClass('bg-red-50');
             expect(screen.getByText('Obesidad')).toBeInTheDocument();
         });
 
