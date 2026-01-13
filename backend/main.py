@@ -33,6 +33,10 @@ app.include_router(audit.router, prefix="/api/audit", tags=["Audit"])
 app.include_router(doctor.router, prefix="/api/doctors", tags=["Doctor"])
 app.include_router(medical_background.router, prefix="/api/medical-background", tags=["Medical Background"])
 
+# Slice 34: AI Diagnosis
+from backend.api.endpoints import diagnosis
+app.include_router(diagnosis.router)
+
 @app.get("/api/health")
 async def health_check():
     return {"status": "READY", "db": "connected"}

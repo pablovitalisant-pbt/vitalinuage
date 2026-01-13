@@ -53,6 +53,9 @@ class Patient(Base):
     alergias = Column(String, nullable=True)
     observaciones = Column(String, nullable=True)
 
+    # Slice 34: Clinical Infrastructure Extensions
+    antecedentes_morbidos = Column(String, nullable=True) # Ex: Diabetes, Hypertension
+
     # Multitenancy
     owner_id = Column(String, index=True, nullable=False)
 
@@ -97,6 +100,18 @@ class ClinicalConsultation(Base):
     diagnostico = Column(String, nullable=False)
     plan_tratamiento = Column(String, nullable=False)
     proxima_cita = Column(String, nullable=True)
+
+    # Slice 34: Biometrics & Diagnosis
+    peso_kg = Column(Float, nullable=True)
+    estatura_cm = Column(Float, nullable=True) 
+    
+    imc = Column(Float, nullable=True)
+    presion_arterial = Column(String, nullable=True)
+    frecuencia_cardiaca = Column(Integer, nullable=True)
+    temperatura_c = Column(Float, nullable=True)
+    
+    cie10_code = Column(String, nullable=True)
+    cie10_description = Column(String, nullable=True)
 
     # Relationships
     patient = relationship("Patient", back_populates="consultations")
