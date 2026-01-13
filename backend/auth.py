@@ -147,11 +147,14 @@ def register(
     
     # 3. Send Verification Email
     # We call this asynchronously ideally, but synchronous for MVP is acceptable given low volume
-    EmailService.send_verification_email(
+    email_sent = EmailService.send_verification_email(
         to_email=new_user.email,
         verification_token=verification_token,
         professional_name=new_user.professional_name or "Doctor"
     )
+    
+    if not email_sent:
+        logger.warning(f"Registration successful for {new_user.email} but verification email failed to send")
     
     return {"message": "User created successfully", "email": new_user.email}
 

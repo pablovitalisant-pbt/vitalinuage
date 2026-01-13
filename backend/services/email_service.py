@@ -125,14 +125,24 @@ class EmailService:
             </div>
             """
             
+            # Safe Fallback Logic for Sender
+            default_sender = "noreply@vitalinuage.web.app"
+            sender_address = os.getenv('EMAIL_FROM_ADDRESS', default_sender)
+            
+            # Ensure we don't accidentally use the deprecated .com if env var is misconfigured
+            if "vitalinuage.com" in sender_address:
+                logging.getLogger(__name__).warning("Deprecated domain .com detected in env. Switched to fallback .web.app")
+                sender_address = default_sender
+
             params = {
-                "from": f"{os.getenv('EMAIL_FROM_NAME', 'Vitalinuage Security')} <{os.getenv('EMAIL_FROM_ADDRESS', 'security@vitalinuage.com')}>",
+                "from": f"{os.getenv('EMAIL_FROM_NAME', 'Vitalinuage Security')} <{sender_address}>",
                 "to": [to_email],
                 "subject": "Verifique su cuenta Vitalinuage",
                 "html": html_content,
             }
 
-            resend.Emails.send(params)
+            email = resend.Emails.send(params)
+            logging.getLogger(__name__).info(f"Verification email sent to {to_email}. ID: {email.get('id', 'unknown')}")
             return True
             
         except Exception as e:
