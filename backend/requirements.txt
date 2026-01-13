@@ -21,3 +21,4 @@ resend
 reportlab
 weasyprint
 jinja2
+google-generativeai
