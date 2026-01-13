@@ -23,6 +23,9 @@ def verify_prescription_publicly(uuid: str, db: Session = Depends(get_db)):
     Public endpoint to verify prescription validity via UUID.
     Does NOT return sensitive patient full data, only initials.
     """
+    import logging
+    logging.getLogger(__name__).info(f"Public Verification Attempt: {uuid}")
+    
     verification = db.query(models.PrescriptionVerification).filter(
         models.PrescriptionVerification.uuid == uuid
     ).first()

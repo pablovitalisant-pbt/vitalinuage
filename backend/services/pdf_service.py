@@ -131,6 +131,11 @@ class PDFService:
                 )
                 db.add(verification)
                 db.commit()
+                db.refresh(verification)
+                
+                # Persistence Confirmation Log
+                import logging
+                logging.getLogger(__name__).info(f"QR Persistence Confirmed [Coords]: {verification.uuid}")
                 
                 # Generar QR
                 from backend.services.qr_service import get_verification_url
