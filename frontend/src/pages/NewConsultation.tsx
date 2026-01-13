@@ -3,6 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Save, Stethoscope, FileText, Activity, Pill, Weight, Ruler } from 'lucide-react';
 import { useDoctor } from '../context/DoctorContext';
 import { getApiUrl } from '../config/api';
+import BiometryForm from '../components/clinical/BiometryForm';
+import AIDiagnosisSearch from '../components/clinical/AIDiagnosisSearch';
 
 export default function NewConsultation() {
     const navigate = useNavigate();
@@ -15,7 +17,15 @@ export default function NewConsultation() {
         diagnosis: '',
         treatment: '',
         weight: '',
-        height: ''
+        height: '',
+        peso_kg: undefined as number | undefined,
+        estatura_cm: undefined as number | undefined,
+        imc: undefined as number | undefined,
+        presion_arterial: undefined as string | undefined,
+        frecuencia_cardiaca: undefined as number | undefined,
+        temperatura_c: undefined as number | undefined,
+        cie10_code: undefined as string | undefined,
+        cie10_description: undefined as string | undefined
     });
 
     const [saving, setSaving] = useState(false);
@@ -168,41 +178,24 @@ export default function NewConsultation() {
                             />
                         </div>
 
-                        {/* Constantes Vitales */}
-                        <div className="space-y-3 bg-blue-50/30 p-6 -mx-6 md:-mx-8 border-y border-blue-100/50">
-                            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Constantes Vitales (Opcional)</h3>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-                                        <Weight className="h-4 w-4 text-[#1e3a8a]" />
-                                        Peso (kg)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        name="weight"
-                                        step="0.1"
-                                        value={formData.weight}
-                                        onChange={handleChange}
-                                        placeholder="75.5"
-                                        className="w-full mt-2 rounded-md border-slate-200 focus:border-[#1e3a8a] focus:ring-[#1e3a8a] bg-white"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-                                        <Ruler className="h-4 w-4 text-[#1e3a8a]" />
-                                        Talla (cm)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        name="height"
-                                        step="0.1"
-                                        value={formData.height}
-                                        onChange={handleChange}
-                                        placeholder="175"
-                                        className="w-full mt-2 rounded-md border-slate-200 focus:border-[#1e3a8a] focus:ring-[#1e3a8a] bg-white"
-                                    />
-                                </div>
-                            </div>
+                        {/* Sección de Biometría */}
+                        <div className="mb-6">
+                            <h3 className="text-lg font-medium mb-3">Constantes Vitales</h3>
+                            <BiometryForm
+                                onChange={(data) => setFormData({ ...formData, ...data })}
+                            />
+                        </div>
+
+                        {/* Sección de Diagnóstico IA */}
+                        <div className="mb-6">
+                            <h3 className="text-lg font-medium mb-3">Diagnóstico CIE-10 (IA)</h3>
+                            <AIDiagnosisSearch
+                                onSelect={(code, desc) => setFormData({
+                                    ...formData,
+                                    cie10_code: code,
+                                    cie10_description: desc
+                                })}
+                            />
                         </div>
 
                         {/* Tratamiento (Area Grande) */}
