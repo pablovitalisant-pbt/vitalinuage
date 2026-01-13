@@ -33,25 +33,25 @@ export default function VitalSignsCards({ imc, bloodPressure, weight, height, la
     };
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8" data-testid="vital-signs-grid">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6" data-testid="vital-signs-grid">
 
-            {/* IMC Card */}
+            {/* IMC Card - Compact */}
             <div
-                className="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all p-6 flex flex-col"
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all p-3 flex flex-col"
                 data-testid="imc-card"
             >
-                <div className="flex items-center justify-between mb-4">
-                    <div className={`p-3 rounded-2xl ${getIMCIconColor(imc)}`}>
-                        <Activity size={24} strokeWidth={2.5} />
+                <div className="flex items-center justify-between mb-2">
+                    <div className={`p-1.5 rounded-lg ${getIMCIconColor(imc)}`}>
+                        <Activity size={16} strokeWidth={2.5} />
                     </div>
-                    <span className="text-xs font-black text-slate-400 uppercase tracking-wider">IMC</span>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">IMC</span>
                 </div>
                 <div className="mt-auto">
-                    <div className="text-4xl font-black text-slate-900 mb-3 tracking-tight">
+                    <div className="text-xl font-black text-slate-900 mb-1.5 tracking-tight">
                         {imc ? imc.toFixed(1) : '--'}
                     </div>
                     <div
-                        className={`inline-flex items-center px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wide border ${getIMCColor(imc)}`}
+                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide border ${getIMCColor(imc)}`}
                         data-testid="imc-indicator"
                     >
                         {getIMCLabel(imc)}
@@ -59,69 +59,68 @@ export default function VitalSignsCards({ imc, bloodPressure, weight, height, la
                 </div>
             </div>
 
-            {/* Blood Pressure Card */}
+            {/* Blood Pressure Card - Compact */}
             <div
-                className="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all p-6 flex flex-col"
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all p-3 flex flex-col"
                 data-testid="vital-card-bp"
             >
-                <div className="flex items-center justify-between mb-4">
-                    <div className="p-3 bg-rose-100 rounded-2xl text-rose-600">
-                        <Heart size={24} strokeWidth={2.5} />
+                <div className="flex items-center justify-between mb-2">
+                    <div className="p-1.5 bg-rose-100 rounded-lg text-rose-600">
+                        <Heart size={16} strokeWidth={2.5} />
                     </div>
-                    <span className="text-xs font-black text-slate-400 uppercase tracking-wider">Presión</span>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Presión</span>
                 </div>
                 <div className="mt-auto">
-                    <div className="text-3xl font-black text-slate-900 tracking-tight">
+                    <div className="text-lg font-black text-slate-900 tracking-tight">
                         {bloodPressure || '--/--'}
                     </div>
-                    <div className="text-xs text-slate-500 mt-2 font-semibold">mmHg</div>
+                    <div className="text-[9px] text-slate-500 mt-0.5 font-semibold">mmHg</div>
                 </div>
             </div>
 
-            {/* Weight/Height Card */}
+            {/* Weight/Height Card - Compact */}
             <div
-                className="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all p-6 flex flex-col"
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all p-3 flex flex-col"
                 data-testid="vital-card-weight"
             >
-                <div className="flex items-center justify-between mb-4">
-                    <div className="p-3 bg-violet-100 rounded-2xl text-violet-600">
-                        <Weight size={24} strokeWidth={2.5} />
+                <div className="flex items-center justify-between mb-2">
+                    <div className="p-1.5 bg-violet-100 rounded-lg text-violet-600">
+                        <Weight size={16} strokeWidth={2.5} />
                     </div>
-                    <span className="text-xs font-black text-slate-400 uppercase tracking-wider">Peso/Talla</span>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Peso</span>
                 </div>
                 <div className="mt-auto">
-                    <div className="text-3xl font-black text-slate-900 tracking-tight">
+                    <div className="text-lg font-black text-slate-900 tracking-tight">
                         {weight ? `${weight} kg` : '--'}
                     </div>
-                    <div className="text-sm text-slate-600 mt-2 font-semibold">
+                    <div className="text-[9px] text-slate-600 mt-0.5 font-semibold">
                         {height ? `${height} cm` : '--'}
                     </div>
                 </div>
             </div>
 
-            {/* Last Consultation Card */}
+            {/* Last Consultation Card - Compact */}
             <div
-                className="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all p-6 flex flex-col"
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all p-3 flex flex-col"
                 data-testid="vital-card-last"
             >
-                <div className="flex items-center justify-between mb-4">
-                    <div className="p-3 bg-sky-100 rounded-2xl text-sky-600">
-                        <Calendar size={24} strokeWidth={2.5} />
+                <div className="flex items-center justify-between mb-2">
+                    <div className="p-1.5 bg-sky-100 rounded-lg text-sky-600">
+                        <Calendar size={16} strokeWidth={2.5} />
                     </div>
-                    <span className="text-xs font-black text-slate-400 uppercase tracking-wider">Última</span>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Última</span>
                 </div>
                 <div className="mt-auto">
-                    <div className="text-sm font-black text-slate-900 tracking-tight">
+                    <div className="text-xs font-black text-slate-900 tracking-tight">
                         {lastConsultationDate
                             ? new Date(lastConsultationDate).toLocaleDateString('es-ES', {
                                 day: '2-digit',
-                                month: 'short',
-                                year: 'numeric'
+                                month: 'short'
                             })
-                            : 'Sin consultas'
+                            : 'Sin datos'
                         }
                     </div>
-                    <div className="text-xs text-slate-500 mt-1 font-semibold">Consulta</div>
+                    <div className="text-[9px] text-slate-500 mt-0.5 font-semibold">Consulta</div>
                 </div>
             </div>
         </div>

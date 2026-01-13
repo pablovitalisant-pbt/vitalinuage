@@ -233,12 +233,20 @@ export default function PatientProfile() {
                     </div>
                 )}
 
-                {/* Vital Signs Snapshot */}
+                {/* Vital Signs Snapshot - Connected to Real Data */}
                 <VitalSignsCards
-                    imc={patient.imc}
-                    bloodPressure={undefined}
-                    weight={undefined}
-                    height={undefined}
+                    imc={(() => {
+                        if (patient.imc) return patient.imc;
+                        const lastConsult = consultations[0];
+                        if (lastConsult?.peso_kg && lastConsult?.estatura_cm) {
+                            const heightInMeters = lastConsult.estatura_cm / 100;
+                            return lastConsult.peso_kg / (heightInMeters * heightInMeters);
+                        }
+                        return undefined;
+                    })()}
+                    bloodPressure={consultations[0]?.presion_arterial}
+                    weight={consultations[0]?.peso_kg}
+                    height={consultations[0]?.estatura_cm}
                     lastConsultationDate={consultations[0]?.fecha}
                 />
 
