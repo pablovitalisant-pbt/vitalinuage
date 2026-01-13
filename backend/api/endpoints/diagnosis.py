@@ -28,22 +28,14 @@ class DiagnosisRequest(BaseModel):
 
 # Service Logic with Retry
 async def get_gemini_diagnosis(text: str) -> List[dict]:
-    api_key = os.getenv("GEMINI_API_KEY")
+    api_key = os.getenv("GOOGLE_API_KEY", "")
     if not api_key:
-        logger.error("GEMINI_API_KEY not found in environment")
+        logger.error("GOOGLE_API_KEY not found in environment")
         raise HTTPException(status_code=500, detail="AI Service Misconfigured")
     
     genai.configure(api_key=api_key)
     
     # Model Configuration
-    model_name = "gemini-2.0-flash-exp" # Using Flash as requested, assuming latest alias or passed string
-    # Note: User request said "gemini-2.5-flash-preview-09-2025". 
-    # I should try to use that exact string if it's available, otherwise fallback to a stable flash.
-    # Given "2.5" sounds like a future placeholder or very specific preview.
-    # I will use a robust fallback logic or exact string.
-    
-    # Official updated models usually are gemini-1.5-flash. 
-    # If user specifically asked for "gemini-2.5-flash-preview-09-2025", I will use it.
     target_model = "gemini-2.0-flash-exp"
     
     generation_config = {
@@ -83,10 +75,22 @@ async def get_gemini_diagnosis(text: str) -> List[dict]:
             logger.info(f"Invoking Gemini ({target_model}) - Attempt {attempt+1}")
             response = await model.generate_content_async(text)
             
-            # Parse JSON
+            # Robust JSON parsing
             import json
-            suggestions = json.loads(response.text)
-            return suggestions
+            try:
+                raw_text = response.text if hasattr(response, 'text') else str(response)
+                suggestions = json.loads(raw_text)
+                
+                # Ensure it's a list
+                if isinstance(suggestions, dict):
+                    suggestions = suggestions.get('suggestions', [])
+                elif not isinstance(suggestions, list):
+                    suggestions = []
+                    
+                return suggestions
+            except json.JSONDecodeError as je:
+                logger.error(f"JSON parsing error: {je}. Raw response: {raw_text[:200]}")
+                return []
             
         except Exception as e:
             logger.warning(f"Gemini API Error (Attempt {attempt+1}): {e}")
