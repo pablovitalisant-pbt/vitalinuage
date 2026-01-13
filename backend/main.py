@@ -2,12 +2,48 @@
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import os
+from sqlalchemy import text
 from backend.db_core import engine, Base
 from backend import auth
 
 from backend.api import user, patients, consultations, audit, doctor, medical_background
+
+# Slice 34 Import
+from backend.api.endpoints import diagnosis
+
+# HOTFIX: Database Migration Function
+def run_hotfix_migrations():
+    """
+    Executes raw SQL to ensure new columns exist in the production database.
+    This fixes the 'column does not exist' 500 errors.
+    """
+    try:
+        with engine.connect() as conn:
+            print("HOTFIX: Running raw SQL migrations...")
+            # Patients
+            conn.execute(text("ALTER TABLE patients ADD COLUMN IF NOT EXISTS alergias TEXT;"))
+            conn.execute(text("ALTER TABLE patients ADD COLUMN IF NOT EXISTS antecedentes_morbidos TEXT;"))
+            
+            # Clinical Consultations
+            conn.execute(text("ALTER TABLE clinical_consultations ADD COLUMN IF NOT EXISTS peso_kg FLOAT;"))
+            conn.execute(text("ALTER TABLE clinical_consultations ADD COLUMN IF NOT EXISTS estatura_cm FLOAT;"))
+            conn.execute(text("ALTER TABLE clinical_consultations ADD COLUMN IF NOT EXISTS imc FLOAT;"))
+            conn.execute(text("ALTER TABLE clinical_consultations ADD COLUMN IF NOT EXISTS presion_arterial VARCHAR(20);"))
+            conn.execute(text("ALTER TABLE clinical_consultations ADD COLUMN IF NOT EXISTS frecuencia_cardiaca INTEGER;"))
+            conn.execute(text("ALTER TABLE clinical_consultations ADD COLUMN IF NOT EXISTS temperatura_c FLOAT;"))
+            conn.execute(text("ALTER TABLE clinical_consultations ADD COLUMN IF NOT EXISTS cie10_code VARCHAR(20);"))
+            conn.execute(text("ALTER TABLE clinical_consultations ADD COLUMN IF NOT EXISTS cie10_description TEXT;"))
+            
+            conn.commit()
+            print("HOTFIX: Migrations executed successfully.")
+    except Exception as e:
+        print(f"HOTFIX MIGRATION ERROR: {e}")
+
 if not os.environ.get("PYTEST_CURRENT_TEST") and not os.environ.get("TESTING"):
     Base.metadata.create_all(bind=engine)
+    # Execute Hotfix Migrations on Startup
+    run_hotfix_migrations()
+
 app = FastAPI(title="Vitalinuage API")
 
 origins = [
@@ -26,21 +62,26 @@ app.add_middleware(
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    print(f"GLOBAL ERROR: {str(exc)}")
-    return JSONResponse(status_code=500, content={"detail": str(exc)})
+    # Esto imprimirá el error real en los logs de Cloud Run
+    print(f"CRITICAL ERROR on {request.url.path}: {str(exc)}")
+    origin = request.headers.get("origin")
+    allow_origin = origin if origin in origins else "https://vitalinuage.web.app"
+    
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal Server Error", "error": str(exc)},
+        headers={"Access-Control-Allow-Origin": allow_origin}
+    )
 
-# Centralized Router Registration (The Switchboard)
+# Centralized Router Registration
 app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
 app.include_router(user.router, prefix="/api/users", tags=["Users"])
 app.include_router(patients.router, prefix="/api/patients", tags=["Patients"])
-app.include_router(consultations.router) # Self-contained path: /api/pacientes/{id}/consultas
-app.include_router(consultations.verification_router) # Self-contained path: /api/consultas
+app.include_router(consultations.router) # Self-contained path
+app.include_router(consultations.verification_router) # Self-contained path
 app.include_router(audit.router, prefix="/api/audit", tags=["Audit"])
 app.include_router(doctor.router, prefix="/api/doctors", tags=["Doctor"])
 app.include_router(medical_background.router, prefix="/api/medical-background", tags=["Medical Background"])
-
-# Slice 34: AI Diagnosis
-from backend.api.endpoints import diagnosis
 app.include_router(diagnosis.router)
 
 @app.get("/api/health")
