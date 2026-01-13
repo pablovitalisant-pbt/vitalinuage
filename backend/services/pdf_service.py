@@ -133,7 +133,8 @@ class PDFService:
                 db.commit()
                 
                 # Generar QR
-                qr_url = f"https://vitalinuage.com/v/{verification_uuid}"
+                from backend.services.qr_service import get_verification_url
+                qr_url = get_verification_url(verification_uuid)
                 qr_image = generate_qr_image(qr_url, field_config.get('max_width_mm', 25.0))
                 
                 # Posicionar en canvas
@@ -362,16 +363,28 @@ class PDFService:
         }
         
         # Inject QR Code (Existing Logic + Context Update)
+        # Inject QR Code (Existing Logic + Context Update)
         if final_uuid and final_uuid != "PENDING" and final_uuid != "ERROR-GEN-UUID":
+             from backend.services.qr_service import get_verification_url
+             
+             # Calculate URL centrally
+             verify_url = get_verification_url(final_uuid)
+             display_url = verify_url.replace("https://", "").replace("http://", "")
+             
              try:
                  from backend.services.qr_service import get_qr_base64
-                 verify_url = f"https://vitalinuage.com/v/{final_uuid}"
+                 context['verification_display_url'] = display_url
                  context['qr_base64'] = get_qr_base64(verify_url)
              except Exception as e:
                  print(f"QR Gen failed: {e}")
                  context['qr_base64'] = None
+                 # Still use the correct dynamic URL even if image generation failed
+                 context['verification_display_url'] = display_url
         else:
+             from backend.services.qr_service import get_base_url
              context['qr_base64'] = None
+             base_url_neat = get_base_url().replace("https://", "").replace("http://", "")
+             context['verification_display_url'] = f"{base_url_neat}/v/..."
         
         html_content = template.render(**context)
         

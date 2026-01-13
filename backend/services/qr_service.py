@@ -39,3 +39,10 @@ def get_qr_base64(url: str) -> str:
     import base64
     buffer = generate_qr_image(url)
     return base64.b64encode(buffer.getvalue()).decode('utf-8')
+
+def get_base_url() -> str:
+    import os
+    return os.getenv("FRONTEND_URL", "https://vitalinuage.web.app").rstrip("/")
+
+def get_verification_url(uuid_str: str) -> str:
+    return f"{get_base_url()}/v/{uuid_str}"
