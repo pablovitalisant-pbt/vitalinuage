@@ -1,5 +1,6 @@
-﻿from fastapi import FastAPI
+﻿from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 import os
 from backend.db_core import engine, Base
 from backend import auth
@@ -10,9 +11,9 @@ if not os.environ.get("PYTEST_CURRENT_TEST") and not os.environ.get("TESTING"):
 app = FastAPI(title="Vitalinuage API")
 
 origins = [
-    "http://localhost:5173",      # Local Frontend Dev
-    "http://localhost:8080",      # Docker Local
-    "https://vitalinuage.web.app", # Production
+    "https://vitalinuage.web.app",
+    "http://localhost:3000",
+    "http://localhost:5173",
 ]
 
 app.add_middleware(
@@ -22,6 +23,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    print(f"GLOBAL ERROR: {str(exc)}")
+    return JSONResponse(status_code=500, content={"detail": str(exc)})
 
 # Centralized Router Registration (The Switchboard)
 app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
