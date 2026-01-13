@@ -88,6 +88,18 @@ class ConsultationItemSpanish(BaseModel):
     examen_fisico: Optional[str] = None
     created_at: datetime
     
+    # Biometric fields (Slice 34/35)
+    peso_kg: Optional[float] = None
+    estatura_cm: Optional[float] = None
+    imc: Optional[float] = None
+    presion_arterial: Optional[str] = None
+    frecuencia_cardiaca: Optional[int] = None
+    temperatura_c: Optional[float] = None
+    
+    # CIE-10 Diagnosis
+    cie10_code: Optional[str] = None
+    cie10_description: Optional[str] = None
+    
     # Optional fields for tracking
     email_sent_at: Optional[datetime] = None
     whatsapp_sent_at: Optional[datetime] = None

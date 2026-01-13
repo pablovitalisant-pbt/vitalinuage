@@ -225,7 +225,7 @@ export default function PatientProfile() {
                     bloodPressure={consultations[0]?.presion_arterial}
                     weight={consultations[0]?.peso_kg}
                     height={consultations[0]?.estatura_cm}
-                    lastConsultationDate={consultations[0]?.fecha}
+                    lastConsultationDate={consultations[0]?.created_at}
                 />
 
 
