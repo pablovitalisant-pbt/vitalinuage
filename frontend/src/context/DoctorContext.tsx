@@ -104,6 +104,11 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
                 try {
                     await auth.currentUser.reload();
                     freshEmailVerified = auth.currentUser.emailVerified;
+
+                    // CRITICAL: Force ID token refresh so backend receives updated verification claim
+                    if (freshEmailVerified) {
+                        await auth.currentUser.getIdToken(true);
+                    }
                 } catch (reloadError) {
                     console.warn('Firebase user reload failed:', reloadError);
                     // Continue with cached value if reload fails

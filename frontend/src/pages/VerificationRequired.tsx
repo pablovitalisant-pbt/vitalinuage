@@ -44,7 +44,9 @@ export default function VerificationRequired() {
             if (user) {
                 await user.reload();
                 if (user.emailVerified) {
-                    window.location.reload(); // Reload to trigger guard re-check
+                    // Force token refresh and redirect to root
+                    await user.getIdToken(true);
+                    window.location.href = '/'; // Clean redirect to trigger full guard re-check
                 } else {
                     alert("Tu email aún no ha sido verificado. Por favor, revisa tu bandeja de entrada.");
                 }
