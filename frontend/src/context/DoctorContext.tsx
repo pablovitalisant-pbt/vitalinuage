@@ -230,6 +230,12 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
 
                     console.log('[AUDIT] Profile updated with fresh verification status');
 
+                    // CRITICAL: Fetch backend profile while still locked
+                    if (token) {
+                        console.log('[AUDIT] Fetching backend profile...');
+                        await refreshProfile();
+                    }
+
                 } catch (error) {
                     console.error('[AUDIT] Error in auth state reload:', error);
                 } finally {
@@ -250,15 +256,7 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
             console.log('[AUDIT] Cleaning up auth listener');
             unsubscribe();
         };
-    }, []); // Run once on mount
-
-    // Separate effect for backend profile refresh (triggered by token)
-    useEffect(() => {
-        if (token && auth.currentUser && !isVerifyingFirebase) {
-            console.log('[AUDIT] Token available. Fetching backend profile...');
-            refreshProfile();
-        }
-    }, [token, isVerifyingFirebase]);
+    }, [token]); // Re-run when token changes to trigger backend profile fetch if user is present
 
     // Slice 40.6: Manual auth refresh trigger for login
     // This is called by Login component after successful token save
