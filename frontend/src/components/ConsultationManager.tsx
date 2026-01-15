@@ -270,9 +270,9 @@ export default function ConsultationManager({ patientId }: Props) {
                                     {c.plan_tratamiento}
                                 </div>
                                 {c.examen_fisico && (
-                                    <div className="bg-slate-50 p-3 rounded border border-slate-100">
-                                        <p className="font-semibold text-xs text-slate-400 mb-1">EXAMEN FÃSICO</p>
-                                        {c.examen_fisico}
+                                    <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                        <p className="font-semibold text-xs text-slate-400 mb-1">EXAMEN FÍSICO</p>
+                                        <p className="text-sm text-slate-700 whitespace-pre-line">{c.examen_fisico || 'No registrado'}</p>
                                     </div>
                                 )}
                             </div>
