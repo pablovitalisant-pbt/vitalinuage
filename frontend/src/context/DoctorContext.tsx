@@ -50,6 +50,7 @@ interface DoctorContextType {
     completeOnboarding: (data: DoctorProfile) => Promise<void>;
     isLoading: boolean;
     isVerifyingFirebase: boolean; // Slice 40.2: Atomic sync lock
+    isTransitioning: boolean; // Slice 40.X: Login transition lock
     authStatusMessage: string | null; // Slice 23: Feedback State
 }
 
@@ -71,6 +72,8 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     // Slice 40.2: Firebase Verification Sync Lock (CRITICAL)
     const [isVerifyingFirebase, setIsVerifyingFirebase] = useState<boolean>(true);
+    // Slice 40.X: Login Transition Lock (ABSOLUTE BARRIER)
+    const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
     // Slice 23: Latency Feedback
     const [authStatusMessage, setAuthStatusMessage] = useState<string | null>(null);
 
@@ -263,7 +266,8 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
     const triggerAuthRefresh = async () => {
         console.log('[AUDIT] Manual auth refresh triggered (post-login)');
 
-        // RE-LOCK the system
+        // ABSOLUTE BARRIER: Lock ALL routing decisions
+        setIsTransitioning(true);
         setIsVerifyingFirebase(true);
         setIsLoading(true);
 
@@ -296,7 +300,8 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
         } catch (error) {
             console.error('[AUDIT] Error in manual auth refresh:', error);
         } finally {
-            // UNLOCK
+            // UNLOCK ALL barriers
+            setIsTransitioning(false);
             setIsVerifyingFirebase(false);
             setIsLoading(false);
             console.log('[AUDIT] SYSTEM RELEASED after manual refresh');
@@ -384,6 +389,7 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
             completeOnboarding,
             isLoading,
             isVerifyingFirebase,
+            isTransitioning,
             authStatusMessage
         }}>
             {children}

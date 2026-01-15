@@ -9,7 +9,7 @@ interface ProtectedRouteProps {
 import featureFlags from '../../../../config/feature-flags.json';
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-    const { token, profile, isLoading, isVerifyingFirebase } = useDoctor();
+    const { token, profile, isLoading, isVerifyingFirebase, isTransitioning } = useDoctor();
     const location = useLocation();
 
     // Debug logging
@@ -19,10 +19,11 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
             hasToken: !!token,
             isVerifyingFirebase,
             isLoading,
+            isTransitioning,
             isVerified: profile.isVerified,
             isOnboarded: profile.isOnboarded
         });
-    }, [location.pathname, token, isVerifyingFirebase, isLoading, profile]);
+    }, [location.pathname, token, isVerifyingFirebase, isLoading, isTransitioning, profile]);
 
     // 1. AUTHENTICATION CHECK
     if (!token) {
@@ -30,10 +31,10 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
         return <Navigate to="/" state={{ from: location }} replace />;
     }
 
-    // 2. ATOMIC SYNC LOCK - Wait for Firebase verification to complete
-    // This prevents routing decisions based on stale emailVerified status
-    if (isVerifyingFirebase || isLoading) {
-        console.log('[ROUTER_AUDIT] BLOCKED: Waiting for verification/loading...', { isVerifyingFirebase, isLoading });
+    // 2. ABSOLUTE STATE BARRIER - Wait for ALL auth processes to complete
+    // This prevents routing decisions based on stale or transitioning state
+    if (isVerifyingFirebase || isLoading || isTransitioning) {
+        console.log('[ROUTER_AUDIT] BLOCKED: Waiting...', { isVerifyingFirebase, isLoading, isTransitioning });
         return <div className="min-h-screen flex items-center justify-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>;
