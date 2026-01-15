@@ -6,6 +6,7 @@ import { twMerge } from 'tailwind-merge';
 import { useDoctor } from '../context/DoctorContext';
 import { PrintSettingsModal } from '../components/PrintSettingsModal';
 import DataManagement from '../components/DataManagement';
+import DeleteAccountModal from '../components/DeleteAccountModal';
 
 interface ProfileForm {
     professionalName: string;
@@ -21,6 +22,7 @@ export default function ProfileSettings() {
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
     const [showPrintSettings, setShowPrintSettings] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     const { register, handleSubmit, setValue } = useForm<ProfileForm>();
 
@@ -333,12 +335,38 @@ export default function ProfileSettings() {
                     <DataManagement />
                 </div>
 
+                {/* Danger Zone (Slice 38) */}
+                <div className="mt-12 pt-8 border-t border-slate-200">
+                    <h3 className="text-sm font-bold text-red-600 uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-red-600"></span>
+                        Zona de Peligro
+                    </h3>
+
+                    <div className="bg-red-50 rounded-xl border border-red-100 p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div>
+                            <h4 className="text-lg font-bold text-red-900 mb-1">Eliminar Cuenta</h4>
+                            <p className="text-sm text-red-700 max-w-md">
+                                Esta acción eliminará permanentemente todos tus datos, pacientes y consultas. No se puede deshacer.
+                            </p>
+                        </div>
+                        <button
+                            onClick={() => setShowDeleteModal(true)}
+                            className="whitespace-nowrap px-5 py-2.5 bg-white border-2 border-red-100 text-red-600 hover:bg-red-600 hover:text-white hover:border-red-600 rounded-lg font-bold transition-all shadow-sm active:scale-95"
+                        >
+                            Eliminar mi cuenta
+                        </button>
+                    </div>
+                </div>
+
             </div >
 
             {showPrintSettings && (
                 <PrintSettingsModal onClose={() => setShowPrintSettings(false)} />
-            )
-            }
+            )}
+
+            {showDeleteModal && (
+                <DeleteAccountModal onClose={() => setShowDeleteModal(false)} />
+            )}
         </div >
     );
 }
