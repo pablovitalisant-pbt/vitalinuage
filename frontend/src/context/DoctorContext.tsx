@@ -251,13 +251,13 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
         };
     }, []); // Run once on mount
 
-    // Legacy: Keep token-based refresh for manual refreshes
+    // Separate effect for backend profile refresh (triggered by token)
     useEffect(() => {
-        if (token && !auth.currentUser) {
-            // Only refresh if we have token but no Firebase user (edge case)
+        if (token && auth.currentUser && !isVerifyingFirebase) {
+            console.log('[AUDIT] Token available. Fetching backend profile...');
             refreshProfile();
         }
-    }, [token]);
+    }, [token, isVerifyingFirebase]);
 
     const updateProfile = (newData: Partial<DoctorProfile>) => {
         setProfile(prev => ({ ...prev, ...newData }));
