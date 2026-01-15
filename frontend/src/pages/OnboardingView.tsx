@@ -6,6 +6,8 @@ import { OnboardingSchema, OnboardingData } from '../contracts/user';
 import { useDoctor } from '../context/DoctorContext';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { auth } from '../config/firebase';
+import { signOut } from 'firebase/auth';
 
 export default function OnboardingView() {
     const { completeOnboarding, profile } = useDoctor(); // profile for initial values if we had them
@@ -65,9 +67,18 @@ export default function OnboardingView() {
                     </div>
 
                     <button
-                        onClick={() => {
-                            localStorage.removeItem('token');
-                            window.location.href = '/login';
+                        onClick={async () => {
+                            try {
+                                await signOut(auth);
+                                localStorage.clear();
+                                sessionStorage.clear();
+                                window.location.href = '/';
+                            } catch (error) {
+                                console.error('Logout error:', error);
+                                localStorage.clear();
+                                sessionStorage.clear();
+                                window.location.href = '/';
+                            }
                         }}
                         className="text-sm text-slate-400 hover:text-red-500 font-medium transition-colors"
                     >
