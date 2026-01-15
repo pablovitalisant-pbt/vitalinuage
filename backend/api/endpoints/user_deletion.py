@@ -40,7 +40,8 @@ async def delete_account(
             {"email": current_user.email}
         )
 
-        # 2. Borrar Consultas
+        # 2. CAPA 2 (Hijos Directos)
+        # A. Borrar Consultas
         # Also clean up stub prescriptions if needed
         db.execute(
             text("DELETE FROM prescriptions WHERE doctor_id = :email"),
@@ -52,13 +53,26 @@ async def delete_account(
             {"email": current_user.email}
         )
         
-        # 3. Borrar Pacientes
+        # B. Borrar Antecedentes Médicos (Dependencia de Pacientes)
+        db.execute(
+            text("""
+            DELETE FROM medical_backgrounds 
+            WHERE patient_id IN (
+                SELECT id FROM patients WHERE owner_id = :email
+            )
+            """), 
+            {"email": current_user.email}
+        )
+        
+        # 3. CAPA 1 (Entidades Principales)
+        # Borrar Pacientes
         db.execute(
             text("DELETE FROM patients WHERE owner_id = :email"),
             {"email": current_user.email}
         )
 
-        # 4. Borrar Usuario
+        # 4. CAPA 0 (Raíz)
+        # Borrar Usuario
         db.execute(
             text("DELETE FROM users WHERE email = :email"),
             {"email": current_user.email}
