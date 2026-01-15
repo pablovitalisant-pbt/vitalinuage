@@ -190,30 +190,34 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
     };
 
     // NUCLEAR FIX: Firebase Auth State Listener with Pre-emptive Locking
-    // This ensures verification status is ALWAYS fresh before routing decisions
+    // System starts LOCKED and only unlocks after Firebase verification completes
     useEffect(() => {
-        console.log('[Auth] Initializing Firebase auth state listener...');
+        console.log('[AUDIT] Initializing Firebase auth state listener...');
+
+        // Ensure lock is set on mount
+        setIsVerifyingFirebase(true);
 
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            console.log('[Auth] Auth state changed. User:', user?.email || 'null');
+            console.log('[AUDIT] Auth state change detected. User:', user?.email || 'null');
 
-            // PRE-EMPTIVE LOCK: Block all routing decisions immediately
+            // RE-LOCK on every auth state change
             setIsVerifyingFirebase(true);
+            setIsLoading(true);
 
             if (user) {
                 try {
-                    console.log('[Auth] User detected. Starting atomic reload...');
+                    console.log('[AUDIT] User present. Starting atomic reload...');
 
                     // CRITICAL: Force reload to get fresh emailVerified from Firebase servers
                     await user.reload();
                     const freshEmailVerified = user.emailVerified;
 
-                    console.log('[Auth] Reload complete. emailVerified:', freshEmailVerified);
+                    console.log(`[AUDIT] Reload successful. emailVerified: ${freshEmailVerified}`);
 
                     // Force token refresh if verified
                     if (freshEmailVerified) {
                         await user.getIdToken(true);
-                        console.log('[Auth] Token refreshed for verified user');
+                        console.log('[AUDIT] Token refreshed for verified user');
                     }
 
                     // Update profile with fresh verification status
@@ -223,30 +227,29 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
                         isVerified: freshEmailVerified
                     }));
 
-                    // Now fetch full profile from backend
-                    if (token) {
-                        await refreshProfile();
-                    }
+                    console.log('[AUDIT] Profile updated with fresh verification status');
 
                 } catch (error) {
-                    console.error('[Auth] Error in auth state reload:', error);
+                    console.error('[AUDIT] Error in auth state reload:', error);
                 } finally {
-                    // UNLOCK: Allow routing decisions now that we have fresh data
+                    // UNLOCK: System is now ready for routing decisions
                     setIsVerifyingFirebase(false);
-                    console.log('[Auth] Lock released. Ready for routing decisions.');
+                    setIsLoading(false);
+                    console.log('[AUDIT] SYSTEM RELEASED: Navigation permitted.');
                 }
             } else {
-                console.log('[Auth] No user. Clearing profile.');
+                console.log('[AUDIT] No user. Clearing profile.');
                 setProfile(defaultProfile);
                 setIsVerifyingFirebase(false);
+                setIsLoading(false);
             }
         });
 
         return () => {
-            console.log('[Auth] Cleaning up auth listener');
+            console.log('[AUDIT] Cleaning up auth listener');
             unsubscribe();
         };
-    }, [token]);
+    }, []); // Run once on mount
 
     // Legacy: Keep token-based refresh for manual refreshes
     useEffect(() => {
