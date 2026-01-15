@@ -49,7 +49,7 @@ export default function DeleteAccountModal({ onClose }: DeleteAccountModalProps)
             // 3. Cleanup and Redirect
             localStorage.clear();
             sessionStorage.clear();
-            window.location.href = '/login';
+            window.location.href = '/';
 
         } catch (err) {
             console.error(err);
