@@ -5,6 +5,7 @@ import { twMerge } from 'tailwind-merge';
 
 import { useDoctor } from '../context/DoctorContext';
 import { PrintSettingsModal } from '../components/PrintSettingsModal';
+import DataManagement from '../components/DataManagement';
 
 interface ProfileForm {
     professionalName: string;
@@ -325,6 +326,11 @@ export default function ProfileSettings() {
                             Calibrar Talonario
                         </a>
                     </div>
+                </div>
+
+                {/* Data Portability Section (Slice 37) */}
+                <div className="mt-8">
+                    <DataManagement />
                 </div>
 
             </div >
