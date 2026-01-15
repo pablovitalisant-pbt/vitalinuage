@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import VerifyAccount from './pages/VerifyAccount';
 import PublicValidation from './pages/PublicValidation';
 import PublicVerification from './pages/PublicVerification';
+import VerificationRequired from './pages/VerificationRequired';
 
 import PatientProfile from './pages/PatientProfile';
 import ProfileSettings from './pages/ProfileSettings';
@@ -601,7 +602,7 @@ function App() {
                 <Toaster position="top-right" />
                 <Routes>
                     <Route path="/" element={<Login />} />
-                    <Route path="/verify" element={<VerifyAccount />} />
+                    <Route path="/verify-email" element={<VerificationRequired />} />
                     <Route path="/verify" element={<VerifyAccount />} />
                     <Route path="/v/:uuid" element={<PublicVerification />} />
                     <Route path="/validate-doc/:docToken" element={<PublicValidation />} />

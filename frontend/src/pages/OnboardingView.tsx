@@ -40,7 +40,9 @@ export default function OnboardingView() {
                 address: "", // Ignore in onboarding
                 phone: "",   // Ignore in onboarding
                 registrationNumber: data.medical_license,
-                isOnboarded: true, email: "doctor@vitalinuage.com"
+                isOnboarded: true,
+                email: profile.email || "doctor@vitalinuage.com",
+                isVerified: true // Slice 40: Assuming verified if here
             });
             toast.success("Perfil configurado con éxito");
             navigate('/dashboard');
@@ -54,6 +56,24 @@ export default function OnboardingView() {
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
+                <div className="flex justify-between items-center mb-6">
+                    <div className="flex items-center gap-3">
+                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">
+                            1
+                        </span>
+                        <h2 className="text-xl font-bold text-slate-800">Perfil Profesional</h2>
+                    </div>
+
+                    <button
+                        onClick={() => {
+                            localStorage.removeItem('token');
+                            window.location.href = '/login';
+                        }}
+                        className="text-sm text-slate-400 hover:text-red-500 font-medium transition-colors"
+                    >
+                        Cerrar Sesión
+                    </button>
+                </div>
                 <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-900">
                     Bienvenido a Vitalinuage
                 </h2>

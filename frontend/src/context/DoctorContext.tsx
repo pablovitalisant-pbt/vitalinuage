@@ -12,7 +12,18 @@ export interface DoctorProfile {
     registrationNumber?: string;
     isOnboarded: boolean;
     email: string;
+    isVerified: boolean; // Slice 40
 }
+
+const defaultProfile: DoctorProfile = {
+    professionalName: "Dr. Vitali",
+    specialty: "",
+    address: "",
+    phone: "",
+    isOnboarded: false,
+    email: "",
+    isVerified: false
+};
 
 export interface PrintPreferences {
     paperSize: 'A4' | 'Letter';
@@ -38,14 +49,7 @@ interface DoctorContextType {
     authStatusMessage: string | null; // Slice 23: Feedback State
 }
 
-const defaultProfile: DoctorProfile = {
-    professionalName: "Dr. Vitali",
-    specialty: "",
-    address: "",
-    phone: "",
-    isOnboarded: false,
-    email: ""
-};
+
 
 const defaultPreferences: PrintPreferences = {
     paperSize: 'A4',
@@ -123,7 +127,8 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
                     phone: "",
                     registrationNumber: data.registrationNumber || data.registration_number || "",
                     isOnboarded: data.isOnboarded !== undefined ? data.isOnboarded : (data.is_onboarded || false),
-                    email: data.email || ""
+                    email: data.email || "",
+                    isVerified: data.is_verified || false // Slice 40: Critical Guard
                 });
             } else if (profileRes.status !== 401) {
                 // If 401, we might want to logout, but for now just clear profile
