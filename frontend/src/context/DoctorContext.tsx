@@ -44,6 +44,7 @@ interface DoctorContextType {
     updateProfile: (newData: Partial<DoctorProfile>) => void;
     updatePreferences: (newPrefs: Partial<PrintPreferences>) => Promise<void>;
     refreshProfile: () => Promise<void>;
+    triggerAuthRefresh: () => Promise<void>; // Slice 40.6: Manual re-lock trigger
     token: string | null;
     setToken: (token: string | null) => void;
     completeOnboarding: (data: DoctorProfile) => Promise<void>;
@@ -259,6 +260,51 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
         }
     }, [token, isVerifyingFirebase]);
 
+    // Slice 40.6: Manual auth refresh trigger for login
+    // This is called by Login component after successful token save
+    const triggerAuthRefresh = async () => {
+        console.log('[AUDIT] Manual auth refresh triggered (post-login)');
+
+        // RE-LOCK the system
+        setIsVerifyingFirebase(true);
+        setIsLoading(true);
+
+        try {
+            // Check if Firebase user exists and reload
+            if (auth.currentUser) {
+                console.log('[AUDIT] Firebase user detected. Reloading...');
+                await auth.currentUser.reload();
+                const freshEmailVerified = auth.currentUser.emailVerified;
+
+                console.log(`[AUDIT] Reload successful. emailVerified: ${freshEmailVerified}`);
+
+                // Update profile with fresh verification status
+                setProfile(prev => ({
+                    ...prev,
+                    email: auth.currentUser?.email || prev.email,
+                    isVerified: freshEmailVerified
+                }));
+
+                if (freshEmailVerified) {
+                    await auth.currentUser.getIdToken(true);
+                }
+            }
+
+            // Fetch backend profile
+            if (token) {
+                await refreshProfile();
+            }
+
+        } catch (error) {
+            console.error('[AUDIT] Error in manual auth refresh:', error);
+        } finally {
+            // UNLOCK
+            setIsVerifyingFirebase(false);
+            setIsLoading(false);
+            console.log('[AUDIT] SYSTEM RELEASED after manual refresh');
+        }
+    };
+
     const updateProfile = (newData: Partial<DoctorProfile>) => {
         setProfile(prev => ({ ...prev, ...newData }));
     };
@@ -334,6 +380,7 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
             updateProfile,
             updatePreferences,
             refreshProfile,
+            triggerAuthRefresh,
             token,
             setToken,
             completeOnboarding,
