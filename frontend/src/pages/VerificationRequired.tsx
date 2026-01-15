@@ -46,7 +46,7 @@ export default function VerificationRequired() {
                 if (user.emailVerified) {
                     // Force token refresh and redirect to root
                     await user.getIdToken(true);
-                    window.location.href = '/'; // Clean redirect to trigger full guard re-check
+                    window.location.assign('/'); // Clean redirect to reset component tree
                 } else {
                     alert("Tu email aún no ha sido verificado. Por favor, revisa tu bandeja de entrada.");
                 }

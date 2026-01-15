@@ -47,6 +47,7 @@ interface DoctorContextType {
     setToken: (token: string | null) => void;
     completeOnboarding: (data: DoctorProfile) => Promise<void>;
     isLoading: boolean;
+    isVerifyingFirebase: boolean; // Slice 40.2: Atomic sync lock
     authStatusMessage: string | null; // Slice 23: Feedback State
 }
 
@@ -66,6 +67,8 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
     const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
     // Slice SP-04: Loading Guard State
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    // Slice 40.2: Firebase Verification Sync Lock (CRITICAL)
+    const [isVerifyingFirebase, setIsVerifyingFirebase] = useState<boolean>(true);
     // Slice 23: Latency Feedback
     const [authStatusMessage, setAuthStatusMessage] = useState<string | null>(null);
 
@@ -74,11 +77,13 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
         if (!featureFlags.identity_search_v1) {
             setProfile(defaultProfile);
             setIsLoading(false);
+            setIsVerifyingFirebase(false);
             return;
         }
 
         if (!token) {
             setIsLoading(false);
+            setIsVerifyingFirebase(false);
             return;
         }
 
@@ -95,6 +100,7 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
         try {
             // Ensure loading is true (useful for retries)
             setIsLoading(true);
+            setIsVerifyingFirebase(true); // ATOMIC LOCK: Block routing decisions
             setAuthStatusMessage(null);
 
             // CRITICAL FIX: Force reload Firebase user to get fresh emailVerified status
@@ -175,6 +181,7 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
         } finally {
             // Slice SP-04: Ensure loading stops
             setIsLoading(false);
+            setIsVerifyingFirebase(false); // ATOMIC UNLOCK: Allow routing decisions
             setAuthStatusMessage(null);
             clearTimeout(timeoutId);
             clearTimeout(feedbackTimer);
@@ -265,6 +272,7 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
             setToken,
             completeOnboarding,
             isLoading,
+            isVerifyingFirebase,
             authStatusMessage
         }}>
             {children}
