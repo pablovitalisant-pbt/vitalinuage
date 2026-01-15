@@ -14,7 +14,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
     // Debug logging
     useEffect(() => {
-        console.log('[Router] ProtectedRoute check:', {
+        console.log('[ROUTER_AUDIT] Guard check:', {
             path: location.pathname,
             hasToken: !!token,
             isVerifyingFirebase,
@@ -26,14 +26,14 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
     // 1. AUTHENTICATION CHECK
     if (!token) {
-        console.log('[Router] No token. Redirecting to /');
+        console.log('[ROUTER_AUDIT] No token. Redirecting to /');
         return <Navigate to="/" state={{ from: location }} replace />;
     }
 
     // 2. ATOMIC SYNC LOCK - Wait for Firebase verification to complete
     // This prevents routing decisions based on stale emailVerified status
     if (isVerifyingFirebase || isLoading) {
-        console.log('[Router] Waiting for verification/loading...', { isVerifyingFirebase, isLoading });
+        console.log('[ROUTER_AUDIT] BLOCKED: Waiting for verification/loading...', { isVerifyingFirebase, isLoading });
         return <div className="min-h-screen flex items-center justify-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>;
@@ -42,13 +42,13 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     // 3. EMAIL VERIFICATION CHECK - Use fresh profile.isVerified from context
     // Context has already reloaded Firebase and synced the status
     if (!profile.isVerified && location.pathname !== '/verify-email') {
-        console.log('[Router] User not verified. Redirecting to /verify-email');
+        console.log('[ROUTER_AUDIT] BLOCK: User not verified. Redirecting to /verify-email');
         return <Navigate to="/verify-email" replace />;
     }
 
     // Prevent verified users from accessing verification page
     if (profile.isVerified && location.pathname === '/verify-email') {
-        console.log('[Router] User verified but on /verify-email. Redirecting to /dashboard');
+        console.log('[ROUTER_AUDIT] User verified but on /verify-email. Redirecting to /dashboard');
         return <Navigate to="/dashboard" replace />;
     }
 
@@ -58,17 +58,17 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     if (showOnboarding && profile.isVerified) {
         // Redirect to onboarding if not completed
         if (!profile.isOnboarded && location.pathname !== '/setup-profile') {
-            console.log('[Router] User not onboarded. Redirecting to /setup-profile');
+            console.log('[ROUTER_AUDIT] FLOW: User not onboarded. Redirecting to /setup-profile');
             return <Navigate to="/setup-profile" replace />;
         }
 
         // Prevent onboarded users from accessing onboarding page
         if (profile.isOnboarded && location.pathname === '/setup-profile') {
-            console.log('[Router] User onboarded but on /setup-profile. Redirecting to /dashboard');
+            console.log('[ROUTER_AUDIT] User onboarded but on /setup-profile. Redirecting to /dashboard');
             return <Navigate to="/dashboard" replace />;
         }
     }
 
-    console.log('[Router] All checks passed. Rendering protected content.');
+    console.log('[ROUTER_AUDIT] All checks passed. Rendering protected content.');
     return <>{children}</>;
 }
