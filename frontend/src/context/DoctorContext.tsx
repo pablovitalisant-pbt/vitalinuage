@@ -3,6 +3,7 @@ import { getApiUrl } from '../config/api';
 // Remove unused import if not needed, or keep if used elsewhere
 // import { DoctorProfile as DoctorProfileDTO } from '../contracts/dashboard'; 
 import featureFlags from '../../../config/feature-flags.json';
+import { auth } from '../config/firebase';
 
 export interface DoctorProfile {
     professionalName: string;
@@ -96,6 +97,20 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
             setIsLoading(true);
             setAuthStatusMessage(null);
 
+            // CRITICAL FIX: Force reload Firebase user to get fresh emailVerified status
+            // This prevents false positives where verified users are blocked
+            let freshEmailVerified = false;
+            if (auth.currentUser) {
+                try {
+                    await auth.currentUser.reload();
+                    freshEmailVerified = auth.currentUser.emailVerified;
+                } catch (reloadError) {
+                    console.warn('Firebase user reload failed:', reloadError);
+                    // Continue with cached value if reload fails
+                    freshEmailVerified = auth.currentUser.emailVerified;
+                }
+            }
+
             const [profileRes, prefsRes] = await Promise.all([
                 fetch(getApiUrl('/api/doctors/profile'), {
                     headers: { 'Authorization': `Bearer ${token}` },
@@ -120,6 +135,7 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
                 const data = await profileRes.json();
 
                 // Slice 20: State-Aware. Always use the returned profile.
+                // Use FRESH Firebase emailVerified status (source of truth)
                 setProfile({
                     professionalName: data.professionalName || data.professional_name || "Dr. Vitali",
                     specialty: data.specialty || "",
@@ -128,7 +144,7 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
                     registrationNumber: data.registrationNumber || data.registration_number || "",
                     isOnboarded: data.isOnboarded !== undefined ? data.isOnboarded : (data.is_onboarded || false),
                     email: data.email || "",
-                    isVerified: data.is_verified || false // Slice 40: Critical Guard
+                    isVerified: freshEmailVerified // Use Firebase as source of truth, not backend
                 });
             } else if (profileRes.status !== 401) {
                 // If 401, we might want to logout, but for now just clear profile
