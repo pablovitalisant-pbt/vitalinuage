@@ -193,8 +193,9 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    // NUCLEAR FIX: Firebase Auth State Listener with Pre-emptive Locking
+    // SLICE 40.8: IMMUTABLE Firebase Auth State Listener
     // System starts LOCKED and only unlocks after Firebase verification completes
+    // CRITICAL: Empty dependency array [] ensures listener NEVER recreates
     useEffect(() => {
         console.log('[AUDIT] Initializing Firebase auth state listener...');
 
@@ -218,11 +219,13 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
 
                     console.log(`[AUDIT] Reload successful. emailVerified: ${freshEmailVerified}`);
 
-                    // Force token refresh if verified
-                    if (freshEmailVerified) {
-                        await user.getIdToken(true);
-                        console.log('[AUDIT] Token refreshed for verified user');
-                    }
+                    // Get fresh token directly from user object
+                    const freshToken = await user.getIdToken(true);
+                    console.log('[AUDIT] Token refreshed from Firebase');
+
+                    // Update token in state and localStorage
+                    setToken(freshToken);
+                    localStorage.setItem('token', freshToken);
 
                     // Update profile with fresh verification status
                     setProfile(prev => ({
@@ -234,10 +237,9 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
                     console.log('[AUDIT] Profile updated with fresh verification status');
 
                     // CRITICAL: Fetch backend profile while still locked
-                    if (token) {
-                        console.log('[AUDIT] Fetching backend profile...');
-                        await refreshProfile();
-                    }
+                    // Use fresh token from user object, not state
+                    console.log('[AUDIT] Fetching backend profile...');
+                    await refreshProfile();
 
                 } catch (error) {
                     console.error('[AUDIT] Error in auth state reload:', error);
@@ -245,13 +247,17 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
                     // UNLOCK: System is now ready for routing decisions
                     setIsVerifyingFirebase(false);
                     setIsLoading(false);
+                    setIsTransitioning(false); // Also clear transition lock
                     console.log('[AUDIT] SYSTEM RELEASED: Navigation permitted.');
                 }
             } else {
                 console.log('[AUDIT] No user. Clearing profile.');
                 setProfile(defaultProfile);
+                setToken(null);
+                localStorage.removeItem('token');
                 setIsVerifyingFirebase(false);
                 setIsLoading(false);
+                setIsTransitioning(false);
             }
         });
 
@@ -259,7 +265,7 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
             console.log('[AUDIT] Cleaning up auth listener');
             unsubscribe();
         };
-    }, [token]); // Re-run when token changes to trigger backend profile fetch if user is present
+    }, []); // IMMUTABLE: Empty dependency array - listener registers ONCE and never recreates
 
     // Slice 40.6: Manual auth refresh trigger for login
     // This is called by Login component after successful token save
