@@ -42,8 +42,10 @@ const Login: React.FC = () => {
         const token = data.access_token;
         localStorage.setItem('token', token);
         setToken(token);
-        console.log('[LOGIN] Token saved to localStorage and context, redirecting to dashboard...');
-        navigate('/dashboard');
+        console.log('[LOGIN] Firebase sign-in success. Token saved.');
+        console.log('[LOGIN] Waiting for auth guards to determine routing...');
+        // DO NOT NAVIGATE MANUALLY - Let onAuthStateChanged listener handle it
+        // The auth guards will automatically route to the correct page after verification
       } else {
         alert('Cuenta creada. Por favor, verifica tu email para activar tu acceso.');
         setIsRegister(false);
