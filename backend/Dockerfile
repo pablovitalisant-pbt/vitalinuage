@@ -29,7 +29,7 @@ COPY . .
 # COPY PRE-BUILT FRONTEND
 # COPY PRE-BUILT FRONTEND
 # The pipeline builds frontend with secrets and uploads artifact.
-COPY frontend/dist /app/frontend/dist
+COPY build_output /app/frontend/dist
 
 WORKDIR /app
 

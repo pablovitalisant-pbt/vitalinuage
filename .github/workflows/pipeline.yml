@@ -90,12 +90,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: frontend-dist
-          path: frontend/dist
+          path: build_output
 
-      - name: Debug - List Files (OBLIGATORIO)
+      - name: Debug Context (MANDATORIO)
         run: |
-          ls -R frontend/dist
-          echo "Verificando que la carpeta frontend/dist existe para Docker..."
+          ls -d build_output
+          ls build_output
+          echo "Verificando presencia de index.html..."
 
       - name: PRE-BUILD CLEANUP (CRUCIAL)
         run: |
