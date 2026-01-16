@@ -1,5 +1,4 @@
 ﻿import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useDoctor } from '../context/DoctorContext';
 
 const Login: React.FC = () => {
@@ -8,8 +7,10 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-  const { setToken } = useDoctor();
+
+  // Slice 40.12: We only need login from context.
+  // No references, no manual navigation.
+  const { login } = useDoctor();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,40 +18,32 @@ const Login: React.FC = () => {
 
     setError('');
     setIsLoading(true);
-    const endpoint = isRegister ? '/api/auth/register' : '/api/auth/login';
 
     try {
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-      const url = `${baseUrl}${endpoint}`;
+      if (isRegister) {
+        // Registration still uses the endpoint for now as it sends the email
+        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+        const response = await fetch(`${baseUrl}/api/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
 
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+        if (!response.ok) {
+          const errData = await response.json();
+          throw new Error(errData.detail || 'Error al registrarse');
+        }
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ detail: 'Error desconocido' }));
-        const errorMessage = typeof errorData.detail === 'string'
-          ? errorData.detail
-          : 'Credenciales o datos incorrectos';
-        throw new Error(errorMessage);
-      }
-
-      const data = await response.json();
-      if (!isRegister) {
-        const token = data.access_token;
-        localStorage.setItem('token', token);
-        setToken(token);
-        console.log('[LOGIN] Firebase sign-in success. Token saved.');
-
-        console.log('[LOGIN] Auth flow complete. Guards will handle routing.');
-      } else {
         alert('Cuenta creada. Por favor, verifica tu email para activar tu acceso.');
         setIsRegister(false);
+      } else {
+        // Login using Firebase directly via Context abstraction
+        await login(email, password);
+        console.log('[LOGIN] Success. App wrapper should now switch view.');
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error de conexión o datos inválidos');
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Error de conexión o credenciales inválidas');
     } finally {
       setIsLoading(false);
     }
