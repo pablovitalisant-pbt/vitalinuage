@@ -2,11 +2,11 @@
 import React from 'react';
 import { Mail, LogOut, ArrowRight, RefreshCcw } from 'lucide-react';
 import { useDoctor } from '../context/DoctorContext';
-import { auth } from '../config/firebase';
+import { auth } from '../firebase';
 import { signOut, sendEmailVerification } from 'firebase/auth';
 
 export default function VerificationRequired() {
-    const { profile, setToken } = useDoctor();
+    const { profile } = useDoctor();
 
     const handleLogout = async () => {
         try {
@@ -14,7 +14,6 @@ export default function VerificationRequired() {
             await signOut(auth);
             localStorage.clear();
             sessionStorage.clear();
-            setToken(null);
             window.location.href = '/'; // NEVER to /login
         } catch (error) {
             console.error('Logout error:', error);

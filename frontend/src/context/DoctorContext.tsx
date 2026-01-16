@@ -1,126 +1,76 @@
-import React, { createContext, useState, ReactNode, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { auth } from '../firebase';
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut, User } from 'firebase/auth';
 import { getApiUrl } from '../config/api';
-import { auth } from '../firebase'; // Correct import from src/firebase.ts
-import { onAuthStateChanged, User, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 
-export interface DoctorProfile {
-    professionalName: string;
-    specialty: string;
-    address: string;
-    phone: string;
-    registrationNumber?: string;
+// Simple types (minimal)
+interface DoctorProfile {
     isOnboarded: boolean;
-    email: string;
     isVerified: boolean;
+    email: string;
+    professionalName?: string;
+    specialty?: string;
+    registrationNumber?: string;
 }
-
-const defaultProfile: DoctorProfile = {
-    professionalName: "Dr. Vitali",
-    specialty: "",
-    address: "",
-    phone: "",
-    isOnboarded: false,
-    email: "",
-    isVerified: false
-};
-
-export interface PrintPreferences {
-    paperSize: 'A4' | 'Letter';
-    templateId: 'classic' | 'modern' | 'minimal';
-    logoUrl?: string | null;
-    signatureUrl?: string | null;
-    headerText?: string;
-    footerText?: string;
-    primaryColor?: string;
-    secondaryColor?: string;
-}
-
-const defaultPreferences: PrintPreferences = {
-    paperSize: 'A4',
-    templateId: 'classic'
-};
 
 interface DoctorContextType {
     user: User | null;
     profile: DoctorProfile | null;
     loading: boolean;
-    preferences: PrintPreferences;
-    login: (email: string, pass: string) => Promise<any>;
+    login: (e: string, p: string) => Promise<any>;
     logout: () => Promise<void>;
-    updateProfile: (newData: Partial<DoctorProfile>) => void;
-    updatePreferences: (newPrefs: Partial<PrintPreferences>) => Promise<void>;
-    completeOnboarding: (data: DoctorProfile) => Promise<void>;
-    token: string | null;
+    completeOnboarding: (data: any) => Promise<void>;
 }
 
 export const DoctorContext = createContext<DoctorContextType | undefined>(undefined);
 
-export function DoctorProvider({ children }: { children: ReactNode }) {
+export const DoctorProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
-
     const [profile, setProfile] = useState<DoctorProfile | null>(null);
-    const [preferences, setPreferences] = useState<PrintPreferences>(defaultPreferences);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [token, setToken] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
             setLoading(true);
             if (fbUser) {
                 try {
-                    console.log("[AUTH] User detected. Syncing...");
-                    // No more atomic locks, just simple sync
                     await fbUser.reload();
-                    const freshToken = await fbUser.getIdToken(true);
-                    setToken(freshToken);
                     setUser(fbUser);
 
-                    // Fetch Profile
                     if (fbUser.emailVerified) {
                         try {
-                            const [profileRes, prefsRes] = await Promise.all([
-                                fetch(getApiUrl('/api/doctors/profile'), { headers: { 'Authorization': `Bearer ${freshToken}` } }),
-                                fetch(getApiUrl('/api/doctors/preferences'), { headers: { 'Authorization': `Bearer ${freshToken}` } })
-                            ]);
-
-                            if (profileRes.ok) {
-                                const data = await profileRes.json();
+                            const token = await fbUser.getIdToken();
+                            const res = await fetch(getApiUrl('/api/doctors/profile'), {
+                                headers: { 'Authorization': `Bearer ${token}` }
+                            });
+                            if (res.ok) {
+                                const data = await res.json();
                                 setProfile({
-                                    professionalName: data.professionalName || data.professional_name || "Dr. Vitali",
-                                    specialty: data.specialty || "",
-                                    address: "",
-                                    phone: "",
-                                    registrationNumber: data.registrationNumber || data.registration_number || "",
+                                    professionalName: data.professionalName || data.professional_name,
+                                    specialty: data.specialty,
+                                    registrationNumber: data.registrationNumber || data.registration_number, // Map snake_case if needed
                                     isOnboarded: data.isOnboarded !== undefined ? data.isOnboarded : (data.is_onboarded || false),
                                     email: fbUser.email || "",
-                                    isVerified: fbUser.emailVerified
+                                    isVerified: true
                                 });
                             } else {
-                                setProfile({ ...defaultProfile, email: fbUser.email || "", isVerified: true });
+                                // Default profile if 404 (Verified but not onboarded)
+                                setProfile({ isOnboarded: false, isVerified: true, email: fbUser.email || '' });
                             }
-
-                            if (prefsRes.ok) {
-                                const prefsCtx = await prefsRes.json();
-                                setPreferences({
-                                    paperSize: prefsCtx.paper_size || 'A4',
-                                    templateId: prefsCtx.template_id || 'classic',
-                                    logoUrl: prefsCtx.logo_url,
-                                    signatureUrl: prefsCtx.signature_url
-                                });
-                            }
-                        } catch (err) {
-                            console.error("Backend Sync Error:", err);
+                        } catch (e) {
+                            console.error("Profile fetch error", e);
+                            setProfile(null);
                         }
                     } else {
-                        setProfile({ ...defaultProfile, email: fbUser.email || "", isVerified: false });
+                        setProfile({ isOnboarded: false, isVerified: false, email: fbUser.email || '' });
                     }
-
                 } catch (e) {
-                    console.error("Auth Reload Error:", e);
+                    console.error("Auth reload error", e);
+                    setUser(null);
+                    setProfile(null);
                 }
             } else {
                 setUser(null);
-                setToken(null);
                 setProfile(null);
             }
             setLoading(false);
@@ -128,74 +78,41 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
         return () => unsubscribe();
     }, []);
 
-    const login = (email: string, pass: string) => signInWithEmailAndPassword(auth, email, pass);
+    const login = (e: string, p: string) => signInWithEmailAndPassword(auth, e, p);
 
     const logout = async () => {
         await signOut(auth);
-        setUser(null);
-        setProfile(null);
-        setToken(null);
         window.location.href = '/';
     };
 
-    const updateProfile = (newData: Partial<DoctorProfile>) => {
-        if (profile) setProfile({ ...profile, ...newData });
-    };
-
-    const updatePreferences = async (newPrefs: Partial<PrintPreferences>) => {
-        setPreferences(prev => ({ ...prev, ...newPrefs }));
-        if (!token) return;
-        try {
-            await fetch(getApiUrl('/api/doctors/preferences'), {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify({
-                    paper_size: newPrefs.paperSize,
-                    template_id: newPrefs.templateId,
-                    header_text: newPrefs.headerText,
-                    footer_text: newPrefs.footerText,
-                    primary_color: newPrefs.primaryColor,
-                    secondary_color: newPrefs.secondaryColor
-                })
-            });
-        } catch (e) { console.error(e); }
-    };
-
-    const completeOnboarding = async (data: DoctorProfile) => {
-        if (!token) return;
+    const completeOnboarding = async (data: any) => {
+        if (!auth.currentUser) return;
+        const token = await auth.currentUser.getIdToken();
         const res = await fetch(getApiUrl('/api/doctors/profile'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({
-                professionalName: data.professionalName,
-                specialty: data.specialty,
-                medicalLicense: data.registrationNumber || "",
-                registrationNumber: data.registrationNumber || ""
-            })
+            body: JSON.stringify(data)
         });
         if (!res.ok) throw new Error("Onboarding failed");
+
+        // Optimistic update or refetch
         const updated = await res.json();
-        setProfile(prev => prev ? ({
-            ...prev,
-            professionalName: updated.professionalName || updated.professional_name,
-            specialty: updated.specialty,
-            registrationNumber: updated.registrationNumber || updated.registration_number,
+        setProfile(prev => ({
+            ...prev!,
+            ...updated,
             isOnboarded: true
-        }) : null);
+        }));
     };
 
     return (
-        <DoctorContext.Provider value={{
-            user, profile, loading, preferences, token,
-            login, logout, updateProfile, updatePreferences, completeOnboarding
-        }}>
+        <DoctorContext.Provider value={{ user, profile, loading, login, logout, completeOnboarding }}>
             {children}
         </DoctorContext.Provider>
     );
-}
+};
 
-export function useDoctor() {
-    const context = useContext(DoctorContext);
-    if (!context) throw new Error('useDoctor must be used within DoctorProvider');
-    return context;
-}
+export const useDoctor = () => {
+    const ctx = useContext(DoctorContext);
+    if (!ctx) throw new Error("useDoctor must be used within DoctorProvider");
+    return ctx;
+};

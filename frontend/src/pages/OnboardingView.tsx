@@ -6,7 +6,7 @@ import { OnboardingSchema, OnboardingData } from '../contracts/user';
 import { useDoctor } from '../context/DoctorContext';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { auth } from '../config/firebase';
+import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
 
 export default function OnboardingView() {
