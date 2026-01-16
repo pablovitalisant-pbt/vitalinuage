@@ -32,6 +32,9 @@ WORKDIR /app/frontend
 # Install dependencies
 RUN npm install
 
+# FORZAR PERMISOS DE EJECUCIÓN (Crucial para evitar el error 127/Permission Denied)
+RUN chmod -R +x node_modules/.bin
+
 # Build Arguments from Pipeline
 ARG VITE_FIREBASE_API_KEY
 ARG VITE_FIREBASE_AUTH_DOMAIN
