@@ -90,12 +90,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: frontend-dist
-          path: temp_dist
+          path: frontend/dist
 
       - name: Debug - List Files (OBLIGATORIO)
         run: |
-          ls -R temp_dist
-          echo "Verificando que la carpeta temp_dist existe para Docker..."
+          ls -R frontend/dist
+          echo "Verificando que la carpeta frontend/dist existe para Docker..."
 
       - name: PRE-BUILD CLEANUP (CRUCIAL)
         run: |
