@@ -43,8 +43,7 @@ interface DoctorContextType {
     preferences: PrintPreferences;
     updateProfile: (newData: Partial<DoctorProfile>) => void;
     updatePreferences: (newPrefs: Partial<PrintPreferences>) => Promise<void>;
-    refreshProfile: () => Promise<void>;
-    triggerAuthRefresh: () => Promise<void>; // Slice 40.6: Manual re-lock trigger
+    refreshProfile: (authToken?: string) => Promise<void>;
     token: string | null;
     setToken: (token: string | null) => void;
     completeOnboarding: (data: DoctorProfile) => Promise<void>;
@@ -77,7 +76,10 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
     // Slice 23: Latency Feedback
     const [authStatusMessage, setAuthStatusMessage] = useState<string | null>(null);
 
-    const refreshProfile = async () => {
+    // Slice 40.9: DETERMINISTIC Profile Refresh - accepts explicit token
+    const refreshProfile = async (authToken?: string) => {
+        const effectiveToken = authToken || token;
+
         // Feature Flag Check
         if (!featureFlags.identity_search_v1) {
             setProfile(defaultProfile);
@@ -86,7 +88,7 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
             return;
         }
 
-        if (!token) {
+        if (!effectiveToken) {
             setIsLoading(false);
             setIsVerifyingFirebase(false);
             return;
@@ -129,7 +131,7 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
 
             const [profileRes, prefsRes] = await Promise.all([
                 fetch(getApiUrl('/api/doctors/profile'), {
-                    headers: { 'Authorization': `Bearer ${token}` },
+                    headers: { 'Authorization': `Bearer ${effectiveToken}` },
                     signal: controller.signal
                 }).catch((err) => {
                     // Start manually handling fetch errors vs HTTP errors
@@ -139,7 +141,7 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
                     return { ok: false, status: 500 } as Response;
                 }),
                 fetch(getApiUrl('/api/doctors/preferences'), {
-                    headers: { 'Authorization': `Bearer ${token}` },
+                    headers: { 'Authorization': `Bearer ${effectiveToken}` },
                     signal: controller.signal
                 }).catch((err) => {
                     if (err.name === 'AbortError') throw err;
@@ -195,124 +197,55 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
 
     // SLICE 40.8: IMMUTABLE Firebase Auth State Listener
     // System starts LOCKED and only unlocks after Firebase verification completes
-    // CRITICAL: Empty dependency array [] ensures listener NEVER recreates
+    // SLICE 40.9: IMMUTABLE & DETERMINISTIC Firebase Auth Listener
+    // The ONLY source of truth for auth state orchestration.
     useEffect(() => {
-        console.log('[AUDIT] Initializing Firebase auth state listener...');
-
-        // Ensure lock is set on mount
-        setIsVerifyingFirebase(true);
-
-        const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            console.log('[AUDIT] Auth state change detected. User:', user?.email || 'null');
-
-            // RE-LOCK on every auth state change
+        console.log('[AUDIT] Initializing Listener Inmutable...');
+        const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+            // Block immediately
             setIsVerifyingFirebase(true);
             setIsLoading(true);
 
-            if (user) {
-                try {
-                    console.log('[AUDIT] User present. Starting atomic reload...');
-
-                    // CRITICAL: Force reload to get fresh emailVerified from Firebase servers
-                    await user.reload();
-                    const freshEmailVerified = user.emailVerified;
-
-                    console.log(`[AUDIT] Reload successful. emailVerified: ${freshEmailVerified}`);
-
-                    // Get fresh token directly from user object
-                    const freshToken = await user.getIdToken(true);
-                    console.log('[AUDIT] Token refreshed from Firebase');
-
-                    // Update token in state and localStorage
-                    setToken(freshToken);
-                    localStorage.setItem('token', freshToken);
-
-                    // Update profile with fresh verification status
-                    setProfile(prev => ({
-                        ...prev,
-                        email: user.email || prev.email,
-                        isVerified: freshEmailVerified
-                    }));
-
-                    console.log('[AUDIT] Profile updated with fresh verification status');
-
-                    // CRITICAL: Fetch backend profile while still locked
-                    // Use fresh token from user object, not state
-                    console.log('[AUDIT] Fetching backend profile...');
-                    await refreshProfile();
-
-                } catch (error) {
-                    console.error('[AUDIT] Error in auth state reload:', error);
-                } finally {
-                    // UNLOCK: System is now ready for routing decisions
-                    setIsVerifyingFirebase(false);
-                    setIsLoading(false);
-                    setIsTransitioning(false); // Also clear transition lock
-                    console.log('[AUDIT] SYSTEM RELEASED: Navigation permitted.');
-                }
-            } else {
-                console.log('[AUDIT] No user. Clearing profile.');
+            if (!fbUser) {
                 setProfile(defaultProfile);
                 setToken(null);
                 localStorage.removeItem('token');
                 setIsVerifyingFirebase(false);
                 setIsLoading(false);
                 setIsTransitioning(false);
+                return;
             }
-        });
 
-        return () => {
-            console.log('[AUDIT] Cleaning up auth listener');
-            unsubscribe();
-        };
-    }, []); // IMMUTABLE: Empty dependency array - listener registers ONCE and never recreates
+            try {
+                await fbUser.reload();
+                const freshToken = await fbUser.getIdToken(true);
 
-    // Slice 40.6: Manual auth refresh trigger for login
-    // This is called by Login component after successful token save
-    const triggerAuthRefresh = async () => {
-        console.log('[AUDIT] Manual auth refresh triggered (post-login)');
+                // 1. Synchronous persistence
+                setToken(freshToken);
+                localStorage.setItem('token', freshToken);
 
-        // ABSOLUTE BARRIER: Lock ALL routing decisions
-        setIsTransitioning(true);
-        setIsVerifyingFirebase(true);
-        setIsLoading(true);
-
-        try {
-            // Check if Firebase user exists and reload
-            if (auth.currentUser) {
-                console.log('[AUDIT] Firebase user detected. Reloading...');
-                await auth.currentUser.reload();
-                const freshEmailVerified = auth.currentUser.emailVerified;
-
-                console.log(`[AUDIT] Reload successful. emailVerified: ${freshEmailVerified}`);
-
-                // Update profile with fresh verification status
+                // 2. Local profile update before unlock
                 setProfile(prev => ({
                     ...prev,
-                    email: auth.currentUser?.email || prev.email,
-                    isVerified: freshEmailVerified
+                    email: fbUser.email || "",
+                    isVerified: fbUser.emailVerified
                 }));
 
-                if (freshEmailVerified) {
-                    await auth.currentUser.getIdToken(true);
+                // 3. Backend sync with REAL Token
+                if (fbUser.emailVerified) {
+                    await refreshProfile(freshToken);
                 }
+            } finally {
+                setIsVerifyingFirebase(false);
+                setIsLoading(false);
+                setIsTransitioning(false);
+                console.log('[AUDIT] SISTEMA LIBERADO (DETERMINÍSTICO)');
             }
+        });
+        return () => unsubscribe();
+    }, []);
 
-            // Fetch backend profile
-            if (token) {
-                await refreshProfile();
-            }
 
-        } catch (error) {
-            console.error('[AUDIT] Error in manual auth refresh:', error);
-        } finally {
-            // UNLOCK ALL barriers
-            setIsTransitioning(false);
-            setIsVerifyingFirebase(false);
-            setIsLoading(false);
-            console.log('[AUDIT] SYSTEM RELEASED after manual refresh');
-        }
-    };
 
     const updateProfile = (newData: Partial<DoctorProfile>) => {
         setProfile(prev => ({ ...prev, ...newData }));
@@ -389,7 +322,6 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
             updateProfile,
             updatePreferences,
             refreshProfile,
-            triggerAuthRefresh,
             token,
             setToken,
             completeOnboarding,

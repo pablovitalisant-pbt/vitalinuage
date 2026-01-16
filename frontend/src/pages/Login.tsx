@@ -9,7 +9,7 @@ const Login: React.FC = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { setToken, triggerAuthRefresh } = useDoctor();
+  const { setToken } = useDoctor();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,12 +43,8 @@ const Login: React.FC = () => {
         localStorage.setItem('token', token);
         setToken(token);
         console.log('[LOGIN] Firebase sign-in success. Token saved.');
-        console.log('[LOGIN] Triggering auth refresh to re-lock and verify...');
 
-        // Trigger manual auth refresh to re-lock system and refresh profile
-        await triggerAuthRefresh();
-
-        console.log('[LOGIN] Auth refresh complete. Guards will handle routing.');
+        console.log('[LOGIN] Auth flow complete. Guards will handle routing.');
       } else {
         alert('Cuenta creada. Por favor, verifica tu email para activar tu acceso.');
         setIsRegister(false);
