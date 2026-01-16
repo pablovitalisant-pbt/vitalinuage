@@ -57,7 +57,7 @@ jobs:
         working-directory: ./frontend
         run: npm ci
 
-      - name: Build con Secretos y Debug
+      - name: Build Frontend con Secretos
         working-directory: ./frontend
         env:
           VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
@@ -68,11 +68,15 @@ jobs:
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
           VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}
           VITE_API_URL: ${{ secrets.FRONTEND_URL }}
+        run: npm run build
+
+      - name: Verify Build Output (Debug)
+        working-directory: ./frontend
         run: |
-          echo "VITE_FIREBASE_API_KEY=$VITE_FIREBASE_API_KEY"
-          echo "VITE_FIREBASE_AUTH_DOMAIN=$VITE_FIREBASE_AUTH_DOMAIN"
-          echo "VITE_FIREBASE_PROJECT_ID=$VITE_FIREBASE_PROJECT_ID"
-          npm run build
+          echo "=== Verificando que dist/ tiene contenido ==="
+          ls -lah dist/
+          echo "=== Verificando presencia de apiKey en archivos JS ==="
+          grep -r "apiKey" dist/assets/*.js | head -n 3 || echo "No se encontró apiKey (esto es malo)"
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
@@ -92,10 +96,12 @@ jobs:
           name: frontend-dist
           path: frontend/dist
 
-      - name: Verify frontend/dist
+      - name: Verify frontend/dist Content
         run: |
-          ls -la frontend/dist
-          grep -i apiKey frontend/dist/assets/*.js || true
+          echo "=== Contenido descargado del artefacto ==="
+          ls -lah frontend/dist
+          echo "=== Verificando apiKey en JS descargado ==="
+          grep -r "apiKey" frontend/dist/assets/*.js | head -n 3 || echo "ADVERTENCIA: No se encontró apiKey"
 
       - id: auth
         uses: google-github-actions/auth@v2
@@ -112,6 +118,7 @@ jobs:
 
           IMAGE_TAG="us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REPOSITORY }}/vitalinuage-backend:${{ github.sha }}"
 
+          # CRÍTICO: El contexto de build (.) incluye frontend/dist con los secretos
           docker build \
             -t "$IMAGE_TAG" \
             -f backend/Dockerfile .
