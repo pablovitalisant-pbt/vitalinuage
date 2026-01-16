@@ -1,4 +1,4 @@
-import React, { createContext, useState, ReactNode, useContext, useEffect } from 'react';
+import React, { createContext, useState, ReactNode, useContext, useEffect, useRef } from 'react';
 import { getApiUrl } from '../config/api';
 // Remove unused import if not needed, or keep if used elsewhere
 // import { DoctorProfile as DoctorProfileDTO } from '../contracts/dashboard'; 
@@ -67,6 +67,7 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
     const [preferences, setPreferences] = useState<PrintPreferences>(defaultPreferences);
 
     const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+    const tokenRef = useRef<string | null>(localStorage.getItem('token'));
     // Slice SP-04: Loading Guard State
     const [isLoading, setIsLoading] = useState<boolean>(true);
     // Slice 40.2: Firebase Verification Sync Lock (CRITICAL)
@@ -209,6 +210,7 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
             if (!fbUser) {
                 setProfile(defaultProfile);
                 setToken(null);
+                tokenRef.current = null;
                 localStorage.removeItem('token');
                 setIsVerifyingFirebase(false);
                 setIsLoading(false);
@@ -221,6 +223,7 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
                 const freshToken = await fbUser.getIdToken(true);
 
                 // 1. Synchronous persistence
+                tokenRef.current = freshToken;
                 setToken(freshToken);
                 localStorage.setItem('token', freshToken);
 

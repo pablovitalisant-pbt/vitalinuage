@@ -1,6 +1,8 @@
 import { ReactNode, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useDoctor } from '../../context/DoctorContext';
+import { auth } from '../../config/firebase';
+
 
 interface ProtectedRouteProps {
     children: ReactNode;
@@ -55,14 +57,15 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
         return <Navigate to="/" state={{ from: location }} replace />;
     }
 
-    // 3. EMAIL VERIFICATION CHECK (SOURCE: FIREBASE AFTER RELOAD)
-    if (profile?.isVerified === false) {
-        console.log('[ROUTER_AUDIT] Email not verified. Blocking access.');
+    // 3. EMAIL VERIFICATION CHECK (SOURCE: FIREBASE TRUTH CHECK)
+    // bypasses stale React state by asking Firebase directly
+    if (!auth.currentUser?.emailVerified) {
+        console.log('[ROUTER_AUDIT] Email not verified (Google Truth). Blocking access.');
         return <Navigate to="/verify-email" replace />;
     }
 
     // Prevent verified users from accessing verification page
-    if (profile?.isVerified && location.pathname === '/verify-email') {
+    if (auth.currentUser?.emailVerified && location.pathname === '/verify-email') {
         console.log('[ROUTER_AUDIT] User verified but on /verify-email. Redirecting to /dashboard');
         return <Navigate to="/dashboard" replace />;
     }
@@ -70,7 +73,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     // 4. ONBOARDING CHECK (SOURCE: BACKEND)
     const showOnboarding = featureFlags?.onboarding_workflow ?? false;
 
-    if (showOnboarding && profile?.isVerified) {
+    if (showOnboarding && auth.currentUser?.emailVerified) {
         // Redirect to onboarding if not completed
         if (!profile?.isOnboarded && location.pathname !== '/setup-profile') {
             console.log('[ROUTER_AUDIT] FLOW: Incomplete profile. Redirecting to onboarding.');
