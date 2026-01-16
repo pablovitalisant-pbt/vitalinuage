@@ -90,18 +90,19 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: frontend-dist
-          path: build_output
+          path: static_dist
 
-      - name: FORCE LOCAL INJECTION (MANDATORIO)
+      - name: PRE-BUILD UNIFICATION (MANDATORIO)
         run: |
-          # 1. Limpieza preventiva
-          rm -rf backend/static_dist
-          # 2. Inyección local: Movemos el artefacto dentro de la carpeta del backend
-          mv build_output backend/static_dist
-          # 3. ELIMINACIÓN DE BLOQUEOS: Borramos CUALQUIER .dockerignore que pueda estar filtrando archivos
+          # 1. Traemos el Dockerfile a la raíz para simplificar el contexto
+          cp backend/Dockerfile ./Dockerfile_root
+          # 2. Eliminamos bloqueos
           find . -name ".dockerignore" -type f -delete
-          echo "Verificando archivos en backend/static_dist (Debe haber index.html):"
-          ls -F backend/static_dist
+          # 3. Verificación visual
+          echo "Contenido de la raíz para el build de Docker:"
+          ls -F
+          echo "Verificando interior de static_dist:"
+          ls -F static_dist
 
       # 1. Google Auth
       - id: 'auth'
@@ -129,7 +130,8 @@ jobs:
           echo "Target Image Tag: $IMAGE_TAG"
           
           # 3. Build & Push
-          docker build -t "$IMAGE_TAG" -f backend/Dockerfile .
+          # Construimos usando el Dockerfile movido a la raíz y contexto "."
+          docker build -t "$IMAGE_TAG" -f Dockerfile_root .
           docker push "$IMAGE_TAG"
 
   deploy:
