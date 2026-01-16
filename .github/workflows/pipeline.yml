@@ -75,11 +75,23 @@ jobs:
           VITE_API_URL: ${{ secrets.FRONTEND_URL }}
         run: npm run build
 
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist/
+
   build:
     needs: [quality, build-frontend]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Download Frontend Build
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+
       # 1. Google Auth
       - id: 'auth'
         uses: 'google-github-actions/auth@v2'
@@ -105,18 +117,8 @@ jobs:
           
           echo "Target Image Tag: $IMAGE_TAG"
           
-          # 3. Build & Push con Secretos
-          docker build \
-            --build-arg VITE_FIREBASE_API_KEY="${{ secrets.VITE_FIREBASE_API_KEY }}" \
-            --build-arg VITE_FIREBASE_AUTH_DOMAIN="${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}" \
-            --build-arg VITE_FIREBASE_PROJECT_ID="${{ secrets.VITE_FIREBASE_PROJECT_ID }}" \
-            --build-arg VITE_FIREBASE_STORAGE_BUCKET="${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}" \
-            --build-arg VITE_FIREBASE_MESSAGING_SENDER_ID="${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}" \
-            --build-arg VITE_FIREBASE_APP_ID="${{ secrets.VITE_FIREBASE_APP_ID }}" \
-            --build-arg VITE_FIREBASE_MEASUREMENT_ID="${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}" \
-            --build-arg VITE_API_URL="${{ secrets.FRONTEND_URL }}" \
-            -t "$IMAGE_TAG" -f backend/Dockerfile .
-            
+          # 3. Build & Push
+          docker build -t "$IMAGE_TAG" -f backend/Dockerfile .
           docker push "$IMAGE_TAG"
 
   deploy:
