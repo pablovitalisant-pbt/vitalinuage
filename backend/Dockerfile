@@ -38,8 +38,7 @@ ENV VITE_FEATURE_NEW_UI=${VITE_FEATURE_NEW_UI}
 COPY frontend/ ./
 
 # ---- build ----
-RUN npm run build
-
+RUN node ./node_modules/vite/bin/vite.js build
 FROM python:3.10-slim
 WORKDIR /app
 
