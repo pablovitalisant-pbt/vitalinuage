@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 import { PatientSearchSchema, PatientSearchQuery } from '../contracts/paciente_busqueda';
 import { useDoctor } from '../context/DoctorContext';
 import { getApiUrl } from '../config/api';
-import featureFlags from '../../../config/feature-flags.json';
 
 interface PatientResult {
     id: number;

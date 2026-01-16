@@ -121,6 +121,8 @@ jobs:
             --build-arg VITE_FIREBASE_APP_ID="${{ secrets.VITE_FIREBASE_APP_ID }}" \
             --build-arg VITE_FIREBASE_MEASUREMENT_ID="${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}" \
             --build-arg VITE_API_URL="${{ secrets.FRONTEND_URL }}" \
+            --build-arg VITE_FEATURE_SEARCH="${{ secrets.VITE_FEATURE_SEARCH }}" \
+            --build-arg VITE_FEATURE_NEW_UI="${{ secrets.VITE_FEATURE_NEW_UI }}" \
             -t "$IMAGE_TAG" -f backend/Dockerfile .
             
           docker push "$IMAGE_TAG"
