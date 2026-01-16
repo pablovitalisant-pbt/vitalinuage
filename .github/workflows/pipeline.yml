@@ -90,16 +90,15 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: frontend-dist
-          path: dist_to_docker
+          path: backend/dist_final
 
-      # 2. LIMPIEZA TOTAL (MANDATORIO)
-      - name: Borrar archivos de ignorar
+      # 2. LIMPIEZA TOTAL Y VERIFICACIÓN (MANDATORIO)
+      - name: Borrar bloqueos de Docker
         run: |
-          find . -name ".dockerignore" -type f -delete
-          echo "Contenido de la raíz para Docker:"
-          ls -F
-          echo "Contenido de dist_to_docker:"
-          ls -F dist_to_docker
+          # Borrar todos los .dockerignore para que Docker no pueda ignorar nada
+          find . -name ".dockerignore" -delete
+          echo "Verificando que los archivos están DENTRO de backend/dist_final:"
+          ls -F backend/dist_final
 
       # 1. Google Auth
       - id: 'auth'

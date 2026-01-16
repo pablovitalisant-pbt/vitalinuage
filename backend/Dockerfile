@@ -28,8 +28,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Context is root. We copy contents of backend/ dir to /app/backend to maintain package structure
 COPY backend /app/backend
 
-# COPIAR FRONTEND (Ruta desde la raíz del repo)
-COPY dist_to_docker /app/frontend/dist
+# COPIAR FRONTEND
+# Como el contexto es la raíz (.), la ruta es backend/dist_final
+COPY backend/dist_final /app/frontend/dist
 
 WORKDIR /app
 
