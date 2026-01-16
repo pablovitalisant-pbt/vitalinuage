@@ -92,19 +92,15 @@ jobs:
           name: frontend-dist
           path: build_output
 
-      - name: Debug Context (MANDATORIO)
+      - name: FORCE LOCAL INJECTION (MANDATORIO)
         run: |
-          ls -d build_output
-          ls build_output
-          echo "Verificando presencia de index.html..."
-
-      - name: PRE-BUILD CLEANUP (CRUCIAL)
-        run: |
-          # Eliminamos el .dockerignore para que Docker esté obligado a ver temp_dist
-          rm -f .dockerignore
-          rm -f backend/.dockerignore
-          echo "Contenido de la raíz para Docker:"
-          ls -F
+          # Movemos el artefacto dentro de la carpeta del backend
+          rm -rf backend/static_dist
+          mv build_output backend/static_dist
+          # Eliminamos CUALQUIER .dockerignore que pueda estar estorbando
+          find . -name ".dockerignore" -type f -delete
+          echo "Verificando archivos en backend/static_dist:"
+          ls -F backend/static_dist
 
       # 1. Google Auth
       - id: 'auth'

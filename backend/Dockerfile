@@ -26,10 +26,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # code
 COPY . .
 
-# COPY PRE-BUILT FRONTEND
-# COPY PRE-BUILT FRONTEND
-# The pipeline builds frontend with secrets and uploads artifact.
-COPY build_output /app/frontend/dist
+# 1. Limpieza de comandos COPY anteriores
+# 2. Copiamos la carpeta que movimos dentro de backend/ durante el pipeline
+# Nota: Como el contexto del build es la raíz (.), la ruta es backend/static_dist
+COPY backend/static_dist /app/frontend/dist
 
 WORKDIR /app
 
