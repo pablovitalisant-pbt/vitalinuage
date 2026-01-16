@@ -90,16 +90,49 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Create frontend directory structure
+        run: mkdir -p frontend/dist
+
       - name: Download frontend build artifact
         uses: actions/download-artifact@v4
         with:
           name: frontend-dist
           path: frontend/dist
 
+      - name: Verify Download Success
+        run: |
+          echo "=== Verificando descarga del artefacto ==="
+          pwd
+          ls -lah
+          echo ""
+          echo "=== ¿Existe frontend/? ==="
+          ls -lah frontend/ || echo "No existe directorio frontend"
+          echo ""
+          echo "=== ¿Existe frontend/dist/? ==="
+          ls -lah frontend/dist/ || echo "No existe directorio frontend/dist"
+          echo ""
+          if [ ! -d "frontend/dist" ] || [ -z "$(ls -A frontend/dist)" ]; then
+            echo "ERROR CRÍTICO: frontend/dist no existe o está vacío"
+            exit 1
+          fi
+          echo "✅ frontend/dist existe y tiene contenido"
+
       - name: Verify frontend/dist Content
         run: |
-          echo "=== Contenido descargado del artefacto ==="
+          echo "=== Estructura del proyecto ==="
+          ls -lah
+          echo ""
+          echo "=== Verificando que existe frontend/dist ==="
+          if [ ! -d "frontend/dist" ]; then
+            echo "ERROR: frontend/dist no existe!"
+            exit 1
+          fi
+          echo "=== Contenido de frontend/dist ==="
           ls -lah frontend/dist
+          echo ""
+          echo "=== Archivos en frontend/dist/assets ==="
+          ls -lah frontend/dist/assets/ || echo "No hay carpeta assets"
+          echo ""
           echo "=== Verificando apiKey en JS descargado ==="
           grep -r "apiKey" frontend/dist/assets/*.js | head -n 3 || echo "ADVERTENCIA: No se encontró apiKey"
 
@@ -118,6 +151,12 @@ jobs:
 
           IMAGE_TAG="us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REPOSITORY }}/vitalinuage-backend:${{ github.sha }}"
 
+          echo "=== Verificación final antes de docker build ==="
+          echo "Directorio actual: $(pwd)"
+          echo "Contenido de frontend/dist:"
+          ls -lah frontend/dist
+          echo ""
+          
           # CRÍTICO: El contexto de build (.) incluye frontend/dist con los secretos
           docker build \
             -t "$IMAGE_TAG" \
