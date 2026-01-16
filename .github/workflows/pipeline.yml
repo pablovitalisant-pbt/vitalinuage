@@ -88,11 +88,10 @@ jobs:
           name: frontend-dist
           path: frontend/dist
 
-      - name: Verify frontend dist exists
+      - name: Verify frontend/dist
         run: |
-          pwd
-          ls -la frontend || true
-          ls -la frontend/dist || true
+          ls -la frontend/dist
+          grep -i apiKey frontend/dist/assets/*.js || true
 
       - id: auth
         uses: google-github-actions/auth@v2
