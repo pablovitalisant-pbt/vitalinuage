@@ -20,17 +20,16 @@ RUN apt-get update && apt-get install -y \
 
 
 # deps
-# Context is now ./backend, so requirements.txt is at root of context
-COPY requirements.txt requirements.txt
+# Context is now root (.), so requirements.txt is at backend/requirements.txt
+COPY backend/requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # code
-# Context is ./backend. We copy to /app/backend to maintain package structure
-COPY . /app/backend
+# Context is root. We copy contents of backend/ dir to /app/backend to maintain package structure
+COPY backend /app/backend
 
-# COPIAR FRONTEND PRE-CONSTRUIDO
-# El contexto ahora es './backend', así que static_dist está en la raíz del contexto.
-COPY static_dist /app/frontend/dist
+# COPIAR FRONTEND (Ruta desde la raíz del repo)
+COPY dist_to_docker /app/frontend/dist
 
 WORKDIR /app
 

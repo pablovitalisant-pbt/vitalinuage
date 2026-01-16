@@ -86,19 +86,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Download Frontend Build
+      - name: Download Frontend
         uses: actions/download-artifact@v4
         with:
           name: frontend-dist
-          path: backend/static_dist  # <--- DESCARGA DIRECTA DENTRO DE BACKEND
+          path: dist_to_docker
 
-      - name: PRE-BUILD CLEANUP (ELIMINACIÓN DE BLOQUEOS)
+      # 2. LIMPIEZA TOTAL (MANDATORIO)
+      - name: Borrar archivos de ignorar
         run: |
-          # 1. Eliminamos cualquier .dockerignore en todo el repo
           find . -name ".dockerignore" -type f -delete
-          # 2. Verificación visual de que los archivos están donde deben
-          echo "Verificando archivos dentro de backend/static_dist:"
-          ls -F backend/static_dist
+          echo "Contenido de la raíz para Docker:"
+          ls -F
+          echo "Contenido de dist_to_docker:"
+          ls -F dist_to_docker
 
       # 1. Google Auth
       - id: 'auth'
@@ -126,9 +127,8 @@ jobs:
           echo "Target Image Tag: $IMAGE_TAG"
           
           # 3. Build & Push
-          # CAMBIO CRUCIAL: El contexto de ejecución es la carpeta 'backend'
-          # Esto hace que el Dockerfile vea a 'static_dist' como un vecino inmediato
-          docker build -t "$IMAGE_TAG" -f backend/Dockerfile ./backend
+          # Construimos desde la raíz (.) usando el Dockerfile del backend
+          docker build -t "$IMAGE_TAG" -f backend/Dockerfile .
           docker push "$IMAGE_TAG"
 
   deploy:
