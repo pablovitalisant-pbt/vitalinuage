@@ -59,6 +59,10 @@ jobs:
           echo "Limpiando caché para forzar build fresco..."
           rm -rf node_modules/.vite
           rm -rf dist
+          
+          echo "CRÍTICO: Eliminando archivos .env que interfieren con secretos de GitHub..."
+          rm -f .env .env.local .env.production .env.development
+          echo "✅ Limpieza completada - Todos los .env eliminados"
 
       - name: Install dependencies
         working-directory: ./frontend
@@ -141,6 +145,7 @@ jobs:
             echo "✅ Se encontró API key real"
           else
             echo "❌ NO se encontró - las variables NO fueron inyectadas"
+            exit 1
           fi
           echo ""
           
@@ -149,20 +154,20 @@ jobs:
             echo "✅ Se encontró auth domain real"
           else
             echo "❌ NO se encontró - las variables NO fueron inyectadas"
+            exit 1
           fi
           echo ""
           
-          echo "3. Buscando 'undefined' en configuración Firebase:"
-          if grep -r 'apiKey.*undefined\|authDomain.*undefined' dist/assets/*.js 2>/dev/null; then
-            echo "❌❌❌ CRÍTICO: Se encontró 'undefined' - Vite NO recibió las variables"
+          echo "3. Verificando que NO hay valores literalmente vacíos en firebaseConfig:"
+          if grep -E 'apiKey:""|authDomain:""' dist/assets/*.js 2>/dev/null; then
+            echo "❌❌❌ CRÍTICO: Encontrados valores vacíos en la configuración"
             exit 1
           else
-            echo "✅ No se encontró 'undefined'"
+            echo "✅ No hay valores vacíos en la configuración"
           fi
           echo ""
           
-          echo "=== Muestra de código generado (primeros 1000 chars) ==="
-          head -c 1000 dist/assets/*.js | grep -o 'apiKey.*' | head -n 5 || echo "No pattern match"
+          echo "✅✅✅ BUILD EXITOSO - Todas las verificaciones pasaron"
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
