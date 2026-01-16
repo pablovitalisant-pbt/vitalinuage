@@ -5,21 +5,18 @@ RUN apk add --no-cache bash
 
 WORKDIR /app/frontend
 
+# 1. Instalar dependencias
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
-# CRITICAL FIX for Exit Code 126
+
+# 2. Copiar TODO el frontend (esto pisa permisos)
+COPY frontend/ ./
+
+# 3. FIX REAL DEL EXIT CODE 126 (DESPUÉS del COPY)
 RUN chmod -R +x node_modules/.bin
 
-ARG VITE_FIREBASE_API_KEY
-ARG VITE_FIREBASE_AUTH_DOMAIN
-ARG VITE_FIREBASE_PROJECT_ID
-ARG VITE_FIREBASE_STORAGE_BUCKET
-ARG VITE_FIREBASE_MESSAGING_SENDER_ID
-ARG VITE_FIREBASE_APP_ID
-ARG VITE_FIREBASE_MEASUREMENT_ID
-ARG VITE_API_URL
-ARG VITE_FEATURE_SEARCH
-ARG VITE_FEATURE_NEW_UI
+# 4. Build real de Vite
+RUN npm run build
 
 ENV VITE_FEATURE_SEARCH=${VITE_FEATURE_SEARCH}
 ENV VITE_FEATURE_NEW_UI=${VITE_FEATURE_NEW_UI}
