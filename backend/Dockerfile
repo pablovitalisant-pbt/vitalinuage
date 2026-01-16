@@ -30,7 +30,7 @@ ENV VITE_API_URL=$VITE_API_URL
 
 COPY frontend/ ./
 # Use npx as requested
-RUN npx vite build
+RUN node node_modules/vite/bin/vite.js build
 
 FROM python:3.10-slim
 WORKDIR /app
