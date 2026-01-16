@@ -1,7 +1,6 @@
 import React, { createContext, useState, ReactNode, useContext, useEffect } from 'react';
 import { getApiUrl } from '../config/api';
-import featureFlags from '../../../config/feature-flags.json';
-import { auth } from '../config/firebase';
+import { auth } from '../firebase'; // Correct import from src/firebase.ts
 import { onAuthStateChanged, User, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 
 export interface DoctorProfile {
@@ -51,13 +50,14 @@ interface DoctorContextType {
     updateProfile: (newData: Partial<DoctorProfile>) => void;
     updatePreferences: (newPrefs: Partial<PrintPreferences>) => Promise<void>;
     completeOnboarding: (data: DoctorProfile) => Promise<void>;
-    token: string | null; // Compatibility
+    token: string | null;
 }
 
 export const DoctorContext = createContext<DoctorContextType | undefined>(undefined);
 
 export function DoctorProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
+    import { auth } from '../firebase'; // Re-verify this import location
     const [profile, setProfile] = useState<DoctorProfile | null>(null);
     const [preferences, setPreferences] = useState<PrintPreferences>(defaultPreferences);
     const [loading, setLoading] = useState<boolean>(true);
@@ -69,12 +69,13 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
             if (fbUser) {
                 try {
                     console.log("[AUTH] User detected. Syncing...");
+                    // No more atomic locks, just simple sync
                     await fbUser.reload();
                     const freshToken = await fbUser.getIdToken(true);
                     setToken(freshToken);
-                    localStorage.setItem('token', freshToken);
                     setUser(fbUser);
 
+                    // Fetch Profile
                     if (fbUser.emailVerified) {
                         try {
                             const [profileRes, prefsRes] = await Promise.all([
@@ -95,7 +96,6 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
                                     isVerified: fbUser.emailVerified
                                 });
                             } else {
-                                // Fallback for verified user but no profile (first time)
                                 setProfile({ ...defaultProfile, email: fbUser.email || "", isVerified: true });
                             }
 
@@ -109,20 +109,19 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
                                 });
                             }
                         } catch (err) {
-                            console.error("Error loading backend profile:", err);
+                            console.error("Backend Sync Error:", err);
                         }
                     } else {
-                        // Unverified
                         setProfile({ ...defaultProfile, email: fbUser.email || "", isVerified: false });
                     }
+
                 } catch (e) {
-                    console.error("Error reloading user:", e);
+                    console.error("Auth Reload Error:", e);
                 }
             } else {
                 setUser(null);
                 setToken(null);
                 setProfile(null);
-                localStorage.removeItem('token');
             }
             setLoading(false);
         });
@@ -136,7 +135,6 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
         setUser(null);
         setProfile(null);
         setToken(null);
-        localStorage.removeItem('token');
         window.location.href = '/';
     };
 
@@ -175,7 +173,7 @@ export function DoctorProvider({ children }: { children: ReactNode }) {
                 registrationNumber: data.registrationNumber || ""
             })
         });
-        if (!res.ok) throw new Error("Failed onboarding");
+        if (!res.ok) throw new Error("Onboarding failed");
         const updated = await res.json();
         setProfile(prev => prev ? ({
             ...prev,

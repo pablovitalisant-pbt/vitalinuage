@@ -1,10 +1,8 @@
-import { BrowserRouter, Routes, Route, Navigate, useParams, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
 // Context
 import { DoctorProvider, useDoctor } from './context/DoctorContext';
-import { getApiUrl } from './config/api';
 
 // Pages - Auth & Public
 import Login from './pages/Login';
@@ -12,7 +10,10 @@ import VerifyAccount from './pages/VerifyAccount';
 import VerificationRequired from './pages/VerificationRequired';
 import PublicVerification from './pages/PublicVerification';
 import PublicValidation from './pages/PublicValidation';
-import OnboardingView from './pages/OnboardingView';
+import Onboarding from './pages/OnboardingView'; // Mapping OnboardingView as Onboarding
+
+// Loading
+import LoadingSpinner from './components/ui/LoadingSpinner';
 
 // Pages - Dashboard
 import DashboardLayout from './components/layout/DashboardLayout';
@@ -30,16 +31,8 @@ import PrintPrescription from './pages/PrintPrescription';
 function AppContent() {
     const { user, profile, loading } = useDoctor();
 
-    // 1. Loading State (Global Spinner)
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
-                </div>
-            </div>
-        );
-    }
+    // 1. Loading State
+    if (loading) return <LoadingSpinner />;
 
     // 2. Unauthenticated State
     if (!user) {
@@ -47,6 +40,7 @@ function AppContent() {
             <BrowserRouter>
                 <Routes>
                     <Route path="/" element={<Login />} />
+                    {/* Public Routes must be accessible */}
                     <Route path="/validate-doc/:docToken" element={<PublicValidation />} />
                     <Route path="/v/:uuid" element={<PublicVerification />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
@@ -69,12 +63,11 @@ function AppContent() {
     }
 
     // 4. Onboarding State (Verified but incomplete profile)
-    // Ensure profile is loaded before checking isOnboarded
     if (profile && !profile.isOnboarded) {
         return (
             <BrowserRouter>
                 <Routes>
-                    <Route path="/setup-profile" element={<OnboardingView />} />
+                    <Route path="/setup-profile" element={<Onboarding />} />
                     <Route path="*" element={<Navigate to="/setup-profile" replace />} />
                 </Routes>
             </BrowserRouter>
