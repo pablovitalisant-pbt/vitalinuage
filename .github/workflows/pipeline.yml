@@ -97,6 +97,14 @@ jobs:
           ls -R temp_dist
           echo "Verificando que la carpeta temp_dist existe para Docker..."
 
+      - name: PRE-BUILD CLEANUP (CRUCIAL)
+        run: |
+          # Eliminamos el .dockerignore para que Docker esté obligado a ver temp_dist
+          rm -f .dockerignore
+          rm -f backend/.dockerignore
+          echo "Contenido de la raíz para Docker:"
+          ls -F
+
       # 1. Google Auth
       - id: 'auth'
         uses: 'google-github-actions/auth@v2'
