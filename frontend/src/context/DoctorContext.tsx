@@ -57,7 +57,7 @@ export const DoctorContext = createContext<DoctorContextType | undefined>(undefi
 
 export function DoctorProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
-    import { auth } from '../firebase'; // Re-verify this import location
+
     const [profile, setProfile] = useState<DoctorProfile | null>(null);
     const [preferences, setPreferences] = useState<PrintPreferences>(defaultPreferences);
     const [loading, setLoading] = useState<boolean>(true);
