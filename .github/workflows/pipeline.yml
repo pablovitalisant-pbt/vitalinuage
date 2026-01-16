@@ -94,12 +94,13 @@ jobs:
 
       - name: FORCE LOCAL INJECTION (MANDATORIO)
         run: |
-          # Movemos el artefacto dentro de la carpeta del backend
+          # 1. Limpieza preventiva
           rm -rf backend/static_dist
+          # 2. Inyección local: Movemos el artefacto dentro de la carpeta del backend
           mv build_output backend/static_dist
-          # Eliminamos CUALQUIER .dockerignore que pueda estar estorbando
+          # 3. ELIMINACIÓN DE BLOQUEOS: Borramos CUALQUIER .dockerignore que pueda estar filtrando archivos
           find . -name ".dockerignore" -type f -delete
-          echo "Verificando archivos en backend/static_dist:"
+          echo "Verificando archivos en backend/static_dist (Debe haber index.html):"
           ls -F backend/static_dist
 
       # 1. Google Auth

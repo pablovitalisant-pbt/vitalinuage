@@ -26,7 +26,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # code
 COPY . .
 
-# 1. Limpieza de comandos COPY anteriores
+# 1. Limpieza de cualquier comando COPY anterior relacionado al frontend
 # 2. Copiamos la carpeta que movimos dentro de backend/ durante el pipeline
 # Nota: Como el contexto del build es la raíz (.), la ruta es backend/static_dist
 COPY backend/static_dist /app/frontend/dist
