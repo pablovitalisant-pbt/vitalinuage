@@ -90,7 +90,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: frontend-dist
-          path: frontend/dist
+          path: temp_dist
+
+      - name: Debug - List Files (OBLIGATORIO)
+        run: |
+          ls -R temp_dist
+          echo "Verificando que la carpeta temp_dist existe para Docker..."
 
       # 1. Google Auth
       - id: 'auth'
