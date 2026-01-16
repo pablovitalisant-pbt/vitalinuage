@@ -91,23 +91,32 @@ jobs:
         run: gcloud auth configure-docker us-central1-docker.pkg.dev
 
       # 3. Build & Push
+      # 3. Build & Push
       - name: Build and Push Container
         run: |
           # 1. Validación de Variables Críticas
           if [ -z "${{ secrets.GCP_PROJECT_ID }}" ]; then echo "ERROR: GCP_PROJECT_ID secret is empty"; exit 1; fi
           if [ -z "${{ secrets.GCP_REPOSITORY }}" ]; then echo "ERROR: GCP_REPOSITORY secret is empty"; exit 1; fi
 
-          # 2. Construcción Segura de Tag (Sanitización de Slashes)
+          # 2. Construcción Segura de Tag
           RAW_BASE="us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REPOSITORY }}"
-          # Eliminar dobles slashes accidentales, protegiendo protocolos si los hubiera (aunque aqui no aplican)
           CLEAN_BASE=$(echo "$RAW_BASE" | sed 's#//#/#g')
-          
           IMAGE_TAG="${CLEAN_BASE}/vitalinuage-backend:${{ github.sha }}"
           
           echo "Target Image Tag: $IMAGE_TAG"
           
-          # 3. Build & Push
-          docker build -t "$IMAGE_TAG" -f backend/Dockerfile .
+          # 3. Build & Push con Secretos
+          docker build \
+            --build-arg VITE_FIREBASE_API_KEY="${{ secrets.VITE_FIREBASE_API_KEY }}" \
+            --build-arg VITE_FIREBASE_AUTH_DOMAIN="${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}" \
+            --build-arg VITE_FIREBASE_PROJECT_ID="${{ secrets.VITE_FIREBASE_PROJECT_ID }}" \
+            --build-arg VITE_FIREBASE_STORAGE_BUCKET="${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}" \
+            --build-arg VITE_FIREBASE_MESSAGING_SENDER_ID="${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}" \
+            --build-arg VITE_FIREBASE_APP_ID="${{ secrets.VITE_FIREBASE_APP_ID }}" \
+            --build-arg VITE_FIREBASE_MEASUREMENT_ID="${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}" \
+            --build-arg VITE_API_URL="${{ secrets.FRONTEND_URL }}" \
+            -t "$IMAGE_TAG" -f backend/Dockerfile .
+            
           docker push "$IMAGE_TAG"
 
   deploy:
