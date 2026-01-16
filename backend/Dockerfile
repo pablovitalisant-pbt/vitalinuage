@@ -1,12 +1,12 @@
-﻿# ETAPA 1: CONSTRUCCIÓN DEL FRONTEND (NODE)
-FROM node:18-alpine AS frontend-builder
+﻿# ETAPA 1: BUILD DEL FRONTEND (NODE)
+FROM node:18-alpine AS builder
 WORKDIR /app/frontend
 
-# Copiar archivos de dependencias
+# Copiar dependencias y asegurar permisos
 COPY frontend/package*.json ./
 RUN npm ci --quiet
 
-# Definir Argumentos de Construcción (Los secretos de Firebase)
+# Declarar argumentos (Vienen de los --build-arg del pipeline)
 ARG VITE_FIREBASE_API_KEY
 ARG VITE_FIREBASE_AUTH_DOMAIN
 ARG VITE_FIREBASE_PROJECT_ID
@@ -16,7 +16,7 @@ ARG VITE_FIREBASE_APP_ID
 ARG VITE_FIREBASE_MEASUREMENT_ID
 ARG VITE_API_URL
 
-# Inyectar como Variables de Entorno para Vite
+# Exponerlos como variables de entorno para Vite
 ENV VITE_FIREBASE_API_KEY=$VITE_FIREBASE_API_KEY
 ENV VITE_FIREBASE_AUTH_DOMAIN=$VITE_FIREBASE_AUTH_DOMAIN
 ENV VITE_FIREBASE_PROJECT_ID=$VITE_FIREBASE_PROJECT_ID
@@ -26,33 +26,33 @@ ENV VITE_FIREBASE_APP_ID=$VITE_FIREBASE_APP_ID
 ENV VITE_FIREBASE_MEASUREMENT_ID=$VITE_FIREBASE_MEASUREMENT_ID
 ENV VITE_API_URL=$VITE_API_URL
 
-# Copiar el resto del código del frontend y construir
+# Copiar código y compilar
 COPY frontend/ ./
 RUN npm run build
 
-# ETAPA 2: SERVIDOR BACKEND (PYTHON)
+# ETAPA 2: RUNTIME DEL BACKEND (PYTHON)
 FROM python:3.10-slim
 WORKDIR /app
 
+# Ensure backend package can be imported from root
 ENV PYTHONPATH=/app
 
-# Instalar dependencias de sistema para WeasyPrint
+# Dependencias de sistema para WeasyPrint
 RUN apt-get update && apt-get install -y \
     libpango-1.0-0 libharfbuzz0b libpangoft2-1.0-0 \
     libffi-dev libjpeg-dev libopenjp2-7-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copiar dependencias de Python
-# Context is root.
-COPY backend/requirements.txt requirements.txt
+# Instalar dependencias de Python
+COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# COPIAR EL FRONTEND YA CONSTRUIDO DESDE LA ETAPA 1
-COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
+# Copiar el frontend compilado desde la etapa anterior
+COPY --from=builder /app/frontend/dist /app/frontend/dist
 
-# Copiar el código del backend manteniendo estructura de paquete
-COPY backend /app/backend
+# Copiar el código del servidor
+COPY backend/ /app/backend/
+WORKDIR /app/backend
 
-# Exponer y ejecutar
 EXPOSE 8080
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
