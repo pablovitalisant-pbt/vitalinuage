@@ -11,45 +11,41 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
           cache: 'pip'
-          
+
       - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libcairo2 libpango-1.0-0 libgobject-2.0-0 libpangocairo-1.0-0 libgdk-pixbuf-2.0-0 libffi-dev shared-mime-info
+          sudo apt-get install -y \
+            libcairo2 \
+            libpango-1.0-0 \
+            libgobject-2.0-0 \
+            libpangocairo-1.0-0 \
+            libgdk-pixbuf-2.0-0 \
+            libffi-dev \
+            shared-mime-info
 
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install flake8 pytest httpx
           if [ -f backend/requirements.txt ]; then pip install -r backend/requirements.txt; fi
-          
+
       - name: Lint with Flake8
         run: |
-          # Use python -m to run flake8 ensuring it sees installed packages
-          # E501: Line too long (managed by black usually, but relaxing for legacy code)
           python -m flake8 backend --count --select=E9,F63,F7,F82 --show-source --statistics
           python -m flake8 backend --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-          
-#      - name: Run Tests
-#        env:
-#          PYTHONPATH: backend
-#          # Mock env vars for testing 
-#          DATABASE_URL: "sqlite:///./test_pipeline.db"
-#          SECRET_KEY: "testing_secret"
-#        run: |
-#          pytest backend/tests/
 
   build-frontend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -64,7 +60,6 @@ jobs:
       - name: Build con Secretos
         working-directory: ./frontend
         env:
-          # MAPEO DE SECRETOS DE GITHUB A VITE
           VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
           VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
           VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
@@ -82,49 +77,36 @@ jobs:
           path: frontend/dist/
 
   build:
-    needs: quality
+    needs: [quality, build-frontend]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      # 1. Google Auth
-      - id: 'auth'
-        uses: 'google-github-actions/auth@v2'
+
+      - name: Download frontend build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+
+      - id: auth
+        uses: google-github-actions/auth@v2
         with:
           credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
-      # 2. Docker Auth
       - name: Docker Auth
         run: gcloud auth configure-docker us-central1-docker.pkg.dev
 
-      # 3. Build & Push
       - name: Build and Push Container
         run: |
-          # 1. Validación de Variables Críticas
-          if [ -z "${{ secrets.GCP_PROJECT_ID }}" ]; then echo "ERROR: GCP_PROJECT_ID secret is empty"; exit 1; fi
-          if [ -z "${{ secrets.GCP_REPOSITORY }}" ]; then echo "ERROR: GCP_REPOSITORY secret is empty"; exit 1; fi
+          if [ -z "${{ secrets.GCP_PROJECT_ID }}" ]; then echo "ERROR: GCP_PROJECT_ID empty"; exit 1; fi
+          if [ -z "${{ secrets.GCP_REPOSITORY }}" ]; then echo "ERROR: GCP_REPOSITORY empty"; exit 1; fi
 
-          # 2. Construcción Segura de Tag
-          RAW_BASE="us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REPOSITORY }}"
-          CLEAN_BASE=$(echo "$RAW_BASE" | sed 's#//#/#g')
-          IMAGE_TAG="${CLEAN_BASE}/vitalinuage-backend:${{ github.sha }}"
-          
-          echo "Target Image Tag: $IMAGE_TAG"
-          
-          # 3. Build & Push
+          IMAGE_TAG="us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REPOSITORY }}/vitalinuage-backend:${{ github.sha }}"
+
           docker build \
-            --build-arg VITE_FIREBASE_API_KEY="${{ secrets.VITE_FIREBASE_API_KEY }}" \
-            --build-arg VITE_FIREBASE_AUTH_DOMAIN="${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}" \
-            --build-arg VITE_FIREBASE_PROJECT_ID="${{ secrets.VITE_FIREBASE_PROJECT_ID }}" \
-            --build-arg VITE_FIREBASE_STORAGE_BUCKET="${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}" \
-            --build-arg VITE_FIREBASE_MESSAGING_SENDER_ID="${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}" \
-            --build-arg VITE_FIREBASE_APP_ID="${{ secrets.VITE_FIREBASE_APP_ID }}" \
-            --build-arg VITE_FIREBASE_MEASUREMENT_ID="${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}" \
-            --build-arg VITE_API_URL="${{ secrets.FRONTEND_URL }}" \
-            --build-arg VITE_FEATURE_SEARCH="${{ secrets.VITE_FEATURE_SEARCH }}" \
-            --build-arg VITE_FEATURE_NEW_UI="${{ secrets.VITE_FEATURE_NEW_UI }}" \
-            -t "$IMAGE_TAG" -f backend/Dockerfile .
-            
+            -t "$IMAGE_TAG" \
+            -f backend/Dockerfile .
+
           docker push "$IMAGE_TAG"
 
   deploy:
@@ -132,19 +114,17 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      # 1. Google Auth (Required again for Deploy Job)
-      - id: 'auth'
-        uses: 'google-github-actions/auth@v2'
+      - id: auth
+        uses: google-github-actions/auth@v2
         with:
           credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
-      # 2. Deploy to Cloud Run
-      - id: 'deploy'
-        uses: 'google-github-actions/deploy-cloudrun@v2'
+      - id: deploy
+        uses: google-github-actions/deploy-cloudrun@v2
         with:
-          service: 'vitalinuage-backend'
-          region: 'us-central1'
-          image: 'us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REPOSITORY }}/vitalinuage-backend:${{ github.sha }}'
+          service: vitalinuage-backend
+          region: us-central1
+          image: us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REPOSITORY }}/vitalinuage-backend:${{ github.sha }}
           env_vars: |
             DATABASE_URL=${{ secrets.DATABASE_URL }}
             SECRET_KEY=${{ secrets.SECRET_KEY }}
