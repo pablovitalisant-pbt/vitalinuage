@@ -29,8 +29,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY backend /app/backend
 
 # COPIAR FRONTEND
-# Como el contexto es la raíz (.), la ruta es backend/dist_final
-COPY backend/dist_final /app/frontend/dist
+# El contexto es la raíz (.), así que 'final_dist_payload' está al mismo nivel que 'backend'
+COPY final_dist_payload /app/frontend/dist
 
 WORKDIR /app
 

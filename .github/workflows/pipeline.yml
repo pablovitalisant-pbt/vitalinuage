@@ -90,15 +90,16 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: frontend-dist
-          path: backend/dist_final
+          path: final_dist_payload
 
-      # 2. LIMPIEZA TOTAL Y VERIFICACIÓN (MANDATORIO)
-      - name: Borrar bloqueos de Docker
+      # 2. RASTREO FORENSE (MANDATORIO PARA DEBUG)
+      - name: Auditoría de Archivos (Listado Completo)
         run: |
-          # Borrar todos los .dockerignore para que Docker no pueda ignorar nada
+          echo "--- ÁRBOL DE ARCHIVOS EN EL RUNNER ---"
+          find . -maxdepth 4 -not -path '*/.*'
+          echo "--------------------------------------"
+          # Borrar cualquier rastro de .dockerignore
           find . -name ".dockerignore" -delete
-          echo "Verificando que los archivos están DENTRO de backend/dist_final:"
-          ls -F backend/dist_final
 
       # 1. Google Auth
       - id: 'auth'
