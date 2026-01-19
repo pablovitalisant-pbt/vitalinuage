@@ -1,11 +1,12 @@
-﻿# ETAPA ÚNICA: Runtime Backend (Python) + Frontend Preconstruido
+﻿# Dockerfile para API pura (Sin frontend)
 FROM python:3.10-slim
+
 WORKDIR /app
 
 # Ensure pythonpath
 ENV PYTHONPATH=/app
 
-# Instalar dependencias del sistema
+# Instalar dependencias del sistema para WeasyPrint
 RUN apt-get update && apt-get install -y \
     libpango-1.0-0 \
     libharfbuzz0b \
@@ -19,14 +20,12 @@ RUN apt-get update && apt-get install -y \
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# CRÍTICO: Copiar el frontend YA CONSTRUIDO con secretos desde el contexto
-# Este dist/ viene del artefacto de GitHub Actions que ya tiene los secretos
-COPY frontend/dist /app/frontend/dist
-
 # Copiar código del backend
 COPY backend/ /app/backend/
 
 WORKDIR /app/backend
+
 EXPOSE 8080
 
+# Comando de inicio
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]

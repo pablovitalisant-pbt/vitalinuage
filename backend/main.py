@@ -49,10 +49,12 @@ app = FastAPI(title="Vitalinuage API")
 # -------------------------------------------------------------------
 # CORS
 # -------------------------------------------------------------------
+# Configuración de CORS para arquitectura híbrida
 origins = [
-    "https://vitalinuage.web.app",
-    "http://localhost:3000",
-    "http://localhost:5173",
+    "https://vitalinuage.web.app",           # Dominio principal de producción
+    "https://vitalinuage.firebaseapp.com",   # Dominio alternativo de Firebase
+    "http://localhost:5173",                 # Desarrollo local con Vite
+    "http://localhost:3000",                 # Desarrollo local alternativo
 ]
 
 app.add_middleware(
