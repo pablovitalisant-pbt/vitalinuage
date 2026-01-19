@@ -35,6 +35,7 @@ export default function Sidebar({ isOpen, onClose, isCollapsed = false, toggleCo
 
     const handleLogout = async () => {
         try {
+            console.log("[AUTH AUDIT] Sidebar Logout Clicked");
             await logout();
             // Context logout handles navigation, but we ensure it here if needed
             // navigate('/'); // Handled by context or window.location logic

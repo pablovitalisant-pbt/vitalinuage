@@ -31,20 +31,24 @@ export const DoctorProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+            console.log(`[AUTH AUDIT] Auth State Changed. User: ${fbUser ? fbUser.uid : 'null'}`);
             setLoading(true);
             if (fbUser) {
                 try {
                     await fbUser.reload();
                     setUser(fbUser);
+                    console.log(`[AUTH AUDIT] User Reloaded. EmailVerified: ${fbUser.emailVerified}`);
 
                     if (fbUser.emailVerified) {
                         try {
                             const token = await fbUser.getIdToken();
+                            console.log(`[AUTH AUDIT] Token available. Syncing profile...`);
                             const res = await fetch(getApiUrl('/api/doctors/profile'), {
                                 headers: { 'Authorization': `Bearer ${token}` }
                             });
                             if (res.ok) {
                                 const data = await res.json();
+                                console.log(`[AUTH AUDIT] Profile Synced. ID: ${data.id}, Verified: ${data.is_verified}`);
                                 setProfile({
                                     professionalName: data.professionalName || data.professional_name,
                                     specialty: data.specialty,
@@ -55,21 +59,24 @@ export const DoctorProvider = ({ children }: { children: ReactNode }) => {
                                 });
                             } else {
                                 // Default profile if 404 (Verified but not onboarded)
+                                console.warn(`[AUTH AUDIT] Profile Sync Failed (User likely new). Status: ${res.status}`);
                                 setProfile({ isOnboarded: false, isVerified: true, email: fbUser.email || '' });
                             }
                         } catch (e) {
-                            console.error("Profile fetch error", e);
+                            console.error("[AUTH AUDIT] Profile fetch error", e);
                             setProfile(null);
                         }
                     } else {
+                        console.log(`[AUTH AUDIT] Email NOT verified.`);
                         setProfile({ isOnboarded: false, isVerified: false, email: fbUser.email || '' });
                     }
                 } catch (e) {
-                    console.error("Auth reload error", e);
+                    console.error("[AUTH AUDIT] Auth reload error", e);
                     setUser(null);
                     setProfile(null);
                 }
             } else {
+                console.log(`[AUTH AUDIT] No User. Clearing State.`);
                 setUser(null);
                 setProfile(null);
             }
@@ -81,7 +88,9 @@ export const DoctorProvider = ({ children }: { children: ReactNode }) => {
     const login = (e: string, p: string) => signInWithEmailAndPassword(auth, e, p);
 
     const logout = async () => {
+        console.log(`[AUTH AUDIT] Logout Initiated. CurrentUser: ${auth.currentUser?.uid}`);
         await signOut(auth);
+        console.log(`[AUTH AUDIT] SignOut Completed. Redirecting...`);
         window.location.href = '/';
     };
 

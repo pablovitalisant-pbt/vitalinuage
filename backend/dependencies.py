@@ -18,14 +18,19 @@ def verify_firebase_token(credentials: HTTPAuthorizationCredentials = Depends(se
     try:
         # Verify the ID token while checking if the token is revoked.
         decoded_token = firebase_auth.verify_id_token(token, check_revoked=True)
+        # Surgical Log: Token Rx
+        uid_preview = decoded_token.get('uid', 'UNKNOWN')[:6]
+        print(f"[AUTH AUDIT] Token Received. UID_PREFIX={uid_preview}...")
         return decoded_token
     except ValueError as e:
+        print(f"[AUTH AUDIT] Token Validation Failed: ValueError - {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
     except firebase_auth.AuthError as e:
+        print(f"[AUTH AUDIT] Token Validation Failed: AuthError - {e}")
          raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Firebase Auth Error: {e}",
@@ -52,6 +57,7 @@ async def get_current_user(
     
     # 2. JIT Provisioning if not exists
     if not user:
+        print(f"[AUTH AUDIT] JIT Provisioning Triggered for {email}")
         # Create user without password (legacy field)
         # We trust Firebase for authentication, so we create the shadow user in Neon
         user = models.User(
@@ -63,16 +69,16 @@ async def get_current_user(
         db.add(user)
         db.commit()
         db.refresh(user)
+        print(f"[AUTH AUDIT] JIT User Created -> ID: {user.id}")
+    else:
+        print(f"[AUTH AUDIT] Existing User Found -> ID: {user.id}")
 
     # 3. Validation
     # We allow the backend to trust Firebase's email_verified claim
     # Updating local state to match Firebase if changed (Lazy Sync)
     if user.is_verified != email_verified:
+        print(f"[AUTH AUDIT] Syncing Verification Status. Neon={user.is_verified} -> Firebase={email_verified}")
         user.is_verified = email_verified
         db.commit()
     
-    # Optional: Enforce verification if strictly required by business logic
-    # if not user.is_verified:
-    #     raise HTTPException(status_code=403, detail="Email not verified")
-
     return user
