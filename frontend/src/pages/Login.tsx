@@ -1,5 +1,7 @@
 ﻿import React, { useState } from 'react';
 import { useDoctor } from '../context/DoctorContext';
+import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
+import { auth } from '../firebase';
 
 const Login: React.FC = () => {
   const [isRegister, setIsRegister] = useState(false);
@@ -21,20 +23,17 @@ const Login: React.FC = () => {
 
     try {
       if (isRegister) {
-        // Registration still uses the endpoint for now as it sends the email
-        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-        const response = await fetch(`${baseUrl}/api/auth/register`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password }),
-        });
+        // [IRON SEAL] NEW: Direct Firebase Registration
+        // 1. Create User in Firebase
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
-        if (!response.ok) {
-          const errData = await response.json();
-          throw new Error(errData.detail || 'Error al registrarse');
-        }
+        // 2. Send Verification Email (Firebase Template)
+        await sendEmailVerification(userCredential.user);
 
-        alert('Cuenta creada. Por favor, verifica tu email para activar tu acceso.');
+        // 3. UX Feedback
+        alert('Cuenta creada en Firebase. Por favor, revisa tu correo para verificar tu email antes de entrar.');
+
+        // Backend JIT will handle the rest upon first login with validated token
         setIsRegister(false);
       } else {
         // Login using Firebase directly via Context abstraction
@@ -43,7 +42,11 @@ const Login: React.FC = () => {
       }
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Error de conexión o credenciales inválidas');
+      // Map Firebase errors to user friendly messages if possible
+      let msg = err.message;
+      if (err.code === 'auth/email-already-in-use') msg = 'El correo ya está registrado.';
+      if (err.code === 'auth/weak-password') msg = 'La contraseña es muy débil.';
+      setError(msg || 'Error de conexión o credenciales inválidas');
     } finally {
       setIsLoading(false);
     }

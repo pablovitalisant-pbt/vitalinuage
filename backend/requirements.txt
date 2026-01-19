@@ -13,6 +13,7 @@ email-validator
 python-jose[cryptography]
 passlib[bcrypt]
 python-multipart
+firebase-admin
 
 # Business Services (PDF, Email, QR)
 qrcode

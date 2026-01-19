@@ -9,19 +9,18 @@ def get_user_by_email(db: Session, email: str):
 def create_user(db: Session, user: schemas.UserCreate):
     try:
         print(f"[CRUD] Starting user creation for: {user.email}")
-        hashed_password = auth.get_password_hash(user.password)
-        print(f"[CRUD] Password hashed successfully (bcrypt)")
-        print(f"[CRUD] Hash preview: {hashed_password[:30]}...")
+        # LEGACY AUTH REMOVAL: We no longer hash passwords.
+        # Firebase handles auth. hashed_password is set to None.
         
-        db_user = models.User(email=user.email, hashed_password=hashed_password, is_verified=True)
-        print(f"[CRUD] User model created, adding to session")
+        db_user = models.User(
+            email=user.email, 
+            hashed_password=None, 
+            is_verified=False, # Will be updated by Sync logic in dependencies
+            professional_name=getattr(user, 'professional_name', "Doctor")
+        )
         
         db.add(db_user)
-        print(f"[CRUD] User added to session, committing...")
-        
         db.commit()
-        print(f"[CRUD] Commit successful, refreshing user")
-        
         db.refresh(db_user)
         print(f"[CRUD] User creation complete: ID={db_user.id}")
         

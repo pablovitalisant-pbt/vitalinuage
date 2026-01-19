@@ -40,6 +40,10 @@ def run_hotfix_migrations():
 if not os.environ.get("PYTEST_CURRENT_TEST") and not os.environ.get("TESTING"):
     Base.metadata.create_all(bind=engine)
     run_hotfix_migrations()
+    
+    # Initialize Firebase Admin
+    from backend.core.firebase_app import initialize_firebase
+    initialize_firebase()
 
 # -------------------------------------------------------------------
 # FastAPI App
