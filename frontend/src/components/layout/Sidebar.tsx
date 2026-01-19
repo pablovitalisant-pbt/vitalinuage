@@ -28,12 +28,19 @@ export const navItems = [
 ];
 
 export default function Sidebar({ isOpen, onClose, isCollapsed = false, toggleCollapse }: SidebarProps) {
-    const { setToken } = useDoctor();
+    // Slice 40.xx: Fix Logout to use Firebase Context
+    // was: const { setToken } = useDoctor();
+    const { logout } = useDoctor();
     const navigate = useNavigate();
 
-    const handleLogout = () => {
-        setToken(null);
-        navigate('/');
+    const handleLogout = async () => {
+        try {
+            await logout();
+            // Context logout handles navigation, but we ensure it here if needed
+            // navigate('/'); // Handled by context or window.location logic
+        } catch (error) {
+            console.error("Logout failed", error);
+        }
     };
 
     return (

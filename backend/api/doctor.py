@@ -13,9 +13,11 @@ from typing import Union
 @router.get("/profile", response_model=schemas.DoctorProfile)
 def get_profile(current_user: User = Depends(get_current_user)):
     # Slice 12: Check onboarding status
-    # Slice 12: Check onboarding status
-    # Removed logic: "if not current_user.is_onboarded: return {'has_profile': False}"
     # Slice 20: State-Aware Architecture. Always return profile.
+    # [IRON SEAL] Authentication is handled by Firebase.
+    # Verification is handled by JIT Provisioning.
+    # We DO NOT block here based on verification or onboarding.
+    # The frontend decides what to show based on 'is_onboarded' flag.
 
         
     return {
