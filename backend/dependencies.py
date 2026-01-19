@@ -31,7 +31,7 @@ def verify_firebase_token(credentials: HTTPAuthorizationCredentials = Depends(se
         )
     except firebase_auth.AuthError as e:
         print(f"[AUTH AUDIT] Token Validation Failed: AuthError - {e}")
-         raise HTTPException(
+        raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Firebase Auth Error: {e}",
             headers={"WWW-Authenticate": "Bearer"},
