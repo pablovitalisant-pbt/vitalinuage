@@ -77,6 +77,11 @@ jobs:
         with:
           credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
+      - name: Activate Service Account
+        run: |
+          gcloud auth activate-service-account \
+            --key-file="$GOOGLE_APPLICATION_CREDENTIALS"
+
       # 🔍 DEBUG CRÍTICO: confirmar Service Account
       - name: DEBUG – Active GCP Account
         run: |
