@@ -19,10 +19,9 @@ export default function ConsultationManager({ patientId }: Props) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (token && token !== 'null') {
-            fetchHistory();
-        }
-    }, [patientId, token]);  // ✅ Added token to dependencies
+        fetchHistory();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [patientId]);
 
     const fetchHistory = async () => {
         try {
