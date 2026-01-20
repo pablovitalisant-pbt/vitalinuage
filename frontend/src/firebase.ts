@@ -10,5 +10,15 @@ const firebaseConfig = {
     appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
+// Fail-fast validation
+const missingKeys = Object.entries(firebaseConfig)
+    .filter(([_, value]) => !value)
+    .map(([key]) => key);
+
+if (missingKeys.length > 0) {
+    console.error('[FIREBASE CONFIG] Missing environment variables for keys:', missingKeys);
+    throw new Error(`Missing Firebase configuration: ${missingKeys.join(', ')}. Check your .env file or build environment variables.`);
+}
+
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
