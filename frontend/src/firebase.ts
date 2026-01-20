@@ -1,4 +1,5 @@
 import { initializeApp } from "firebase/app";
+// Trigger build to pick up new secrets
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
