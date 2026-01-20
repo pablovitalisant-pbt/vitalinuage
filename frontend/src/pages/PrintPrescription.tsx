@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useDoctor } from '../context/DoctorContext';
+import { useAuthFetch } from '../hooks/useAuthFetch';
 import { getApiUrl } from '../config/api';
 import { PrescriptionResponseSchema } from '../contracts/patient';
 import { z } from 'zod';
@@ -12,18 +12,16 @@ type PrescriptionData = z.infer<typeof PrescriptionResponseSchema>;
 const PrintPrescription = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { token } = useDoctor();
+    const authFetch = useAuthFetch();
     const [data, setData] = useState<PrescriptionData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchPrescription = async () => {
-            if (!id || !token) return;
+            if (!id) return;
             try {
-                const res = await fetch(getApiUrl(`/api/patients/prescriptions/${id}`), {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                const res = await authFetch(getApiUrl(`/api/patients/prescriptions/${id}`));
 
                 if (!res.ok) throw new Error("No se pudo cargar la receta");
 
@@ -32,14 +30,16 @@ const PrintPrescription = () => {
                 setData(parsed);
             } catch (err: any) {
                 console.error(err);
-                setError("Error al cargar receta.");
+                if (err.message !== 'AUTH_TOKEN_MISSING' && err.message !== 'AUTH_401') {
+                    setError("Error al cargar receta.");
+                }
             } finally {
                 setIsLoading(false);
             }
         };
 
         fetchPrescription();
-    }, [id, token]);
+    }, [id]);
 
     if (isLoading) return (
         <div className="flex h-screen items-center justify-center">
