@@ -24,13 +24,14 @@ interface PatientData {
 }
 
 import { useDoctor } from '../context/DoctorContext';
+import { useAuthFetch } from '../hooks/useAuthFetch';
 // ... imports
 
 export default function PatientProfile() {
     const navigate = useNavigate();
     const { id } = useParams();
     const location = useLocation();
-    const { profile, token } = useDoctor(); // Consuming context + token for auth
+    const { profile } = useDoctor(); // Consuming context
     const [patient, setPatient] = useState<PatientData | null>(null);
     const [loading, setLoading] = useState(true);
     const [consultations, setConsultations] = useState<any[]>([]);
@@ -55,7 +56,7 @@ export default function PatientProfile() {
         if (!selectedConsultation || !editForm) return;
 
         try {
-            const res = await fetch(`/api/consultations/${selectedConsultation.id}`, {
+            const res = await authFetch(`/api/consultations/${selectedConsultation.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(editForm)
@@ -82,34 +83,19 @@ export default function PatientProfile() {
     // Tab State
     const [activeTab, setActiveTab] = useState<'consultations' | 'background' | 'recipes'>('consultations');
 
+    const authFetch = useAuthFetch(); // ✅ Use centralized auth hook
+
     useEffect(() => {
         if (!id) return;
 
-        // Wait for token to be available before making requests
-        if (!token || token === 'null') {
-            console.log('[AUTH AUDIT] Waiting for valid token before fetching patient data...');
-            return;
-        }
-
-        // Prepare auth headers
-        const headers: Record<string, string> = {
-            'Content-Type': 'application/json'
-        };
-
-        if (token && token !== 'null' && token.trim() !== '') {
-            headers['Authorization'] = `Bearer ${token}`;
-            console.log('[AUTH AUDIT] Sending token to GET /api/patients/:id. Token preview:', token.slice(0, 30) + '...');
-        } else {
-            console.warn('[AUTH AUDIT] No valid token available for GET /api/patients/:id request! Token:', token);
-        }
-
+        // No need to manually check token, authFetch handles it
         // Parallel fetch for Patient and Consultations
-        const fetchPatient = fetch(getApiUrl(`/api/patients/${id}`), { headers }).then(res => {
+        const fetchPatient = authFetch(getApiUrl(`/api/patients/${id}`)).then(res => {
             if (!res.ok) throw new Error("Patient not found");
             return res.json();
         });
 
-        const fetchConsultations = fetch(getApiUrl(`/api/patients/${id}/consultations`), { headers }).then(res => {
+        const fetchConsultations = authFetch(getApiUrl(`/api/patients/${id}/consultations`)).then(res => {
             if (res.ok) return res.json();
             return [];
         });
@@ -121,10 +107,13 @@ export default function PatientProfile() {
                 setLoading(false);
             })
             .catch(err => {
-                console.error(err);
+                // Ignore auth errors as they are handled globally
+                if (err.message !== 'AUTH_TOKEN_MISSING' && err.message !== 'AUTH_401') {
+                    console.error(err);
+                }
                 setLoading(false);
             });
-    }, [id, token]);  // ✅ Added token to dependencies
+    }, [id]); // ✅ Removed token dependency, autohook handles it internally
 
     if (loading) {
         return <div className="min-h-screen bg-slate-50 flex items-center justify-center">Cargando ficha...</div>;
