@@ -111,9 +111,34 @@ async def suggest_cie10(request: DiagnosisRequest):
     """
     Suggest CIE-10 codes based on clinical text using Gemini AI.
     """
-    if not request.text or len(request.text.strip()) < 3:
-        raise HTTPException(status_code=400, detail="Text too short for diagnosis")
+    try:
+        logger.info(f"[DIAGNOSIS AUDIT] Request received. Text length: {len(request.text)}")
         
-    suggestions = await get_gemini_diagnosis(request.text)
-    
-    return {"suggestions": suggestions}
+        if not request.text or len(request.text.strip()) < 3:
+            logger.warning("[DIAGNOSIS AUDIT] Text too short")
+            raise HTTPException(status_code=400, detail="Text too short for diagnosis")
+        
+        # Check API Key
+        api_key = os.getenv("GOOGLE_API_KEY", "")
+        if not api_key:
+            logger.error("[DIAGNOSIS AUDIT] GOOGLE_API_KEY not configured in environment")
+            raise HTTPException(
+                status_code=503, 
+                detail="Diagnosis service not configured. Please contact support."
+            )
+        
+        logger.info("[DIAGNOSIS AUDIT] Calling Gemini API...")
+        suggestions = await get_gemini_diagnosis(request.text)
+        logger.info(f"[DIAGNOSIS AUDIT] Gemini returned {len(suggestions)} suggestions")
+        
+        return {"suggestions": suggestions}
+        
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
+    except Exception as e:
+        logger.error(f"[DIAGNOSIS AUDIT] Unexpected error: {type(e).__name__}: {str(e)}")
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Diagnosis service error: {type(e).__name__}"
+        )

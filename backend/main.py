@@ -69,15 +69,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# -------------------------------------------------------------------
 # Global Exception Handler
 # -------------------------------------------------------------------
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     print(f"CRITICAL ERROR on {request.url.path}: {str(exc)}")
+    import traceback
+    traceback.print_exc()
+    
+    # Ensure CORS headers are present even in error responses
     return JSONResponse(
         status_code=500,
         content={"detail": "Internal Server Error"},
+        headers={
+            "Access-Control-Allow-Origin": request.headers.get("origin", "*"),
+            "Access-Control-Allow-Credentials": "true",
+        }
     )
 
 # -------------------------------------------------------------------
