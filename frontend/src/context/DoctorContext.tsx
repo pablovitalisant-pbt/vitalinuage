@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { auth } from '../firebase';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, User } from 'firebase/auth';
 import { getApiUrl } from '../config/api';
+import { createAuthFetch } from '../lib/authFetch';
+import { fetchDoctorProfile } from '../services/doctorProfile.service';
 
 // Simple types (minimal)
 interface DoctorProfile {
@@ -38,6 +40,7 @@ export const DoctorProvider = ({ children }: { children: ReactNode }) => {
         const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
             console.log(`[AUTH AUDIT] Auth State Changed. User: ${fbUser ? fbUser.uid : 'null'}`);
             setLoading(true);
+
             if (fbUser) {
                 try {
                     await fbUser.reload();
@@ -48,31 +51,35 @@ export const DoctorProvider = ({ children }: { children: ReactNode }) => {
                         try {
                             const idToken = await fbUser.getIdToken();
                             setToken(idToken);
-                            console.log(`[AUTH AUDIT] Token retrieved and cached. Length: ${idToken.length}`);
-                            console.log(`[AUTH AUDIT] Token preview: ${idToken.slice(0, 30)}...`);
-                            console.log(`[AUTH AUDIT] Syncing profile...`);
-                            const res = await fetch(getApiUrl('/api/doctors/profile'), {
-                                headers: { 'Authorization': `Bearer ${idToken}` }
+                            console.log(`[AUTH AUDIT] Token retrieved. Length: ${idToken.length}`);
+
+                            // Create secure fetcher
+                            const authFetch = createAuthFetch(
+                                async () => idToken,
+                                async () => { await signOut(auth); }
+                            );
+
+                            console.log(`[AUTH AUDIT] DoctorContext profile sync start`);
+                            const profileData = await fetchDoctorProfile(authFetch);
+                            console.log(`[AUTH AUDIT] DoctorContext profile sync ok (ID: ${profileData.email})`);
+
+                            setProfile({
+                                professionalName: profileData.professionalName || profileData.professional_name,
+                                specialty: profileData.specialty,
+                                registrationNumber: profileData.registrationNumber || profileData.registration_number,
+                                isOnboarded: profileData.isOnboarded !== undefined ? profileData.isOnboarded : (profileData.is_onboarded || false),
+                                email: fbUser.email || "",
+                                isVerified: true
                             });
-                            if (res.ok) {
-                                const data = await res.json();
-                                console.log(`[AUTH AUDIT] Profile Synced. ID: ${data.id}, Verified: ${data.is_verified}`);
-                                setProfile({
-                                    professionalName: data.professionalName || data.professional_name,
-                                    specialty: data.specialty,
-                                    registrationNumber: data.registrationNumber || data.registration_number, // Map snake_case if needed
-                                    isOnboarded: data.isOnboarded !== undefined ? data.isOnboarded : (data.is_onboarded || false),
-                                    email: fbUser.email || "",
-                                    isVerified: true
-                                });
-                            } else {
-                                // Default profile if 404 (Verified but not onboarded)
-                                console.warn(`[AUTH AUDIT] Profile Sync Failed (User likely new). Status: ${res.status}`);
-                                setProfile({ isOnboarded: false, isVerified: true, email: fbUser.email || '' });
-                            }
-                        } catch (e) {
-                            console.error("[AUTH AUDIT] Profile fetch error", e);
-                            setProfile(null);
+
+                        } catch (e: any) {
+                            console.warn(`[AUTH AUDIT] DoctorContext profile sync failed: ${e.message}`);
+                            // If it's a 404/new user, set default profile
+                            // Note: fetchDoctorProfile throws on non-200. We might want to check status if possible, 
+                            // or assuming throws mean failure suitable for default cleanup or new user assumption.
+                            // Ideally service should differentiate 404.
+                            // To keep it safe: if error, we default to not onboarded but verified (if 404-ish or generic error preventing load)
+                            setProfile({ isOnboarded: false, isVerified: true, email: fbUser.email || '' });
                         }
                     } else {
                         console.log(`[AUTH AUDIT] Email NOT verified.`);
@@ -97,33 +104,29 @@ export const DoctorProvider = ({ children }: { children: ReactNode }) => {
     const login = (e: string, p: string) => signInWithEmailAndPassword(auth, e, p);
 
     const logout = async () => {
-        console.log(`[AUTH AUDIT] Logout Initiated. CurrentUser: ${auth.currentUser?.uid}`);
-
-        // 1. Sign out from Firebase
+        console.log(`[AUTH AUDIT] Logout Initiated.`);
         await signOut(auth);
         console.log(`[AUTH AUDIT] Firebase signOut completed`);
-
-        // 2. Clear local context state
-        setUser(null);
-        setProfile(null);
-        setToken(null);
-        console.log(`[AUTH AUDIT] Context state cleared (user, profile, token)`);
-
-        // 3. Redirect to login
+        // State clearing handled by onAuthStateChanged
         window.location.href = '/';
     };
 
     const completeOnboarding = async (data: any) => {
         if (!auth.currentUser) return;
-        const token = await auth.currentUser.getIdToken();
-        const res = await fetch(getApiUrl('/api/doctors/profile'), {
+        const idToken = await auth.currentUser.getIdToken();
+        const authFetch = createAuthFetch(
+            async () => idToken,
+            async () => { await signOut(auth); }
+        );
+
+        const res = await authFetch(getApiUrl('/api/doctors/profile'), {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
+
         if (!res.ok) throw new Error("Onboarding failed");
 
-        // Optimistic update or refetch
         const updated = await res.json();
         setProfile(prev => ({
             ...prev!,
@@ -132,27 +135,24 @@ export const DoctorProvider = ({ children }: { children: ReactNode }) => {
         }));
     };
 
-    // ... code around fetchProfile ...
-
-    // Extracted Logic for reuse (stub - ideally extract full logic)
     const refreshProfile = async () => {
         if (!user) return;
         try {
-            const token = await user.getIdToken(true); // Force refresh
-            const res = await fetch(getApiUrl('/api/doctors/profile'), {
-                headers: { 'Authorization': `Bearer ${token}` }
+            const idToken = await user.getIdToken(true);
+            const authFetch = createAuthFetch(
+                async () => idToken,
+                async () => { await signOut(auth); }
+            );
+
+            const profileData = await fetchDoctorProfile(authFetch);
+            setProfile({
+                professionalName: profileData.professionalName || profileData.professional_name,
+                specialty: profileData.specialty,
+                registrationNumber: profileData.registrationNumber || profileData.registration_number,
+                isOnboarded: profileData.isOnboarded !== undefined ? profileData.isOnboarded : (profileData.is_onboarded || false),
+                email: user.email || "",
+                isVerified: true
             });
-            if (res.ok) {
-                const data = await res.json();
-                setProfile({
-                    professionalName: data.professionalName || data.professional_name,
-                    specialty: data.specialty,
-                    registrationNumber: data.registrationNumber || data.registration_number,
-                    isOnboarded: data.isOnboarded !== undefined ? data.isOnboarded : (data.is_onboarded || false),
-                    email: user.email || "",
-                    isVerified: true
-                });
-            }
         } catch (e) {
             console.error("Failed to refresh profile", e);
         }

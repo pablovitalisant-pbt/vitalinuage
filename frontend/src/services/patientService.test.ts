@@ -3,30 +3,32 @@
  */
 import { patientService } from './patientService';
 
-// Mock fetch
-global.fetch = jest.fn();
-
 describe('patientService', () => {
-    beforeEach(() => {
-        (global.fetch as jest.Mock).mockClear();
-    });
-
-    it('getAll injects Authorization header with token', async () => {
-        const token = "test-token-123";
-        (global.fetch as jest.Mock).mockResolvedValueOnce({
+    it('getAll calls the injected fetcher with correct URL', async () => {
+        const mockFetcher = jest.fn().mockResolvedValue({
             ok: true,
             json: async () => []
         });
 
-        await patientService.getAll(token);
+        await patientService.getAll(mockFetcher);
 
-        expect(global.fetch).toHaveBeenCalledWith(
-            expect.stringContaining('/api/pacientes'),
-            expect.objectContaining({
-                headers: expect.objectContaining({
-                    'Authorization': `Bearer ${token}`
-                })
-            })
+        expect(mockFetcher).toHaveBeenCalledWith(
+            expect.stringContaining('/api/patients'), // Expecting standard endpoint
+            expect.anything()
+        );
+    });
+
+    it('search calls the injected fetcher with query params', async () => {
+        const mockFetcher = jest.fn().mockResolvedValue({
+            ok: true,
+            json: async () => []
+        });
+
+        await patientService.search(mockFetcher, 'doe');
+
+        expect(mockFetcher).toHaveBeenCalledWith(
+            expect.stringContaining('/api/patients/search?q=doe'),
+            expect.anything()
         );
     });
 });

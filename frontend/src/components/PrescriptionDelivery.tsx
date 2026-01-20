@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { DeliveryService } from '../services/delivery.service';
+import { useAuthFetch } from '../hooks/useAuthFetch';
 
 interface PrescriptionDeliveryProps {
     consultationId: string;
@@ -7,13 +8,14 @@ interface PrescriptionDeliveryProps {
 }
 
 const PrescriptionDelivery: React.FC<PrescriptionDeliveryProps> = ({ consultationId, patientEmail }) => {
+    const authFetch = useAuthFetch();
     const [emailLoading, setEmailLoading] = useState(false);
     const [emailSuccess, setEmailSuccess] = useState('');
     const [emailError, setEmailError] = useState('');
 
     const handleWhatsApp = async () => {
         try {
-            const url = await DeliveryService.getWhatsAppLink(consultationId);
+            const url = await DeliveryService.getWhatsAppLink(authFetch, consultationId);
             window.open(url, '_blank');
         } catch (err) {
             alert('Error al generar enlace de WhatsApp');
@@ -22,8 +24,7 @@ const PrescriptionDelivery: React.FC<PrescriptionDeliveryProps> = ({ consultatio
 
     const handleEmail = async () => {
         if (!patientEmail) {
-            alert('No hay email registrado para este paciente'); // Basic validation
-            // In real app maybe prompt input
+            alert('No hay email registrado para este paciente');
             return;
         }
 
@@ -32,7 +33,7 @@ const PrescriptionDelivery: React.FC<PrescriptionDeliveryProps> = ({ consultatio
         setEmailError('');
 
         try {
-            await DeliveryService.sendEmail(consultationId, patientEmail);
+            await DeliveryService.sendEmail(authFetch, consultationId, patientEmail);
             setEmailSuccess(`Enviado a ${patientEmail}`);
         } catch (err: any) {
             setEmailError(err.message || 'Error al enviar email');

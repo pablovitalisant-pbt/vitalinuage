@@ -3,6 +3,7 @@ import React, { useState, useRef } from 'react';
 import { Download, Upload, AlertCircle, CheckCircle, FileUp, Loader2 } from 'lucide-react';
 import { api } from '../config/api';
 import { useDoctor } from '../context/DoctorContext';
+import { useAuthFetch } from '../hooks/useAuthFetch';
 import toast from 'react-hot-toast';
 
 interface ImportStats {
@@ -14,6 +15,7 @@ interface ImportStats {
 
 export default function DataManagement() {
     const { token } = useDoctor();
+    const authFetch = useAuthFetch();
     const [isExporting, setIsExporting] = useState(false);
     const [isImporting, setIsImporting] = useState(false);
     const [importStats, setImportStats] = useState<ImportStats | null>(null);
@@ -23,7 +25,7 @@ export default function DataManagement() {
         if (!token) return;
         try {
             setIsExporting(true);
-            const blob = await api.exportData(token);
+            const blob = await api.exportData(authFetch);
 
             // Create download link
             const url = window.URL.createObjectURL(blob);
@@ -55,7 +57,7 @@ export default function DataManagement() {
 
         try {
             setIsImporting(true);
-            const stats = await api.importData(token, file);
+            const stats = await api.importData(authFetch, file);
             setImportStats(stats);
             toast.success('Importación completada con éxito');
         } catch (error) {

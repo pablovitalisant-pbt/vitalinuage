@@ -25,6 +25,11 @@ const DEFAULT_FIELDS: FieldConfig[] = [
 ];
 
 export const TalonarioCalibrator: React.FC = () => {
+    if (!import.meta.env.DEV) {
+        console.warn('[DEV ONLY] TalonarioCalibrator disabled in production');
+        return <div className="p-8 text-center text-gray-500">Herramienta de calibración solo disponible en desarrollo.</div>;
+    }
+
     const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [fields, setFields] = useState<FieldConfig[]>(DEFAULT_FIELDS);
