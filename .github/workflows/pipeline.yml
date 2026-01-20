@@ -53,6 +53,16 @@ jobs:
           npm ci
           npm run build
 
+      - name: Verify Build Config
+        working-directory: ./frontend
+        run: |
+          if ! grep -q "vitalinuage" dist/assets/index-*.js; then
+            echo "❌ Critical: 'vitalinuage' (Project ID) not found in build bundle."
+            echo "   This indicates VITE_FIREBASE_PROJECT_ID was not injected."
+            exit 1
+          fi
+          echo "✅ Build verification passed: Project ID found in bundle."
+
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
