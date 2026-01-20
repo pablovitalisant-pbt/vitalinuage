@@ -344,13 +344,14 @@ export default function PatientProfile() {
 
 // Sub-component for Modal Logic to keep main clean
 function ConsultationModal({ consultation, isEditing, onClose, onEdit, onSave, editForm, setEditForm, patientEmail }: any) {
+    const authFetch = useAuthFetch(); // ✅ Use centralized auth hook in sub-component
     const [loading, setLoading] = useState(true);
     // If not editing, display details. If editing, display form. 
     // We need to fetch details for both cases initially to populate fields.
 
     useEffect(() => {
         if (!editForm) {
-            fetch(`/api/consultations/${consultation.id}`)
+            authFetch(`/api/consultations/${consultation.id}`)
                 .then(res => res.json())
                 .then(data => {
                     setEditForm(data); // Populate form with existing data including notes
