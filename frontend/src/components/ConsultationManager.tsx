@@ -5,22 +5,31 @@ import { isMobileDevice } from '../utils/device';
 import toast from 'react-hot-toast';
 import apiConfig from '../config/api';
 import { getApiUrl } from '../config/api';
+import { useDoctor } from '../context/DoctorContext';
 
 interface Props {
     patientId: number;
 }
 
 export default function ConsultationManager({ patientId }: Props) {
+    const { token } = useDoctor();  // ✅ Get token from context
     const [history, setHistory] = useState<ClinicalConsultation[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchHistory();
-    }, [patientId]);
+        if (token && token !== 'null') {
+            fetchHistory();
+        }
+    }, [patientId, token]);  // ✅ Added token to dependencies
 
     const fetchHistory = async () => {
         try {
-            const token = localStorage.getItem('token');
+            if (!token || token === 'null') {
+                console.warn('[AUTH AUDIT] ConsultationManager: No valid token available');
+                return;
+            }
+
+            console.log('[AUTH AUDIT] ConsultationManager fetching consultations with token:', token.slice(0, 30) + '...');
             const res = await fetch(getApiUrl(`/api/patients/${patientId}/consultations`), {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -39,7 +48,10 @@ export default function ConsultationManager({ patientId }: Props) {
 
     const handleDownloadPDF = async (consultationId: number) => {
         try {
-            const token = localStorage.getItem('token');
+            if (!token || token === 'null') {
+                toast.error('No hay sesión activa');
+                return;
+            }
             const apiUrl = apiConfig.apiBaseUrl;
 
             const response = await fetch(`${apiUrl}/api/consultas/${consultationId}/pdf`, {
@@ -76,7 +88,10 @@ export default function ConsultationManager({ patientId }: Props) {
 
     const handleSendWhatsApp = async (consultation: ClinicalConsultation) => {
         try {
-            const token = localStorage.getItem('token');
+            if (!token || token === 'null') {
+                toast.error('No hay sesión activa');
+                return;
+            }
             const apiUrl = apiConfig.apiBaseUrl;
 
             // 1. Get or create verification UUID
@@ -168,7 +183,10 @@ export default function ConsultationManager({ patientId }: Props) {
 
     const handleSendEmail = async (consultation: ClinicalConsultation) => {
         try {
-            const token = localStorage.getItem('token');
+            if (!token || token === 'null') {
+                toast.error('No hay sesión activa');
+                return;
+            }
             const apiUrl = apiConfig.apiBaseUrl;
 
             // Validar email
