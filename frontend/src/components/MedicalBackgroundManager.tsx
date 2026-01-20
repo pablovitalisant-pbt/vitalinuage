@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Save, AlertCircle, CheckCircle } from 'lucide-react';
 import { MedicalBackground } from '../contracts/MedicalBackground';
+import { useAuthFetch } from '../hooks/useAuthFetch';
 import { getApiUrl } from '../config/api';
 
 interface Props {
@@ -14,16 +15,16 @@ export default function MedicalBackgroundManager({ patientId }: Props) {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
 
+    const authFetch = useAuthFetch();
+
     useEffect(() => {
         fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [patientId]);
 
     const fetchData = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(getApiUrl(`/api/medical-background/pacientes/${patientId}/antecedentes`), {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+            const res = await authFetch(getApiUrl(`/api/medical-background/pacientes/${patientId}/antecedentes`));
 
             if (res.status === 404) {
                 // Feature flag off or patient not found (handled by parent usually, but good safeguard)
@@ -38,8 +39,10 @@ export default function MedicalBackgroundManager({ patientId }: Props) {
             } else {
                 setError("Error cargando antecedentes.");
             }
-        } catch (err) {
-            setError("Error de conexión.");
+        } catch (err: any) {
+            if (err.message !== 'AUTH_TOKEN_MISSING' && err.message !== 'AUTH_401') {
+                setError("Error de conexión.");
+            }
         } finally {
             setLoading(false);
         }
@@ -52,12 +55,10 @@ export default function MedicalBackgroundManager({ patientId }: Props) {
         setError(null);
 
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(getApiUrl(`/api/medical-background/pacientes/${patientId}/antecedentes`), {
+            const res = await authFetch(getApiUrl(`/api/medical-background/pacientes/${patientId}/antecedentes`), {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify(data)
             });
@@ -70,8 +71,10 @@ export default function MedicalBackgroundManager({ patientId }: Props) {
             } else {
                 setError("Error al guardar cambios.");
             }
-        } catch (err) {
-            setError("Error de conexión al guardar.");
+        } catch (err: any) {
+            if (err.message !== 'AUTH_TOKEN_MISSING' && err.message !== 'AUTH_401') {
+                setError("Error de conexión al guardar.");
+            }
         } finally {
             setSaving(false);
         }
