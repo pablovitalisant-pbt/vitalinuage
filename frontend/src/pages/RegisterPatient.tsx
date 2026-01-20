@@ -68,11 +68,11 @@ export default function RegisterPatient() {
                 'Content-Type': 'application/json'
             };
 
-            if (token) {
+            if (token && token !== 'null' && token.trim() !== '') {
                 headers['Authorization'] = `Bearer ${token}`;
                 console.log('[AUTH AUDIT] Sending token to POST /api/patients. Token preview:', token.slice(0, 30) + '...');
             } else {
-                console.warn('[AUTH AUDIT] No token available for POST /api/patients request!');
+                console.warn('[AUTH AUDIT] No valid token available for POST /api/patients request! Token:', token);
             }
 
             const response = await fetch(getApiUrl('/api/patients'), {

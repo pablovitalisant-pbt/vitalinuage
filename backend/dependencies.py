@@ -15,6 +15,16 @@ security = HTTPBearer()
 
 def verify_firebase_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     token = credentials.credentials
+    
+    # Early validation: reject null, empty, or literal "null" string
+    if not token or token.strip() == "" or token.lower() == "null":
+        print(f"[AUTH AUDIT] Token validation failed: token is null or empty")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing or invalid authentication token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
     try:
         # Verify the ID token while checking if the token is revoked.
         decoded_token = firebase_auth.verify_id_token(token, check_revoked=True)
@@ -29,11 +39,12 @@ def verify_firebase_token(credentials: HTTPAuthorizationCredentials = Depends(se
             detail="Invalid authentication credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    except firebase_auth.AuthError as e:
-        print(f"[AUTH AUDIT] Token Validation Failed: AuthError - {e}")
+    except Exception as e:
+        # Catch all Firebase auth errors (InvalidIdTokenError, ExpiredIdTokenError, etc.)
+        print(f"[AUTH AUDIT] Token Validation Failed: {type(e).__name__} - {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Firebase Auth Error: {e}",
+            detail=f"Authentication error: {type(e).__name__}",
             headers={"WWW-Authenticate": "Bearer"},
         )
 

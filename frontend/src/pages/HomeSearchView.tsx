@@ -61,11 +61,11 @@ export default function SearchPage() {
                 'Content-Type': 'application/json'
             };
 
-            if (token) {
+            if (token && token !== 'null' && token.trim() !== '') {
                 headers['Authorization'] = `Bearer ${token}`;
                 console.log('[AUTH AUDIT] Sending token to /api/patients/search. Token preview:', token.slice(0, 30) + '...');
             } else {
-                console.warn('[AUTH AUDIT] No token available for /api/patients/search request!');
+                console.warn('[AUTH AUDIT] No valid token available for /api/patients/search request! Token:', token);
             }
 
             const response = await fetch(getApiUrl(`/api/patients/search?q=${encodeURIComponent(data.query)}`), {

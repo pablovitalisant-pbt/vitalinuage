@@ -90,11 +90,11 @@ export default function PatientProfile() {
             'Content-Type': 'application/json'
         };
 
-        if (token) {
+        if (token && token !== 'null' && token.trim() !== '') {
             headers['Authorization'] = `Bearer ${token}`;
             console.log('[AUTH AUDIT] Sending token to GET /api/patients/:id. Token preview:', token.slice(0, 30) + '...');
         } else {
-            console.warn('[AUTH AUDIT] No token available for GET /api/patients/:id request!');
+            console.warn('[AUTH AUDIT] No valid token available for GET /api/patients/:id request! Token:', token);
         }
 
         // Parallel fetch for Patient and Consultations
