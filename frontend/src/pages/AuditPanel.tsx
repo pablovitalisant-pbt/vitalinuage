@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import apiConfig from '../config/api';
 import { DispatchAuditResponse } from '../contracts/audit';
 import { Mail, MessageCircle, AlertCircle } from 'lucide-react';
+import { useAuthFetch } from '../hooks/useAuthFetch';
 
 export default function AuditPanel() {
     const [data, setData] = useState<DispatchAuditResponse | null>(null);
@@ -12,18 +13,17 @@ export default function AuditPanel() {
     const [endDate, setEndDate] = useState('');
     const [status, setStatus] = useState('all');
 
+    const authFetch = useAuthFetch();
+
     const handleSearch = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('token');
             const queryParams = new URLSearchParams();
             if (startDate) queryParams.append('start_date', new Date(startDate).toISOString());
             if (endDate) queryParams.append('end_date', new Date(endDate).toISOString());
             if (status !== 'all') queryParams.append('status', status);
 
-            const res = await fetch(`${apiConfig.apiBaseUrl}/api/audit/dispatch-summary?${queryParams.toString()}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+            const res = await authFetch(`${apiConfig.apiBaseUrl}/api/audit/dispatch-summary?${queryParams.toString()}`);
 
             if (res.status === 404) {
                 throw new Error("Audit Panel is disabled or not found.");
@@ -33,7 +33,9 @@ export default function AuditPanel() {
             const json: DispatchAuditResponse = await res.json();
             setData(json);
         } catch (err: any) {
-            setError(err.message);
+            if (err.message !== 'AUTH_TOKEN_MISSING' && err.message !== 'AUTH_401') {
+                setError(err.message);
+            }
         } finally {
             setLoading(false);
         }
