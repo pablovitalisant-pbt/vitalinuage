@@ -85,6 +85,12 @@ export default function PatientProfile() {
     useEffect(() => {
         if (!id) return;
 
+        // Wait for token to be available before making requests
+        if (!token || token === 'null') {
+            console.log('[AUTH AUDIT] Waiting for valid token before fetching patient data...');
+            return;
+        }
+
         // Prepare auth headers
         const headers: Record<string, string> = {
             'Content-Type': 'application/json'
@@ -118,7 +124,7 @@ export default function PatientProfile() {
                 console.error(err);
                 setLoading(false);
             });
-    }, [id]);
+    }, [id, token]);  // ✅ Added token to dependencies
 
     if (loading) {
         return <div className="min-h-screen bg-slate-50 flex items-center justify-center">Cargando ficha...</div>;
