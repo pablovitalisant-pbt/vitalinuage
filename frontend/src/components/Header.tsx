@@ -6,7 +6,7 @@ import { useDoctor } from '../context/DoctorContext';
 
 export default function Header() {
     const navigate = useNavigate();
-    const { profile } = useDoctor();
+    const { profile, logout } = useDoctor();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -23,9 +23,13 @@ export default function Header() {
         };
     }, [dropdownRef]);
 
-    const handleLogout = () => {
-        // In a real app, clear tokens here
-        navigate('/');
+    const handleLogout = async () => {
+        console.log('[AUTH AUDIT] Header Logout CLICK handler fired');
+        try {
+            await logout();
+        } catch (error) {
+            console.error('[AUTH AUDIT] Header logout failed', error);
+        }
     };
 
     return (

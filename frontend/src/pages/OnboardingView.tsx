@@ -10,7 +10,7 @@ import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
 
 export default function OnboardingView() {
-    const { completeOnboarding, profile } = useDoctor(); // profile for initial values if we had them
+    const { completeOnboarding, profile, logout } = useDoctor(); // profile for initial values if we had them
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -55,6 +55,15 @@ export default function OnboardingView() {
         }
     };
 
+    const handleLogout = async () => {
+        console.log('[AUTH AUDIT] Onboarding Logout CLICK handler fired');
+        try {
+            await logout();
+        } catch (error) {
+            console.error('[AUTH AUDIT] Onboarding logout failed', error);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -67,19 +76,7 @@ export default function OnboardingView() {
                     </div>
 
                     <button
-                        onClick={async () => {
-                            try {
-                                await signOut(auth);
-                                localStorage.clear();
-                                sessionStorage.clear();
-                                window.location.href = '/';
-                            } catch (error) {
-                                console.error('Logout error:', error);
-                                localStorage.clear();
-                                sessionStorage.clear();
-                                window.location.href = '/';
-                            }
-                        }}
+                        onClick={handleLogout}
                         className="text-sm text-slate-400 hover:text-red-500 font-medium transition-colors"
                     >
                         Cerrar Sesión

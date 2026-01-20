@@ -6,21 +6,14 @@ import { auth } from '../firebase';
 import { signOut, sendEmailVerification } from 'firebase/auth';
 
 export default function VerificationRequired() {
-    const { profile } = useDoctor();
+    const { profile, logout } = useDoctor();
 
     const handleLogout = async () => {
+        console.log('[AUTH AUDIT] VerificationRequired Logout CLICK handler fired');
         try {
-            // CRITICAL: Firebase signOut + full cleanup
-            await signOut(auth);
-            localStorage.clear();
-            sessionStorage.clear();
-            window.location.href = '/'; // NEVER to /login
+            await logout();
         } catch (error) {
-            console.error('Logout error:', error);
-            // Force cleanup even on error
-            localStorage.clear();
-            sessionStorage.clear();
-            window.location.href = '/';
+            console.error('[AUTH AUDIT] VerificationRequired logout failed', error);
         }
     };
 
