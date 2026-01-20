@@ -5,6 +5,7 @@ import { Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PatientSearchSchema, PatientSearchQuery } from '../contracts/paciente_busqueda';
 import { useDoctor } from '../context/DoctorContext';
+import { useAuthFetch } from '../hooks/useAuthFetch';
 import { getApiUrl } from '../config/api';
 import featureFlags from '../../../config/feature-flags.json';
 
@@ -17,7 +18,7 @@ interface PatientResult {
 
 export default function SearchPage() {
     const navigate = useNavigate();
-    const { profile, token } = useDoctor();
+    const { profile } = useDoctor();
     const [results, setResults] = useState<PatientResult[] | null>(null);
     const [hasSearched, setHasSearched] = useState(false);
     const [searchError, setSearchError] = useState<string | null>(null);
@@ -34,6 +35,8 @@ export default function SearchPage() {
     const { register, handleSubmit } = useForm<PatientSearchQuery>({
         resolver: zodResolver(PatientSearchSchema),
     });
+
+    const authFetch = useAuthFetch();
 
     const onSubmit = async (data: PatientSearchQuery) => {
         setSearchError(null);
@@ -57,20 +60,7 @@ export default function SearchPage() {
         setIsLoading(true);
 
         try {
-            const headers: Record<string, string> = {
-                'Content-Type': 'application/json'
-            };
-
-            if (token && token !== 'null' && token.trim() !== '') {
-                headers['Authorization'] = `Bearer ${token}`;
-                console.log('[AUTH AUDIT] Sending token to /api/patients/search. Token preview:', token.slice(0, 30) + '...');
-            } else {
-                console.warn('[AUTH AUDIT] No valid token available for /api/patients/search request! Token:', token);
-            }
-
-            const response = await fetch(getApiUrl(`/api/patients/search?q=${encodeURIComponent(data.query)}`), {
-                headers
-            });
+            const response = await authFetch(getApiUrl(`/api/patients/search?q=${encodeURIComponent(data.query)}`));
 
             if (response.status === 503) {
                 setSearchError("El servicio de búsqueda no está disponible momentáneamente.");
@@ -85,8 +75,10 @@ export default function SearchPage() {
             const responseData = await response.json();
             setResults(responseData.results || []);
 
-        } catch (err) {
-            setSearchError("Error de conexión al buscar pacientes.");
+        } catch (err: any) {
+            if (err.message !== 'AUTH_TOKEN_MISSING' && err.message !== 'AUTH_401') {
+                setSearchError("Error de conexión al buscar pacientes.");
+            }
         } finally {
             setIsLoading(false);
         }
