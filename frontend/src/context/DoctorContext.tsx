@@ -17,6 +17,7 @@ interface DoctorContextType {
     user: User | null;
     profile: DoctorProfile | null;
     loading: boolean;
+    token: string | null;
     login: (e: string, p: string) => Promise<any>;
     logout: () => Promise<void>;
     completeOnboarding: (data: any) => Promise<void>;
@@ -28,6 +29,7 @@ export const DoctorProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [profile, setProfile] = useState<DoctorProfile | null>(null);
     const [loading, setLoading] = useState(true);
+    const [token, setToken] = useState<string | null>(null);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
@@ -41,10 +43,13 @@ export const DoctorProvider = ({ children }: { children: ReactNode }) => {
 
                     if (fbUser.emailVerified) {
                         try {
-                            const token = await fbUser.getIdToken();
-                            console.log(`[AUTH AUDIT] Token available. Syncing profile...`);
+                            const idToken = await fbUser.getIdToken();
+                            setToken(idToken);
+                            console.log(`[AUTH AUDIT] Token retrieved and cached. Length: ${idToken.length}`);
+                            console.log(`[AUTH AUDIT] Token preview: ${idToken.slice(0, 30)}...`);
+                            console.log(`[AUTH AUDIT] Syncing profile...`);
                             const res = await fetch(getApiUrl('/api/doctors/profile'), {
-                                headers: { 'Authorization': `Bearer ${token}` }
+                                headers: { 'Authorization': `Bearer ${idToken}` }
                             });
                             if (res.ok) {
                                 const data = await res.json();
@@ -79,6 +84,7 @@ export const DoctorProvider = ({ children }: { children: ReactNode }) => {
                 console.log(`[AUTH AUDIT] No User. Clearing State.`);
                 setUser(null);
                 setProfile(null);
+                setToken(null);
             }
             setLoading(false);
         });
@@ -97,7 +103,8 @@ export const DoctorProvider = ({ children }: { children: ReactNode }) => {
         // 2. Clear local context state
         setUser(null);
         setProfile(null);
-        console.log(`[AUTH AUDIT] Context state cleared`);
+        setToken(null);
+        console.log(`[AUTH AUDIT] Context state cleared (user, profile, token)`);
 
         // 3. Redirect to login
         window.location.href = '/';
@@ -123,7 +130,7 @@ export const DoctorProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return (
-        <DoctorContext.Provider value={{ user, profile, loading, login, logout, completeOnboarding }}>
+        <DoctorContext.Provider value={{ user, profile, loading, token, login, logout, completeOnboarding }}>
             {children}
         </DoctorContext.Provider>
     );

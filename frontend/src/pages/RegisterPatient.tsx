@@ -70,6 +70,9 @@ export default function RegisterPatient() {
 
             if (token) {
                 headers['Authorization'] = `Bearer ${token}`;
+                console.log('[AUTH AUDIT] Sending token to POST /api/patients. Token preview:', token.slice(0, 30) + '...');
+            } else {
+                console.warn('[AUTH AUDIT] No token available for POST /api/patients request!');
             }
 
             const response = await fetch(getApiUrl('/api/patients'), {
@@ -142,8 +145,8 @@ export default function RegisterPatient() {
                                 })}
                                 type="text"
                                 className={`w-full px-4 py-3 border rounded-lg outline-none transition-all text-slate-800 ${errors.dni
-                                        ? 'border-red-500 focus:ring-2 focus:ring-red-100 focus:border-red-500'
-                                        : 'border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a]'
+                                    ? 'border-red-500 focus:ring-2 focus:ring-red-100 focus:border-red-500'
+                                    : 'border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a]'
                                     }`}
                                 placeholder="Ej: 12345678"
                             />

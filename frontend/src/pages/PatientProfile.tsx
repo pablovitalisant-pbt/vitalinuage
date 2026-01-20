@@ -92,6 +92,9 @@ export default function PatientProfile() {
 
         if (token) {
             headers['Authorization'] = `Bearer ${token}`;
+            console.log('[AUTH AUDIT] Sending token to GET /api/patients/:id. Token preview:', token.slice(0, 30) + '...');
+        } else {
+            console.warn('[AUTH AUDIT] No token available for GET /api/patients/:id request!');
         }
 
         // Parallel fetch for Patient and Consultations

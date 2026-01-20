@@ -63,6 +63,9 @@ export default function SearchPage() {
 
             if (token) {
                 headers['Authorization'] = `Bearer ${token}`;
+                console.log('[AUTH AUDIT] Sending token to /api/patients/search. Token preview:', token.slice(0, 30) + '...');
+            } else {
+                console.warn('[AUTH AUDIT] No token available for /api/patients/search request!');
             }
 
             const response = await fetch(getApiUrl(`/api/patients/search?q=${encodeURIComponent(data.query)}`), {
