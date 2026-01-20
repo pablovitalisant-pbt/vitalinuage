@@ -103,7 +103,87 @@ const PrescriptionMapEditor: React.FC = () => {
         fetchMap();
     }, [featureEnabled]);
 
-    // ... (rest of component) ...
+    // Load image from file input
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            setBackgroundImage(event.target?.result as string);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    // Convert mm to % for display
+    const getStyle = (field: FieldConfig) => ({
+        left: `${(field.x_mm / A5_WIDTH_MM) * 100}%`,
+        top: `${(field.y_mm / A5_HEIGHT_MM) * 100}%`,
+        fontSize: `${field.font_size_pt}pt`,
+    });
+
+    // Handle Dragging
+    const handleMouseMove = useCallback((e: MouseEvent) => {
+        if (!isDragging || !selectedField || !canvasRef.current) return;
+
+        const rect = canvasRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        // Convert px -> mm
+        const x_mm = (x / rect.width) * A5_WIDTH_MM;
+        const y_mm = (y / rect.height) * A5_HEIGHT_MM;
+
+        setFields(prev => prev.map(f =>
+            f.field_key === selectedField
+                ? { ...f, x_mm: Math.max(0, Math.min(x_mm, A5_WIDTH_MM)), y_mm: Math.max(0, Math.min(y_mm, A5_HEIGHT_MM)) }
+                : f
+        ));
+    }, [isDragging, selectedField]);
+
+    const handleMouseUp = useCallback(() => {
+        setIsDragging(false);
+    }, []);
+
+    useEffect(() => {
+        if (isDragging) {
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
+        } else {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        }
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [isDragging, handleMouseMove, handleMouseUp]);
+
+    // Keyboard fine-tuning
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (!selectedField) return;
+
+            const STEP_MM = 0.5;
+
+            setFields(prev => prev.map(f => {
+                if (f.field_key !== selectedField) return f;
+                let { x_mm, y_mm } = f;
+
+                switch (e.key) {
+                    case 'ArrowUp': y_mm -= STEP_MM; break;
+                    case 'ArrowDown': y_mm += STEP_MM; break;
+                    case 'ArrowLeft': x_mm -= STEP_MM; break;
+                    case 'ArrowRight': x_mm += STEP_MM; break;
+                    default: return f;
+                }
+                return { ...f, x_mm, y_mm };
+            }));
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [selectedField]);
 
     const saveMap = async () => {
         setSaving(true);

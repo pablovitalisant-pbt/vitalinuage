@@ -21,6 +21,9 @@ interface DoctorContextType {
     login: (e: string, p: string) => Promise<any>;
     logout: () => Promise<void>;
     completeOnboarding: (data: any) => Promise<void>;
+    refreshProfile: () => Promise<void>;
+    preferences: any;
+    updatePreferences: (prefs: any) => void;
 }
 
 export const DoctorContext = createContext<DoctorContextType | undefined>(undefined);
@@ -129,8 +132,39 @@ export const DoctorProvider = ({ children }: { children: ReactNode }) => {
         }));
     };
 
+    // ... code around fetchProfile ...
+
+    // Extracted Logic for reuse (stub - ideally extract full logic)
+    const refreshProfile = async () => {
+        if (!user) return;
+        try {
+            const token = await user.getIdToken(true); // Force refresh
+            const res = await fetch(getApiUrl('/api/doctors/profile'), {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setProfile({
+                    professionalName: data.professionalName || data.professional_name,
+                    specialty: data.specialty,
+                    registrationNumber: data.registrationNumber || data.registration_number,
+                    isOnboarded: data.isOnboarded !== undefined ? data.isOnboarded : (data.is_onboarded || false),
+                    email: user.email || "",
+                    isVerified: true
+                });
+            }
+        } catch (e) {
+            console.error("Failed to refresh profile", e);
+        }
+    };
+
+    // Stub for preferences (to satisfy interface usage in other components)
+    // In a real implementation this would fetch from backend
+    const [preferences, setPreferences] = useState<any>({});
+    const updatePreferences = (newPrefs: any) => setPreferences((prev: any) => ({ ...prev, ...newPrefs }));
+
     return (
-        <DoctorContext.Provider value={{ user, profile, loading, token, login, logout, completeOnboarding }}>
+        <DoctorContext.Provider value={{ user, profile, loading, token, login, logout, completeOnboarding, refreshProfile, preferences, updatePreferences } as any}>
             {children}
         </DoctorContext.Provider>
     );
