@@ -53,9 +53,9 @@ export const DoctorProvider = ({ children }: { children: ReactNode }) => {
                             setToken(idToken);
                             console.log(`[AUTH AUDIT] Token retrieved. Length: ${idToken.length}`);
 
-                            // Create secure fetcher
+                            // Create secure fetcher with FRESH token getter
                             const authFetch = createAuthFetch(
-                                async () => idToken,
+                                async () => fbUser.getIdToken(),
                                 async () => { await signOut(auth); }
                             );
 
@@ -74,12 +74,12 @@ export const DoctorProvider = ({ children }: { children: ReactNode }) => {
 
                         } catch (e: any) {
                             console.warn(`[AUTH AUDIT] DoctorContext profile sync failed: ${e.message}`);
-                            // If it's a 404/new user, set default profile
-                            // Note: fetchDoctorProfile throws on non-200. We might want to check status if possible, 
-                            // or assuming throws mean failure suitable for default cleanup or new user assumption.
-                            // Ideally service should differentiate 404.
-                            // To keep it safe: if error, we default to not onboarded but verified (if 404-ish or generic error preventing load)
-                            setProfile({ isOnboarded: false, isVerified: true, email: fbUser.email || '' });
+                            // Fallback: use actual email verification status from Firebase
+                            setProfile({
+                                isOnboarded: false,
+                                isVerified: fbUser.emailVerified,
+                                email: fbUser.email || ''
+                            });
                         }
                     } else {
                         console.log(`[AUTH AUDIT] Email NOT verified.`);
