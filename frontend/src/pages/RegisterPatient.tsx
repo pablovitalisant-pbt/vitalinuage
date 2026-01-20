@@ -10,7 +10,17 @@ import { PacienteSchema } from '../contracts/paciente';
 import { useDoctor } from '../context/DoctorContext';
 import { useAuthFetch } from '../hooks/useAuthFetch';
 
-// ...
+// Extension of schema for form only (fullName is split later)
+const RegisterFormSchema = PacienteSchema.pick({
+    dni: true,
+    fecha_nacimiento: true,
+    telefono: true,
+    sexo: true,
+}).extend({
+    fullName: z.string().min(3, "Nombre completo requerido")
+});
+
+type RegisterForm = z.infer<typeof RegisterFormSchema>;
 
 export default function RegisterPatient() {
     const navigate = useNavigate();

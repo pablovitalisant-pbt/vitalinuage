@@ -6,13 +6,15 @@ import toast from 'react-hot-toast';
 import apiConfig from '../config/api';
 import { getApiUrl } from '../config/api';
 import { useDoctor } from '../context/DoctorContext';
+import { useAuthFetch } from '../hooks/useAuthFetch';
 
 interface Props {
     patientId: number;
 }
 
 export default function ConsultationManager({ patientId }: Props) {
-    const { token } = useDoctor();  // ✅ Get token from context
+    const authFetch = useAuthFetch(); // ✅ Use centralized auth hook
+    const { token } = useDoctor();  // Keeping token for now to avoid breaking other logic if any, but authFetch is primary. Actually, let's remove token usage from fetchHistory first.
     const [history, setHistory] = useState<ClinicalConsultation[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -24,21 +26,16 @@ export default function ConsultationManager({ patientId }: Props) {
 
     const fetchHistory = async () => {
         try {
-            if (!token || token === 'null') {
-                console.warn('[AUTH AUDIT] ConsultationManager: No valid token available');
-                return;
-            }
+            const res = await authFetch(getApiUrl(`/api/patients/${patientId}/consultations`));
 
-            console.log('[AUTH AUDIT] ConsultationManager fetching consultations with token:', token.slice(0, 30) + '...');
-            const res = await fetch(getApiUrl(`/api/patients/${patientId}/consultations`), {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
             if (res.ok) {
                 const data = await res.json();
                 setHistory(data);
             }
-        } catch (err) {
-            console.error("Failed to load consultations", err);
+        } catch (err: any) {
+            if (err.message !== 'AUTH_TOKEN_MISSING' && err.message !== 'AUTH_401') {
+                console.error("Failed to load consultations", err);
+            }
         } finally {
             setLoading(false);
         }
