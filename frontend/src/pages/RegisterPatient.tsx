@@ -8,24 +8,15 @@ import { toast } from 'react-hot-toast';
 import { getApiUrl } from '../config/api';
 import { PacienteSchema } from '../contracts/paciente';
 import { useDoctor } from '../context/DoctorContext';
+import { useAuthFetch } from '../hooks/useAuthFetch';
 
-// Extension of schema for form only (fullName is split later)
-const RegisterFormSchema = PacienteSchema.pick({
-    dni: true,
-    fecha_nacimiento: true,
-    telefono: true,
-    sexo: true,
-}).extend({
-    fullName: z.string().min(3, "Nombre completo requerido")
-});
-
-type RegisterForm = z.infer<typeof RegisterFormSchema>;
+// ...
 
 export default function RegisterPatient() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { token } = useDoctor();
+    const { token } = useDoctor(); // Consuming context (optional if not used elsewhere, but kept minimal change)
 
     const { register, handleSubmit, setValue, setError, setFocus, clearErrors, formState: { errors } } = useForm<RegisterForm>({
         resolver: zodResolver(RegisterFormSchema),
@@ -40,6 +31,10 @@ export default function RegisterPatient() {
             setValue('fullName', nameQuery);
         }
     }, [searchParams, setValue]);
+
+    const authFetch = useAuthFetch();
+
+    // ... hooks ...
 
     const onSubmit = async (data: RegisterForm) => {
         setIsSubmitting(true);
@@ -64,20 +59,11 @@ export default function RegisterPatient() {
                 imc: 0
             };
 
-            const headers: Record<string, string> = {
-                'Content-Type': 'application/json'
-            };
-
-            if (token && token !== 'null' && token.trim() !== '') {
-                headers['Authorization'] = `Bearer ${token}`;
-                console.log('[AUTH AUDIT] Sending token to POST /api/patients. Token preview:', token.slice(0, 30) + '...');
-            } else {
-                console.warn('[AUTH AUDIT] No valid token available for POST /api/patients request! Token:', token);
-            }
-
-            const response = await fetch(getApiUrl('/api/patients'), {
+            const response = await authFetch(getApiUrl('/api/patients'), {
                 method: 'POST',
-                headers,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify(payload)
             });
 
