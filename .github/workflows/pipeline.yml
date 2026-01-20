@@ -61,7 +61,14 @@ jobs:
             echo "   This indicates VITE_FIREBASE_PROJECT_ID was not injected."
             exit 1
           fi
-          echo "✅ Build verification passed: Project ID found in bundle."
+          
+          if grep -q "apiKey:void 0" dist/assets/index-*.js || grep -q "authDomain:void 0" dist/assets/index-*.js; then
+             echo "❌ Critical: Found 'void 0' in place of Firebase config keys."
+             echo "   This confirms environment variables were NOT injected during build."
+             exit 1
+          fi
+          
+          echo "✅ Build verification passed: Project ID found and no 'void 0' placeholders."
 
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0

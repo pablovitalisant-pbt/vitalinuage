@@ -33,6 +33,12 @@ jobs:
             echo "❌ Critical: 'vitalinuage' (Project ID) not found in build bundle."
             exit 1
           fi
+          
+          if grep -q "apiKey:void 0" dist/assets/index-*.js || grep -q "authDomain:void 0" dist/assets/index-*.js; then
+             echo "❌ Critical: Found 'void 0' in place of Firebase config keys."
+             exit 1
+          fi
+          
           echo "✅ Build verification passed."
 
       - uses: FirebaseExtended/action-hosting-deploy@v0
