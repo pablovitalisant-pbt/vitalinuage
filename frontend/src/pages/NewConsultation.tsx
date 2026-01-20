@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Save, Stethoscope, FileText, Activity, Pill, Weight, Ruler } from 'lucide-react';
 import { useDoctor } from '../context/DoctorContext';
+import { useAuthFetch } from '../hooks/useAuthFetch';
 import { getApiUrl } from '../config/api';
 import BiometryForm from '../components/clinical/BiometryForm';
 import AIDiagnosisSearch from '../components/clinical/AIDiagnosisSearch';
@@ -9,7 +10,7 @@ import AIDiagnosisSearch from '../components/clinical/AIDiagnosisSearch';
 export default function NewConsultation() {
     const navigate = useNavigate();
     const { id: patientId } = useParams();
-    const { profile, token } = useDoctor();
+    const { profile } = useDoctor();
 
     const [formData, setFormData] = useState({
         reason: '',
@@ -31,6 +32,8 @@ export default function NewConsultation() {
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    const authFetch = useAuthFetch();
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setSaving(true);
@@ -45,18 +48,11 @@ export default function NewConsultation() {
                 notes: formData.notes || undefined
             };
 
-            // Prepare headers with authentication
-            const headers: Record<string, string> = {
-                'Content-Type': 'application/json'
-            };
-
-            if (token) {
-                headers['Authorization'] = `Bearer ${token}`;
-            }
-
-            const res = await fetch(getApiUrl(`/api/patients/${patientId}/consultations`), {
+            const res = await authFetch(getApiUrl(`/api/patients/${patientId}/consultations`), {
                 method: 'POST',
-                headers,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify(payload)
             });
 
@@ -72,9 +68,11 @@ export default function NewConsultation() {
                 const imc = weight / (heightInMeters * heightInMeters);
 
                 // Update patient IMC (optional - could be done in backend)
-                await fetch(getApiUrl(`/api/patients/${patientId}`), {
+                await authFetch(getApiUrl(`/api/patients/${patientId}`), {
                     method: 'PATCH',
-                    headers,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({ imc: parseFloat(imc.toFixed(1)) })
                 }).catch(console.error); // Don't fail if IMC update fails
             }
