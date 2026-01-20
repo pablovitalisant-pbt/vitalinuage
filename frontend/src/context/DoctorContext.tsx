@@ -89,8 +89,17 @@ export const DoctorProvider = ({ children }: { children: ReactNode }) => {
 
     const logout = async () => {
         console.log(`[AUTH AUDIT] Logout Initiated. CurrentUser: ${auth.currentUser?.uid}`);
+
+        // 1. Sign out from Firebase
         await signOut(auth);
-        console.log(`[AUTH AUDIT] SignOut Completed. Redirecting...`);
+        console.log(`[AUTH AUDIT] Firebase signOut completed`);
+
+        // 2. Clear local context state
+        setUser(null);
+        setProfile(null);
+        console.log(`[AUTH AUDIT] Context state cleared`);
+
+        // 3. Redirect to login
         window.location.href = '/';
     };
 
