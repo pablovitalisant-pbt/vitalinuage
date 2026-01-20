@@ -284,6 +284,9 @@ def get_patient_consultations(
     db: Session = Depends(get_db),
     current_user: schemas_auth.User = Depends(get_current_user)
 ):
+    print(f"[AUTH AUDIT] GET /api/patients/{patient_id}/consultations")
+    print(f"[AUTH AUDIT] Current user email: {current_user.email}")
+    
     # 1. Verify Patient Ownership (Strict Security)
     patient = db.query(models.Patient).filter(
         models.Patient.id == patient_id, 
@@ -291,13 +294,23 @@ def get_patient_consultations(
     ).first()
     
     if not patient:
+        # Check if patient exists at all
+        patient_exists = db.query(models.Patient).filter(models.Patient.id == patient_id).first()
+        if patient_exists:
+            print(f"[AUTH AUDIT] Patient {patient_id} exists but owner_id mismatch. Patient owner: {patient_exists.owner_id}, Current user: {current_user.email}")
+        else:
+            print(f"[AUTH AUDIT] Patient {patient_id} does not exist in database")
         # Prevent enumeration
         raise HTTPException(status_code=404, detail="Patient not found")
 
+    print(f"[AUTH AUDIT] Patient {patient_id} ownership verified. Owner: {patient.owner_id}")
+    
     # 2. Query Consultations
     consultations = db.query(models.ClinicalConsultation).filter(
         models.ClinicalConsultation.patient_id == patient_id
     ).order_by(models.ClinicalConsultation.created_at.desc()).all()
+    
+    print(f"[AUTH AUDIT] Found {len(consultations)} consultations for patient {patient_id}")
     
     # 3. Return directly (Auto-mapped to Spanish Schema)
     return consultations
