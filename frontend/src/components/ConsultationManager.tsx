@@ -48,17 +48,10 @@ export default function ConsultationManager({ patientId }: Props) {
 
     const handleDownloadPDF = async (consultationId: number) => {
         try {
-            if (!token || token === 'null') {
-                toast.error('No hay sesión activa');
-                return;
-            }
             const apiUrl = apiConfig.apiBaseUrl;
 
-            const response = await fetch(`${apiUrl}/api/consultas/${consultationId}/pdf`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+            const response = await authFetch(`${apiUrl}/api/consultas/${consultationId}/pdf`, {
+                method: 'GET'
             });
 
             if (!response.ok) {
@@ -88,18 +81,11 @@ export default function ConsultationManager({ patientId }: Props) {
 
     const handleSendWhatsApp = async (consultation: ClinicalConsultation) => {
         try {
-            if (!token || token === 'null') {
-                toast.error('No hay sesión activa');
-                return;
-            }
             const apiUrl = apiConfig.apiBaseUrl;
 
             // 1. Get or create verification UUID
-            const verificationRes = await fetch(`${apiUrl}/api/consultas/${consultation.id}/create-verification`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+            const verificationRes = await authFetch(`${apiUrl}/api/consultas/${consultation.id}/create-verification`, {
+                method: 'POST'
             });
 
             if (!verificationRes.ok) {
@@ -148,9 +134,8 @@ export default function ConsultationManager({ patientId }: Props) {
                     window.open(whatsappUrl, '_blank');
 
                     // Tracking
-                    fetch(`${apiUrl}/api/consultas/${consultation.id}/mark-whatsapp-sent`, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${token}` }
+                    authFetch(`${apiUrl}/api/consultas/${consultation.id}/mark-whatsapp-sent`, {
+                        method: 'POST'
                     }).catch(console.error);
 
                     setHistory(prev => prev.map(item =>
@@ -164,9 +149,8 @@ export default function ConsultationManager({ patientId }: Props) {
                 window.open(whatsappUrl, '_blank');
 
                 // Tracking
-                fetch(`${apiUrl}/api/consultas/${consultation.id}/mark-whatsapp-sent`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` }
+                authFetch(`${apiUrl}/api/consultas/${consultation.id}/mark-whatsapp-sent`, {
+                    method: 'POST'
                 }).catch(console.error);
 
                 setHistory(prev => prev.map(item =>
@@ -183,10 +167,6 @@ export default function ConsultationManager({ patientId }: Props) {
 
     const handleSendEmail = async (consultation: ClinicalConsultation) => {
         try {
-            if (!token || token === 'null') {
-                toast.error('No hay sesión activa');
-                return;
-            }
             const apiUrl = apiConfig.apiBaseUrl;
 
             // Validar email
@@ -196,13 +176,10 @@ export default function ConsultationManager({ patientId }: Props) {
             }
 
             // Enviar email
-            const response = await fetch(
+            const response = await authFetch(
                 `${apiUrl}/api/consultas/${consultation.id}/send-email`,
                 {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                    method: 'POST'
                 }
             );
 
