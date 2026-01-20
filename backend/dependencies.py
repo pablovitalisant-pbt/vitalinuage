@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from backend import crud
@@ -13,7 +13,15 @@ from backend.core.firebase_app import initialize_firebase # Ensure init logic ex
 
 security = HTTPBearer()
 
-def verify_firebase_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
+def verify_firebase_token(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    request: Request = None
+):
+    # Log raw Authorization header for debugging
+    if request:
+        auth_header = request.headers.get("Authorization")
+        print(f"[AUTH AUDIT] Raw Authorization header: {auth_header}")
+    
     token = credentials.credentials
     
     # Early validation: reject null, empty, or literal "null" string
