@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { AlertTriangle, Loader2, Trash2, X } from 'lucide-react';
 import { getApiUrl } from '../config/api';
 import { useDoctor } from '../context/DoctorContext';
+import { useAuthFetch } from '../hooks/useAuthFetch';
 import styles from './DeleteAccountModal.module.css'; // Optional: Use module or inline classes
 
 interface DeleteAccountModalProps {
@@ -10,7 +11,7 @@ interface DeleteAccountModalProps {
 }
 
 export default function DeleteAccountModal({ onClose }: DeleteAccountModalProps) {
-    const { token, profile } = useDoctor();
+    const { profile } = useDoctor();
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -18,19 +19,20 @@ export default function DeleteAccountModal({ onClose }: DeleteAccountModalProps)
     const confirmationPhrase = `eliminar mi cuenta vitalinuage/${profile.email}`;
     const isMatched = inputValue === confirmationPhrase;
 
+    const authFetch = useAuthFetch();
+
     const handleDelete = async () => {
-        if (!isMatched || !token) return;
+        if (!isMatched) return;
 
         setIsLoading(true);
         setError(null);
 
         try {
             // 1. Delete in Backend (Neon)
-            const response = await fetch(getApiUrl('/api/users/me'), {
+            const response = await authFetch(getApiUrl('/api/users/me'), {
                 method: 'DELETE',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ confirmation_phrase: inputValue })
             });
@@ -51,9 +53,11 @@ export default function DeleteAccountModal({ onClose }: DeleteAccountModalProps)
             sessionStorage.clear();
             window.location.href = '/';
 
-        } catch (err) {
+        } catch (err: any) {
             console.error(err);
-            setError(err instanceof Error ? err.message : 'Error desconocido');
+            if (err.message !== 'AUTH_TOKEN_MISSING' && err.message !== 'AUTH_401') {
+                setError(err instanceof Error ? err.message : 'Error desconocido');
+            }
             setIsLoading(false);
         }
     };

@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { useDoctor } from '../context/DoctorContext';
+import { useAuthFetch } from '../hooks/useAuthFetch';
 import { Printer, Upload, Check, FileText } from 'lucide-react';
 
 interface PrintSettingsModalProps {
@@ -11,6 +12,7 @@ export function PrintSettingsModal({ onClose }: PrintSettingsModalProps) {
     const [uploading, setUploading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    const authFetch = useAuthFetch();
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -20,7 +22,7 @@ export function PrintSettingsModal({ onClose }: PrintSettingsModalProps) {
         formData.append('file', file);
 
         try {
-            const res = await fetch('/api/doctor/logo', {
+            const res = await authFetch('/api/doctor/logo', {
                 method: 'POST',
                 body: formData,
             });

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Loader2 } from 'lucide-react';
 
 import { getApiUrl } from '../../config/api';
+import { useAuthFetch } from '../../hooks/useAuthFetch';
 
 interface Suggestion {
     code: string;
@@ -32,6 +33,8 @@ export default function AIDiagnosisSearch({ onSelect }: AIDiagnosisSearchProps) 
         };
     }, [query]);
 
+    const authFetch = useAuthFetch();
+
     // API Call Logic
     useEffect(() => {
         const fetchDiagnosis = async () => {
@@ -44,7 +47,7 @@ export default function AIDiagnosisSearch({ onSelect }: AIDiagnosisSearchProps) 
             setLoading(true);
             setIsOpen(true);
             try {
-                const response = await fetch(getApiUrl('/api/diagnosis/suggest-cie10'), {
+                const response = await authFetch(getApiUrl('/api/diagnosis/suggest-cie10'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ text: debouncedQuery })
@@ -56,8 +59,10 @@ export default function AIDiagnosisSearch({ onSelect }: AIDiagnosisSearchProps) 
                 } else {
                     console.error("Diagnosis API Error");
                 }
-            } catch (error) {
-                console.error("Network Error:", error);
+            } catch (error: any) {
+                if (error.message !== 'AUTH_TOKEN_MISSING' && error.message !== 'AUTH_401') {
+                    console.error("Network Error:", error);
+                }
             } finally {
                 setLoading(false);
             }

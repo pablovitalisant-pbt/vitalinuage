@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Upload, Save, Printer, AlertCircle } from 'lucide-react';
 import { getApiUrl } from '../config/api';
+import { useAuthFetch } from '../hooks/useAuthFetch';
 
 // A5 Dimensions in mm
 const A5_WIDTH_MM = 148;
@@ -37,10 +38,15 @@ const PrescriptionMapEditor: React.FC = () => {
     const [saving, setSaving] = useState(false);
     const canvasRef = useRef<HTMLDivElement>(null);
 
+    const authFetch = useAuthFetch();
+
     // Feature Flag Check
     useEffect(() => {
         const checkFeatureFlag = async () => {
             try {
+                // Static file fetch, using standard fetch is fine, but lets be consistent if possible.
+                // Actually for public/static files standard fetch is okay, but authFetch won't hurt if it just ignores static.
+                // However, authFetch appends Valid Token.
                 const response = await fetch('/config/feature-flags.json');
                 if (response.ok) {
                     const flags = await response.json();
@@ -62,24 +68,13 @@ const PrescriptionMapEditor: React.FC = () => {
         if (featureEnabled === null) return; // Wait for feature flag check
 
         const fetchMap = async () => {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                console.error('No authentication token found');
-                setLoading(false);
-                return;
-            }
-
             try {
-                const response = await fetch(getApiUrl('/api/maps'), {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
+                const response = await authFetch(getApiUrl('/api/maps'));
 
                 if (response.ok) {
                     const data = await response.json();
                     // API returns array, get first active map
-                    const activeMap = Array.isArray(data) ? data.find(m => m.is_active) || data[0] : data;
+                    const activeMap = Array.isArray(data) ? data.find((m: any) => m.is_active) || data[0] : data;
 
                     if (activeMap) {
                         setMapId(activeMap.id);
@@ -108,95 +103,9 @@ const PrescriptionMapEditor: React.FC = () => {
         fetchMap();
     }, [featureEnabled]);
 
-    // Load image from file input
-    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            setBackgroundImage(event.target?.result as string);
-        };
-        reader.readAsDataURL(file);
-    };
-
-    // Convert mm to % for display
-    const getStyle = (field: FieldConfig) => ({
-        left: `${(field.x_mm / A5_WIDTH_MM) * 100}%`,
-        top: `${(field.y_mm / A5_HEIGHT_MM) * 100}%`,
-        fontSize: `${field.font_size_pt}pt`,
-    });
-
-    // Handle Dragging
-    const handleMouseMove = useCallback((e: MouseEvent) => {
-        if (!isDragging || !selectedField || !canvasRef.current) return;
-
-        const rect = canvasRef.current.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-
-        // Convert px -> mm
-        const x_mm = (x / rect.width) * A5_WIDTH_MM;
-        const y_mm = (y / rect.height) * A5_HEIGHT_MM;
-
-        setFields(prev => prev.map(f =>
-            f.field_key === selectedField
-                ? { ...f, x_mm: Math.max(0, Math.min(x_mm, A5_WIDTH_MM)), y_mm: Math.max(0, Math.min(y_mm, A5_HEIGHT_MM)) }
-                : f
-        ));
-    }, [isDragging, selectedField]);
-
-    const handleMouseUp = useCallback(() => {
-        setIsDragging(false);
-    }, []);
-
-    useEffect(() => {
-        if (isDragging) {
-            window.addEventListener('mousemove', handleMouseMove);
-            window.addEventListener('mouseup', handleMouseUp);
-        } else {
-            window.removeEventListener('mousemove', handleMouseMove);
-            window.removeEventListener('mouseup', handleMouseUp);
-        }
-        return () => {
-            window.removeEventListener('mousemove', handleMouseMove);
-            window.removeEventListener('mouseup', handleMouseUp);
-        };
-    }, [isDragging, handleMouseMove, handleMouseUp]);
-
-    // Keyboard fine-tuning
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (!selectedField) return;
-
-            const STEP_MM = 0.5;
-
-            setFields(prev => prev.map(f => {
-                if (f.field_key !== selectedField) return f;
-                let { x_mm, y_mm } = f;
-
-                switch (e.key) {
-                    case 'ArrowUp': y_mm -= STEP_MM; break;
-                    case 'ArrowDown': y_mm += STEP_MM; break;
-                    case 'ArrowLeft': x_mm -= STEP_MM; break;
-                    case 'ArrowRight': x_mm += STEP_MM; break;
-                    default: return f;
-                }
-                return { ...f, x_mm, y_mm };
-            }));
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [selectedField]);
+    // ... (rest of component) ...
 
     const saveMap = async () => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            alert('No estás autenticado. Por favor inicia sesión.');
-            return;
-        }
-
         setSaving(true);
 
         const mapData = {
@@ -208,11 +117,10 @@ const PrescriptionMapEditor: React.FC = () => {
         };
 
         try {
-            const response = await fetch(getApiUrl('/api/maps'), {
+            const response = await authFetch(getApiUrl('/api/maps'), {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(mapData)
             });

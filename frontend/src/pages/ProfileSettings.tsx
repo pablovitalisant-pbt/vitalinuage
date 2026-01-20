@@ -4,6 +4,7 @@ import { Save, Upload, User, Image as ImageIcon, Printer } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
 
 import { useDoctor } from '../context/DoctorContext';
+import { useAuthFetch } from '../hooks/useAuthFetch';
 import { PrintSettingsModal } from '../components/PrintSettingsModal';
 import DataManagement from '../components/DataManagement';
 import DeleteAccountModal from '../components/DeleteAccountModal';
@@ -26,9 +27,11 @@ export default function ProfileSettings() {
 
     const { register, handleSubmit, setValue } = useForm<ProfileForm>();
 
+    const authFetch = useAuthFetch();
+
     // Load initial data
     useEffect(() => {
-        fetch('/api/doctor/profile')
+        authFetch('/api/doctor/profile')
             .then(res => res.json())
             .then(data => {
                 setValue('professionalName', data.professional_name);
@@ -39,7 +42,7 @@ export default function ProfileSettings() {
             .catch(err => console.error("Error loading profile", err));
 
         // Fetch Preferences for Signature
-        fetch('/api/print/preferences')
+        authFetch('/api/print/preferences')
             .then(res => res.json())
             .then(data => {
                 if (data.signature_url) {
@@ -58,7 +61,7 @@ export default function ProfileSettings() {
                 phone: data.phone
             };
 
-            const response = await fetch('/api/doctor/profile', {
+            const response = await authFetch('/api/doctor/profile', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -115,7 +118,7 @@ export default function ProfileSettings() {
             formData.append('file', file);
 
             try {
-                const res = await fetch('/api/doctor/signature', {
+                const res = await authFetch('/api/doctor/signature', {
                     method: 'POST',
                     body: formData
                 });
