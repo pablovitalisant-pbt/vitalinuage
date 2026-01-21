@@ -113,17 +113,23 @@ async def _get_who_token() -> str:
 
 
 async def _who_get_json(url: str, token: str) -> Dict[str, Any]:
+    # WHO redirects http -> https (301). Force HTTPS and follow redirects.
+    if url.startswith("http://"):
+        url = "https://" + url[len("http://"):]
+
     headers = {
         "Authorization": f"Bearer {token}",
         "API-Version": "v2",
         "Accept": "application/json",
         "Accept-Language": "es",
     }
-    async with httpx.AsyncClient(timeout=15.0) as client:
+
+    async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
         r = await client.get(url, headers=headers)
         if r.status_code != 200:
-            # WHO might return 401 if token expired or invalid
-            logger.warning(f"[DIAGNOSIS AUDIT] WHO GET {r.status_code} url={url} body={r.text[:200]}")
+            logger.warning(
+                f"[DIAGNOSIS AUDIT] WHO GET {r.status_code} url={url} body={r.text[:200]}"
+            )
             raise HTTPException(status_code=503, detail="ICD service unavailable")
         return r.json()
 
