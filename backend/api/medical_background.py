@@ -23,6 +23,7 @@ class MedicalBackgroundBase(BaseModel):
     alergias: Optional[str] = None
     medicamentos_actuales: Optional[str] = None
 
+
 class MedicalBackgroundResponse(MedicalBackgroundBase):
     id: int
     patient_id: int
@@ -31,23 +32,47 @@ class MedicalBackgroundResponse(MedicalBackgroundBase):
     class Config:
         orm_mode = True
 
+
 # Helper for Feature Flag
 def check_feature_flag():
+    """
+    Production (Cloud Run): reads flags from FEATURE_FLAGS_JSON env var.
+    Local dev: falls back to config/feature-flags.json.
+    If neither exists, defaults to "enabled" (does not block module).
+    """
+    # 1) Production: ENV (recommended)
+    flags_json = os.getenv("FEATURE_FLAGS_JSON")
+    if flags_json:
+        try:
+            flags = json.loads(flags_json)
+        except json.JSONDecodeError:
+            # If env var is malformed, fail open to avoid breaking prod.
+            # (Optional: change to 503 if you'd rather fail closed.)
+            return
+
+        if not flags.get("medical_record_background_v1", False):
+            raise HTTPException(status_code=503, detail="Feature disabled")
+        return
+
+    # 2) Local dev: file fallback
     try:
-        config_path = os.path.join(os.path.dirname(__file__), '..', '..', 'config', 'feature-flags.json')
-        with open(config_path, 'r') as f:
+        config_path = os.path.join(
+            os.path.dirname(__file__), "..", "..", "config", "feature-flags.json"
+        )
+        with open(config_path, "r") as f:
             flags = json.load(f)
             if not flags.get("medical_record_background_v1", False):
-                raise HTTPException(status_code=404, detail="Feature disabled")
+                raise HTTPException(status_code=503, detail="Feature disabled")
     except FileNotFoundError:
-        # Default to safe closed if config missing
-         raise HTTPException(status_code=404, detail="Configuration missing")
+        # Cloud Run may not have this file. Do not block the module.
+        return
+
 
 @router.get("", response_model=MedicalBackgroundResponse)
 def get_medical_background(
     patient_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
+    current_user: models.User = Depends(get_current_user),
 ):
     check_feature_flag()
 
@@ -66,11 +91,10 @@ def get_medical_background(
     background = db.query(models.MedicalBackground).filter(
         models.MedicalBackground.patient_id == patient_id
     ).first()
-    
+
     # Lazy Creation or Return Empty
     if not background:
-        # Return empty structure without persistence (Client usually handles "create on first save")
-        # Or create an empty one in memory to satisfy response model
+        # Return empty structure without persistence
         return MedicalBackgroundResponse(
             id=0,
             patient_id=patient_id,
@@ -81,16 +105,17 @@ def get_medical_background(
             alergias=None,
             medicamentos_actuales=None,
             updated_at=None,
-        ) 
-        
+        )
+
     return background
+
 
 @router.put("", response_model=MedicalBackgroundResponse)
 def update_medical_background(
     patient_id: int,
     background_data: MedicalBackgroundBase,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
+    current_user: models.User = Depends(get_current_user),
 ):
     check_feature_flag()
 
@@ -111,14 +136,13 @@ def update_medical_background(
     if not background:
         background = models.MedicalBackground(patient_id=patient_id)
         db.add(background)
-    
+
     # 3. Update Fields
     for key, value in background_data.dict(exclude_unset=True).items():
         setattr(background, key, value)
-    
+
     background.updated_at = datetime.datetime.utcnow()
     db.commit()
     db.refresh(background)
-    
-    return background
 
+    return background
