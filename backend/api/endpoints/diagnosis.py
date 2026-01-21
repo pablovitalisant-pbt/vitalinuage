@@ -77,19 +77,22 @@ async def get_gemini_diagnosis(text: str) -> List[dict]:
             
             # Robust JSON parsing
             import json
+            raw_text = response.text if hasattr(response, 'text') else str(response)
+
+            logger.info(f"[DIAGNOSIS RAW] {raw_text[:800]}")
+
             try:
-                raw_text = response.text if hasattr(response, 'text') else str(response)
                 suggestions = json.loads(raw_text)
-                
+
                 # Ensure it's a list
                 if isinstance(suggestions, dict):
                     suggestions = suggestions.get('suggestions', [])
                 elif not isinstance(suggestions, list):
                     suggestions = []
-                    
+
                 return suggestions
             except json.JSONDecodeError as je:
-                logger.error(f"JSON parsing error: {je}. Raw response: {raw_text[:200]}")
+                logger.error(f"JSON parsing error: {je}. Raw response: {raw_text[:800]}")
                 return []
             
         except Exception as e:
