@@ -50,9 +50,27 @@ _WHO_TOKEN_EXP: float = 0.0
 
 def _strip_html(s: str) -> str:
     if not s:
-        return ""
+        return s
     s = html.unescape(s)
-    return re.sub(r"<[^>]+>", "", s).strip()
+    s = re.sub(r"<[^>]+>", "", s)
+    s = s.strip()
+    s = _fix_mojibake(s)
+    return s
+
+
+def _fix_mojibake(s: str) -> str:
+    """
+    Fix common UTF-8-as-Latin1 mojibake (e.g., 'especificaciÃ³n' -> 'especificación').
+    Only applies when typical markers are present.
+    """
+    if not s:
+        return s
+    if "Ã" not in s and "Â" not in s:
+        return s
+    try:
+        return s.encode("latin-1").decode("utf-8")
+    except Exception:
+        return s
 
 
 async def _get_who_token() -> str:
@@ -144,18 +162,6 @@ def _extract_title(j: Dict[str, Any]) -> str:
     return ""
 
 
-def _fix_mojibake(s: str) -> str:
-    """
-    Fix common UTF-8/Latin-1 mojibake like
-    'especificaciÃ³n' -> 'especificación'.
-    Safe: if conversion fails, returns original string.
-    """
-    if not s:
-        return s
-    try:
-        return s.encode("latin-1").decode("utf-8")
-    except Exception:
-        return s
 
 
 # =====================
