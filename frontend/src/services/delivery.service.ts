@@ -1,9 +1,9 @@
 
 export const DeliveryService = {
     // Get WhatsApp Link
-    getWhatsAppLink: async (consultationId: string): Promise<string> => {
+    getWhatsAppLink: async (fetcher: (url: string, options?: RequestInit) => Promise<Response>, consultationId: string): Promise<string> => {
         try {
-            const response = await fetch(`/api/print/${consultationId}/whatsapp-link`);
+            const response = await fetcher(`/api/print/${consultationId}/whatsapp-link`);
             if (!response.ok) {
                 throw new Error('Failed to generate WhatsApp link');
             }
@@ -16,9 +16,9 @@ export const DeliveryService = {
     },
 
     // Send Email
-    sendEmail: async (consultationId: string, email: string): Promise<void> => {
+    sendEmail: async (fetcher: (url: string, options?: RequestInit) => Promise<Response>, consultationId: string, email: string): Promise<void> => {
         try {
-            const response = await fetch(`/api/print/${consultationId}/send-email`, {
+            const response = await fetcher(`/api/print/${consultationId}/send-email`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

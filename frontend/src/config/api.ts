@@ -7,26 +7,18 @@ export const getApiUrl = (path: string) => {
 };
 
 export const api = {
-    exportData: async (token: string) => {
-        const response = await fetch(getApiUrl('/api/data/export'), {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
+    exportData: async (fetcher: (url: string, options?: RequestInit) => Promise<Response>) => {
+        const response = await fetcher(getApiUrl('/api/data/export'));
         if (!response.ok) throw new Error('Error downloading data');
         return response.blob();
     },
 
-    importData: async (token: string, file: File) => {
+    importData: async (fetcher: (url: string, options?: RequestInit) => Promise<Response>, file: File) => {
         const formData = new FormData();
         formData.append('file', file);
 
-        const response = await fetch(getApiUrl('/api/data/import'), {
+        const response = await fetcher(getApiUrl('/api/data/import'), {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`
-                // Content-Type is auto-set by browser with boundary for FormData
-            },
             body: formData
         });
 
