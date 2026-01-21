@@ -50,34 +50,27 @@ _WHO_TOKEN_EXP: float = 0.0
 
 def _fix_mojibake(s: str) -> str:
     """
-    Fix common UTF-8 decoded as Latin-1 mojibake (e.g., 'especificaciÃ³n' -> 'especificación').
-    Only applies when mojibake markers are present.
+    Fix common UTF-8-as-Latin1 mojibake (e.g., 'especificaciÃ³n' -> 'especificación').
+    Only attempts repair when it detects typical markers to avoid corrupting valid text.
     """
     if not s:
         return s
+    # heuristic markers
     if "Ã" not in s and "Â" not in s:
         return s
-
     try:
-        fixed = s.encode("latin-1").decode("utf-8")
-        # Use only if it actually improves the string.
-        if ("Ã" not in fixed and "Â" not in fixed) or (fixed.count("Ã") + fixed.count("Â") < s.count("Ã") + s.count("Â")):
-            return fixed
+        return s.encode("latin1").decode("utf-8")
     except Exception:
-        pass
-
-    return s
+        return s
 
 
 def _strip_html(s: str) -> str:
-    # Removes <em class='found'>...</em> etc.
     if not s:
         return s
     s = html.unescape(s)
     s = re.sub(r"<[^>]+>", "", s)
-    s = s.strip()
     s = _fix_mojibake(s)
-    return s
+    return s.strip()
 
 
 async def _get_who_token() -> str:
