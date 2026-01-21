@@ -32,7 +32,7 @@ class DiagnosisRequest(BaseModel):
     text: str
 
 
-# =====================
+# ===================== 
 # WHO ICD-11 config
 # =====================
 
@@ -48,28 +48,11 @@ _WHO_TOKEN_EXP: float = 0.0
 # Helpers
 # =====================
 
-def _fix_mojibake(s: str) -> str:
-    """
-    Fix common UTF-8-as-Latin1 mojibake (e.g., 'especificaciÃ³n' -> 'especificación').
-    Only attempts repair when it detects typical markers to avoid corrupting valid text.
-    """
-    if not s:
-        return s
-    # heuristic markers
-    if "Ã" not in s and "Â" not in s:
-        return s
-    try:
-        return s.encode("latin1").decode("utf-8")
-    except Exception:
-        return s
-
-
 def _strip_html(s: str) -> str:
     if not s:
         return s
     s = html.unescape(s)
     s = re.sub(r"<[^>]+>", "", s)
-    s = _fix_mojibake(s)
     return s.strip()
 
 
@@ -142,25 +125,12 @@ async def _who_get_json(url: str, token: str) -> Dict[str, Any]:
         logger.warning(f"[DIAGNOSIS] WHO GET {r.status_code} {url}")
         raise HTTPException(503, "ICD service unavailable")
 
-    # DEBUG: Log response encoding
-    logger.info(f"[DEBUG] WHO response encoding: {r.encoding}")
-    logger.info(f"[DEBUG] WHO Content-Type: {r.headers.get('Content-Type')}")
-    
-    # Force UTF-8 if not already set
+    # Force UTF-8 encoding (WHO API doesn't specify charset in Content-Type header)
+    # Without this, httpx defaults to ISO-8859-1, causing mojibake in Spanish text
     if r.encoding != 'utf-8':
-        logger.warning(f"[DEBUG] Forcing UTF-8, was: {r.encoding}")
         r.encoding = 'utf-8'
-    
-    json_data = r.json()
-    
-    # DEBUG: Sample first entity title
-    if isinstance(json_data, dict):
-        entities = json_data.get("destinationEntities", [])
-        if entities and len(entities) > 0:
-            sample_title = entities[0].get("title", "")
-            logger.info(f"[DEBUG] Sample raw title from JSON: {repr(sample_title)}")
-    
-    return json_data
+
+    return r.json()
 
 
 def _extract_code(j: Dict[str, Any]) -> str:
@@ -173,18 +143,11 @@ def _extract_code(j: Dict[str, Any]) -> str:
 
 def _extract_title(j: Dict[str, Any]) -> str:
     t = j.get("title")
-    logger.info(f"[DEBUG] _extract_title input: {repr(t)}")
     if isinstance(t, str):
-        result = _strip_html(t)
-        logger.info(f"[DEBUG] _extract_title after _strip_html: {repr(result)}")
-        return result
+        return _strip_html(t)
     if isinstance(t, dict):
-        raw = t.get("@value") or t.get("value") or ""
-        result = _strip_html(raw)
-        logger.info(f"[DEBUG] _extract_title dict after _strip_html: {repr(result)}")
-        return result
+        return _strip_html(t.get("@value") or t.get("value") or "")
     return ""
-
 
 
 
@@ -208,19 +171,8 @@ async def get_icd11_suggestions(text: str, limit: int = 5) -> List[Dict[str, str
     results: List[Dict[str, str]] = []
 
     for ent in entities[:limit]:
-        raw_title = _strip_html(ent.get("title") or "")
-        logger.info(f"[DEBUG] After first _strip_html: {repr(raw_title)}")
-        raw_title = _fix_mojibake(raw_title)
-        logger.info(f"[DEBUG] After first _fix_mojibake: {repr(raw_title)}")
         code = _extract_code(ent) or "ICD11"
-        title = _extract_title(ent) or raw_title or "Sin descripción"
-        logger.info(f"[DEBUG] After _extract_title: {repr(title)}")
-        title = _fix_mojibake(title)
-        logger.info(f"[DEBUG] Final title after second _fix_mojibake: {repr(title)}")
-        
-        # Check for mojibake markers
-        if "Ã" in title or "Â" in title:
-            logger.error(f"[DEBUG] MOJIBAKE DETECTED IN FINAL TITLE: {repr(title)}")
+        title = _extract_title(ent) or "Sin descripción"
 
         results.append({
             "code": code,
