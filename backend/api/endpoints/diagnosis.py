@@ -98,6 +98,9 @@ async def get_gemini_diagnosis(text: str) -> List[dict]:
         except Exception as e:
             logger.warning(f"Gemini API Error (Attempt {attempt+1}): {e}")
             if "429" in str(e) or "ResourceExhausted" in str(e):
+                if attempt == retries - 1:
+                    logger.error("All Gemini retries failed.")
+                    raise HTTPException(status_code=503, detail="AI quota/rate limit exceeded")
                 await asyncio.sleep(delay * (2 ** attempt)) # Exponential Backoff
                 continue
             elif attempt == retries - 1:
