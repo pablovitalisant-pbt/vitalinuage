@@ -10,7 +10,7 @@ from backend.dependencies import get_current_user
 import datetime
 
 router = APIRouter(
-    prefix="/pacientes/{patient_id}/antecedentes",
+    prefix="/api/medical-background/pacientes/{patient_id}/antecedentes",
     tags=["antecedentes"]
 )
 
@@ -71,7 +71,17 @@ def get_medical_background(
     if not background:
         # Return empty structure without persistence (Client usually handles "create on first save")
         # Or create an empty one in memory to satisfy response model
-        return MedicalBackgroundResponse(id=0, patient_id=patient_id) 
+        return MedicalBackgroundResponse(
+            id=0,
+            patient_id=patient_id,
+            patologicos=None,
+            no_patologicos=None,
+            heredofamiliares=None,
+            quirurgicos=None,
+            alergias=None,
+            medicamentos_actuales=None,
+            updated_at=None,
+        ) 
         
     return background
 
