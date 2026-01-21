@@ -107,8 +107,6 @@ export const DoctorProvider = ({ children }: { children: ReactNode }) => {
         console.log(`[AUTH AUDIT] Logout Initiated.`);
         await signOut(auth);
         console.log(`[AUTH AUDIT] Firebase signOut completed`);
-        // State clearing handled by onAuthStateChanged
-        window.location.href = '/';
     };
 
     const completeOnboarding = async (data: any) => {
