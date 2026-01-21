@@ -1,5 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+﻿import React, { useState } from 'react';
 import { useDoctor } from '../context/DoctorContext';
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { auth } from '../firebase';
@@ -12,26 +11,8 @@ const Login: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // Slice 40.12: We only need login from context.
-  // Updated for Login Redirect logic
-  const { login, user, profile, loading } = useDoctor();
-  const navigate = useNavigate();
-
-  // [IRON SEAL] Redirect Logic
-  // Deterministic redirect to dashboard if user is verified & onboarded.
-  // This handles direct access to /login when already authenticated.
-  useEffect(() => {
-    // 1. Wait for loading to finish
-    if (loading) return;
-    // 2. Ensure user is authenticated
-    if (!user) return;
-
-    // 3. Check business rules: verified AND onboarded
-    // Fallback: if profile is not yet loaded, we wait.
-    if (profile?.isVerified && profile?.isOnboarded) {
-      console.log("[NAVIGATION] Login successful -> redirecting to /dashboard");
-      navigate("/dashboard", { replace: true });
-    }
-  }, [loading, user, profile, navigate]);
+  // No references, no manual navigation.
+  const { login } = useDoctor();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

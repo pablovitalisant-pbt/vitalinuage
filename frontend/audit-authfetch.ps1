@@ -39,7 +39,7 @@ $AllowedFiles = @(
 )
 
 # Buscar todos los fetch
-$AllFetches = Get-ChildItem -Recurse -File .\src | Where-Object { $_.FullName -notmatch "node_modules" } | Select-String -Pattern "\bfetch\("
+$AllFetches = Get-ChildItem -Recurse -File .\src | Where-Object { $_.FullName -notmatch "node_modules" } | Select-String -Pattern "fetch\("
 
 $PrivilegedViolations = @()
 $AllowedCount = 0

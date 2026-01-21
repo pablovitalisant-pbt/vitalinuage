@@ -1,12 +1,15 @@
 export const patientService = {
-    getAll: async (fetcher: (url: string, options?: RequestInit) => Promise<Response>) => {
-        const res = await fetcher('/api/patients');
+    getAll: async (token: string) => {
+        const res = await fetch('/api/patients', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
         if (!res.ok) throw new Error('Error fetching patients');
         return res.json();
     },
-    search: async (fetcher: (url: string, options?: RequestInit) => Promise<Response>, query: string) => {
-        // Here we assume fetcher handles the base auth, but we need to ensure the caller passes the right fetcher (authFetch)
-        const res = await fetcher(`/api/patients/search?q=${encodeURIComponent(query)}`);
+    search: async (token: string, query: string) => {
+        const res = await fetch(`/api/patients/search?q=${encodeURIComponent(query)}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
         if (!res.ok) throw new Error('Error searching patients');
         return res.json();
     }
