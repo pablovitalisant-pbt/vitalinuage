@@ -142,7 +142,25 @@ async def _who_get_json(url: str, token: str) -> Dict[str, Any]:
         logger.warning(f"[DIAGNOSIS] WHO GET {r.status_code} {url}")
         raise HTTPException(503, "ICD service unavailable")
 
-    return r.json()
+    # DEBUG: Log response encoding
+    logger.info(f"[DEBUG] WHO response encoding: {r.encoding}")
+    logger.info(f"[DEBUG] WHO Content-Type: {r.headers.get('Content-Type')}")
+    
+    # Force UTF-8 if not already set
+    if r.encoding != 'utf-8':
+        logger.warning(f"[DEBUG] Forcing UTF-8, was: {r.encoding}")
+        r.encoding = 'utf-8'
+    
+    json_data = r.json()
+    
+    # DEBUG: Sample first entity title
+    if isinstance(json_data, dict):
+        entities = json_data.get("destinationEntities", [])
+        if entities and len(entities) > 0:
+            sample_title = entities[0].get("title", "")
+            logger.info(f"[DEBUG] Sample raw title from JSON: {repr(sample_title)}")
+    
+    return json_data
 
 
 def _extract_code(j: Dict[str, Any]) -> str:
@@ -155,10 +173,16 @@ def _extract_code(j: Dict[str, Any]) -> str:
 
 def _extract_title(j: Dict[str, Any]) -> str:
     t = j.get("title")
+    logger.info(f"[DEBUG] _extract_title input: {repr(t)}")
     if isinstance(t, str):
-        return _strip_html(t)
+        result = _strip_html(t)
+        logger.info(f"[DEBUG] _extract_title after _strip_html: {repr(result)}")
+        return result
     if isinstance(t, dict):
-        return _strip_html(t.get("@value") or t.get("value") or "")
+        raw = t.get("@value") or t.get("value") or ""
+        result = _strip_html(raw)
+        logger.info(f"[DEBUG] _extract_title dict after _strip_html: {repr(result)}")
+        return result
     return ""
 
 
@@ -185,10 +209,18 @@ async def get_icd11_suggestions(text: str, limit: int = 5) -> List[Dict[str, str
 
     for ent in entities[:limit]:
         raw_title = _strip_html(ent.get("title") or "")
+        logger.info(f"[DEBUG] After first _strip_html: {repr(raw_title)}")
         raw_title = _fix_mojibake(raw_title)
+        logger.info(f"[DEBUG] After first _fix_mojibake: {repr(raw_title)}")
         code = _extract_code(ent) or "ICD11"
         title = _extract_title(ent) or raw_title or "Sin descripción"
+        logger.info(f"[DEBUG] After _extract_title: {repr(title)}")
         title = _fix_mojibake(title)
+        logger.info(f"[DEBUG] Final title after second _fix_mojibake: {repr(title)}")
+        
+        # Check for mojibake markers
+        if "Ã" in title or "Â" in title:
+            logger.error(f"[DEBUG] MOJIBAKE DETECTED IN FINAL TITLE: {repr(title)}")
 
         results.append({
             "code": code,
