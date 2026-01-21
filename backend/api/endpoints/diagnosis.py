@@ -144,6 +144,20 @@ def _extract_title(j: Dict[str, Any]) -> str:
     return ""
 
 
+def _fix_mojibake(s: str) -> str:
+    """
+    Fix common UTF-8/Latin-1 mojibake like
+    'especificaciÃ³n' -> 'especificación'.
+    Safe: if conversion fails, returns original string.
+    """
+    if not s:
+        return s
+    try:
+        return s.encode("latin-1").decode("utf-8")
+    except Exception:
+        return s
+
+
 # =====================
 # Core logic
 # =====================
@@ -165,8 +179,10 @@ async def get_icd11_suggestions(text: str, limit: int = 5) -> List[Dict[str, str
 
     for ent in entities[:limit]:
         raw_title = _strip_html(ent.get("title") or "")
+        raw_title = _fix_mojibake(raw_title)
         code = _extract_code(ent) or "ICD11"
         title = _extract_title(ent) or raw_title or "Sin descripción"
+        title = _fix_mojibake(title)
 
         results.append({
             "code": code,
