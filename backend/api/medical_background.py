@@ -10,7 +10,7 @@ from backend.dependencies import get_current_user
 import datetime
 
 router = APIRouter(
-    prefix="/api/medical-background/pacientes/{patient_id}/antecedentes",
+    prefix="/pacientes/{patient_id}/antecedentes",
     tags=["antecedentes"]
 )
 
