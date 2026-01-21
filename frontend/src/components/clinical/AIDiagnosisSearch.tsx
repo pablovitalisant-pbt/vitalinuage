@@ -109,9 +109,7 @@ export default function AIDiagnosisSearch({ onSelect }: AIDiagnosisSearchProps) 
                             <span className="block text-xs text-gray-400 ml-16 truncate">{s.relevance_reason}</span>
                         </li>
                     ))}
-                    <li className="text-xs text-center py-2 text-gray-400 border-t bg-gray-50">
-                        Sugerencias generadas por Gemini AI
-                    </li>
+
                 </ul>
             )}
 
