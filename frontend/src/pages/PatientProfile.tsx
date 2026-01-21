@@ -205,7 +205,14 @@ export default function PatientProfile() {
                     </div>
                 ) : (
                     <div className="bg-slate-50 border border-slate-200 p-4 mb-8 rounded-2xl text-center">
-                        <p className="text-slate-500 text-sm font-semibold">✓ Sin alergias registradas</p>
+                        {(() => {
+                            const alergiasTxt = (medicalBackground?.alergias ?? "").trim();
+                            return (
+                                <p className="text-slate-500 text-sm font-semibold">
+                                    ✓ {alergiasTxt ? alergiasTxt : "Sin alergias registradas"}
+                                </p>
+                            );
+                        })()}
                     </div>
                 )}
 
