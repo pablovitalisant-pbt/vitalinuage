@@ -269,8 +269,6 @@ Backend:
 
 - Bucket Firebase Storage activo: `vitalinuage.firebasestorage.app` (consola Firebase Storage, 2026-01-22).
 - Reglas aplicadas: lectura/escritura solo owner en `profiles/{uid}/avatar` y `profiles/{uid}/signature`, con limites de tamano y content-type `image/*`. (consola Firebase Storage, 2026-01-22).
-- CORS aplicado en bucket para `https://vitalinuage.web.app` (gsutil cors set, 2026-01-22).
-- Requisito de privacidad (evidencia humana): firma no es publica; solo se usa dentro del PDF generado por el sistema. (Confirmacion directa del humano, 2026-01-22).
 
 ## CI/CD y despliegue (solo evidencia)
 
