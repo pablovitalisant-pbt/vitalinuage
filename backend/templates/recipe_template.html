@@ -100,6 +100,15 @@
             text-align: right;
         }
 
+        .signature-image {
+            max-width: 180px;
+            max-height: 50px;
+            object-fit: contain;
+            display: block;
+            margin-left: auto;
+            margin-bottom: 6px;
+        }
+
         .signature-line {
             display: inline-block;
             width: 200px;
@@ -158,6 +167,9 @@
     </div>
 
     <div class="signature-box">
+        {% if signature_base64 %}
+        <img src="data:image/png;base64,{{ signature_base64 }}" alt="Firma" class="signature-image" />
+        {% endif %}
         <div class="signature-line">
             Firma del Médico
         </div>

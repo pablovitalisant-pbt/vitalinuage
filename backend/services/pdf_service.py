@@ -3,11 +3,17 @@
 # from reportlab.lib.units import mm as reportlab_mm
 # from reportlab.lib.pagesizes import A5
 # from weasyprint import HTML
-from sqlalchemy.orm import Session
-from typing import Optional
-from backend import models
-import tempfile
+import base64
+import io
+import logging
 import os
+import tempfile
+import urllib.parse
+from typing import Optional
+from sqlalchemy.orm import Session
+from backend import models
+
+logger = logging.getLogger(__name__)
 
 
 class PDFService:
@@ -15,6 +21,74 @@ class PDFService:
     Servicio de generaciÃ³n de PDFs con soporte para coordenadas personalizadas.
     Estrategia hÃ­brida: ReportLab para coordenadas exactas, WeasyPrint para templates.
     """
+
+    @staticmethod
+    def _resolve_storage_object(signature_value: str, default_bucket: Optional[str]) -> tuple[Optional[str], Optional[str]]:
+        if not signature_value:
+            return None, None
+
+        if signature_value.startswith("gs://"):
+            bucket_path = signature_value.replace("gs://", "", 1)
+            bucket_name, _, object_path = bucket_path.partition("/")
+            return bucket_name or default_bucket, object_path or None
+
+        if signature_value.startswith("http"):
+            parsed = urllib.parse.urlparse(signature_value)
+            if "firebasestorage.googleapis.com" in parsed.netloc:
+                marker = "/b/"
+                if marker in parsed.path and "/o/" in parsed.path:
+                    after_marker = parsed.path.split(marker, 1)[1]
+                    bucket_name, _, object_path = after_marker.partition("/o/")
+                    return bucket_name or default_bucket, urllib.parse.unquote(object_path) or None
+                if "/o/" in parsed.path:
+                    object_path = parsed.path.split("/o/", 1)[1]
+                    return default_bucket, urllib.parse.unquote(object_path) or None
+            if "storage.googleapis.com" in parsed.netloc:
+                object_path = parsed.path.lstrip("/")
+                if "/" in object_path:
+                    bucket_name, _, object_path = object_path.partition("/")
+                    return bucket_name or default_bucket, object_path or None
+
+        object_path = signature_value.lstrip("/")
+        return default_bucket, object_path or None
+
+    @classmethod
+    def _fetch_signature_assets(
+        cls,
+        doctor_email: str,
+        db: Session
+    ) -> tuple[Optional[str], Optional[bytes]]:
+        if not doctor_email or not db:
+            return None, None
+
+        doctor = db.query(models.User).filter(models.User.email == doctor_email).first()
+        if not doctor or not doctor.signature_image:
+            return None, None
+
+        default_bucket = os.getenv("FIREBASE_STORAGE_BUCKET") or os.getenv("VITE_FIREBASE_STORAGE_BUCKET")
+        bucket_name, object_path = cls._resolve_storage_object(doctor.signature_image, default_bucket)
+        if not bucket_name or not object_path:
+            logger.warning("Signature storage bucket or path missing")
+            return None, None
+
+        try:
+            from backend.core.firebase_app import initialize_firebase
+            initialize_firebase()
+            from firebase_admin import storage as firebase_storage
+
+            bucket = firebase_storage.bucket(bucket_name)
+            blob = bucket.blob(object_path)
+            if not blob.exists():
+                logger.warning("Signature blob not found: %s", object_path)
+                return None, None
+
+            signature_bytes = blob.download_as_bytes()
+        except Exception as exc:
+            logger.warning("Signature fetch failed: %s", exc)
+            return None, None
+
+        signature_base64 = base64.b64encode(signature_bytes).decode("ascii")
+        return signature_base64, signature_bytes
     
     @staticmethod
     def mm_to_points(millimeters: float) -> float:
@@ -77,7 +151,8 @@ class PDFService:
         consultation: models.ClinicalConsultation,
         prescription_map: models.PrescriptionMap,
         output_path: str,
-        db: Session = None
+        db: Session = None,
+        signature_bytes: Optional[bytes] = None
     ) -> bytes:
         """
         Genera PDF usando ReportLab con coordenadas exactas.
@@ -113,6 +188,25 @@ class PDFService:
         
         # 3. Iterar sobre fields_config y posicionar cada campo
         for field_config in prescription_map.fields_config:
+            if field_config['field_key'] == 'doctor_signature' and signature_bytes:
+                x_pt = cls.mm_to_points(field_config['x_mm'])
+                y_pt = height_pt - cls.mm_to_points(field_config['y_mm'])
+                width_mm = field_config.get('max_width_mm', 25.0)
+                height_mm = field_config.get('max_height_mm', width_mm)
+                width_pt = cls.mm_to_points(width_mm)
+                height_pt_signature = cls.mm_to_points(height_mm)
+
+                c.drawImage(
+                    ImageReader(io.BytesIO(signature_bytes)),
+                    x_pt,
+                    y_pt - height_pt_signature,
+                    width=width_pt,
+                    height=height_pt_signature,
+                    preserveAspectRatio=True,
+                    mask='auto'
+                )
+                continue
+
             if field_config['field_key'] == 'qr_code' and db:
                 # Get doctor info
                 doctor = db.query(models.User).filter(
@@ -184,7 +278,8 @@ class PDFService:
     def generate_with_template(
         cls,
         consultation: models.ClinicalConsultation,
-        template_id: str = "modern"
+        template_id: str = "modern",
+        signature_base64: Optional[str] = None
     ) -> bytes:
         """
         Genera PDF usando WeasyPrint con templates HTML/CSS.
@@ -239,6 +334,7 @@ class PDFService:
             'consultation': MockConsultation(consultation),
             'date': consultation.created_at.strftime('%d/%m/%Y') if consultation.created_at else "",
             'logo_base64': None,  # No logo for now
+            'signature_base64': signature_base64,
             'primary_color': '#4a90e2',
             'secondary_color': '#2c3e50'
         }
@@ -282,6 +378,7 @@ class PDFService:
         cls,
         consultation: models.ClinicalConsultation,
         verification_uuid: str = "",
+        signature_base64: Optional[str] = None,
         db: Session = None  # New Argument injected from API
     ) -> bytes:
         """
@@ -364,6 +461,7 @@ class PDFService:
             'date': date_str,
             'treatment': consultation.plan_tratamiento or "",
             'diagnosis': consultation.diagnostico or "",
+            'signature_base64': signature_base64,
             'verification_uuid': final_uuid
         }
         
@@ -415,6 +513,8 @@ class PDFService:
         """
         Metodo principal: decide que estrategia usar (coordenadas vs template).
         """
+        signature_base64, signature_bytes = cls._fetch_signature_assets(doctor_email, db)
+
         # 1. Buscar mapa activo del medico
         prescription_map = cls.get_active_map(doctor_email, db)
         
@@ -426,7 +526,8 @@ class PDFService:
                     consultation, 
                     prescription_map, 
                     tmp.name,
-                    db=db
+                    db=db,
+                    signature_bytes=signature_bytes
                 )
                 try:
                     os.unlink(tmp.name)
@@ -449,5 +550,10 @@ class PDFService:
             
             uuid_str = verification.uuid if verification else ""
             
-            return cls.generate_from_html_file(consultation, verification_uuid=uuid_str, db=db)
+            return cls.generate_from_html_file(
+                consultation,
+                verification_uuid=uuid_str,
+                signature_base64=signature_base64,
+                db=db
+            )
 

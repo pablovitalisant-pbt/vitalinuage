@@ -191,6 +191,27 @@ MINIMAL_TEMPLATE = """
             right: 0;
             bottom: 6px;
         }
+        .signature-area {
+            text-align: right;
+            margin-top: 10px;
+        }
+        .signature-image {
+            max-width: 160px;
+            max-height: 40px;
+            object-fit: contain;
+            display: block;
+            margin-left: auto;
+            margin-bottom: 4px;
+        }
+        .signature-line {
+            border-top: 1px solid #34495e;
+            width: 150px;
+            margin-left: auto;
+            padding-top: 3px;
+            text-align: center;
+            font-size: 7pt;
+            color: #7f8c8d;
+        }
     </style>
 </head>
 <body>
@@ -253,6 +274,13 @@ MINIMAL_TEMPLATE = """
                 <p>{{ consultation.notes }}</p>
                 {% endif %}
             </div>
+        </div>
+
+        <div class="signature-area">
+            {% if signature_base64 %}
+            <img src="data:image/png;base64,{{ signature_base64 }}" class="signature-image" alt="Firma" />
+            {% endif %}
+            <div class="signature-line">Firma del médico</div>
         </div>
         
         <div class="footer">
@@ -402,6 +430,14 @@ MODERN_TEMPLATE = """
             text-align: right;
             margin-top: 40px;
         }
+        .signature-image {
+            max-width: 180px;
+            max-height: 45px;
+            object-fit: contain;
+            display: block;
+            margin-left: auto;
+            margin-bottom: 6px;
+        }
         
         .signature-label {
             font-size: 8pt;
@@ -499,6 +535,9 @@ MODERN_TEMPLATE = """
         
         <div class="signature-area">
             <p class="signature-label">Signature</p>
+            {% if signature_base64 %}
+            <img src="data:image/png;base64,{{ signature_base64 }}" class="signature-image" alt="Signature" />
+            {% endif %}
             <div class="signature-line">_________________________</div>
         </div>
     </div>
@@ -630,6 +669,14 @@ CLASSIC_TEMPLATE = """
             right: 5px;
             top: 2px;
         }
+        .signature-image-classic {
+            max-width: 150px;
+            max-height: 40px;
+            object-fit: contain;
+            display: block;
+            margin-left: auto;
+            margin-bottom: 4px;
+        }
     </style>
 </head>
 <body>
@@ -679,6 +726,9 @@ CLASSIC_TEMPLATE = """
                 </div>
                 
                 <div style="text-align: right; margin-top: 15px;">
+                    {% if signature_base64 %}
+                    <img src="data:image/png;base64,{{ signature_base64 }}" class="signature-image-classic" alt="Signature" />
+                    {% endif %}
                     <p style="border-top: 1px solid #34495e; width: 150px; margin-left: auto; padding-top: 3px; text-align: center; font-size: 7pt; color: #7f8c8d;">Doctor's Signature</p>
                 </div>
             </td>

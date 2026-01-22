@@ -265,6 +265,12 @@ Backend:
 - Response: `DiagnosisResponse` con `suggestions` list de `{code, description, relevance_reason}` (`backend/api/endpoints/diagnosis.py:23-30,177-181`).
 - Pendiente: no hay manejo explicito de 429/401 OMS (solo 503 generico).
 
+### Firebase Storage (evidencia manual)
+
+- Consola Firebase > Storage muestra pantalla "Comenzar" (Storage no inicializado en el proyecto). (Evidencia manual, 2026-01-22).
+- Buckets visibles en Cloud Storage: `run-sources-vitalinuage-us-central1`, `vitalinuage_cloudbuild`. (Evidencia manual, 2026-01-22).
+- Requisito de privacidad (decision humana): prohibir lectura publica y permitir read/write solo al owner en `profiles/{uid}/avatar` y `profiles/{uid}/signature`. (Evidencia humana, 2026-01-22).
+
 ## CI/CD y despliegue (solo evidencia)
 
 - Pipeline con lint + deploy frontend y backend (`.github/workflows/pipeline.yml:8-129`).

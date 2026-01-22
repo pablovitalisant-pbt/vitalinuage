@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Save, Upload, User, Image as ImageIcon, Printer } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { getBlob, ref, uploadBytes } from 'firebase/storage';
 
 import { useDoctor } from '../context/DoctorContext';
 import { useAuthFetch } from '../hooks/useAuthFetch';
@@ -45,6 +45,53 @@ export default function ProfileSettings() {
 
     const authFetch = useAuthFetch();
 
+    const normalizeStoragePath = useCallback((storedValue: string | null) => {
+        if (!storedValue) return null;
+        if (!storedValue.startsWith('http')) return storedValue;
+        try {
+            const parsedUrl = new URL(storedValue);
+            if (parsedUrl.hostname.includes('firebasestorage.googleapis.com')) {
+                const pathMatch = parsedUrl.pathname.match(/\/o\/(.+)$/);
+                if (pathMatch?.[1]) {
+                    return decodeURIComponent(pathMatch[1]);
+                }
+            }
+            if (parsedUrl.hostname.includes('storage.googleapis.com')) {
+                const trimmed = parsedUrl.pathname.replace(/^\//, '');
+                const [, ...rest] = trimmed.split('/');
+                if (rest.length) {
+                    return rest.join('/');
+                }
+            }
+        } catch (error) {
+            console.warn("Error parsing storage URL", error);
+        }
+        return storedValue;
+    }, []);
+
+    const resolveStoragePreview = useCallback(async (
+        storedValue: string | null,
+        applyPreview: (value: string) => void
+    ) => {
+        if (!storedValue) return;
+        const resolvedPath = normalizeStoragePath(storedValue);
+        try {
+            if (resolvedPath && !resolvedPath.startsWith('http')) {
+                const storageRef = ref(storage, resolvedPath);
+                const blob = await getBlob(storageRef);
+                const objectUrl = URL.createObjectURL(blob);
+                applyPreview(objectUrl);
+                return;
+            }
+            if (resolvedPath) {
+                applyPreview(resolvedPath);
+                return;
+            }
+        } catch (error) {
+            console.error("Error loading storage image", error);
+        }
+    }, [normalizeStoragePath]);
+
     // Load initial data
     useEffect(() => {
         authFetch(getApiUrl('/api/doctors/profile'))
@@ -67,16 +114,18 @@ export default function ProfileSettings() {
                 const loadedProfileImage = data.profile_image ?? data.profileImage ?? null;
                 const loadedSignatureImage = data.signature_image ?? data.signatureImage ?? null;
                 if (loadedProfileImage) {
-                    setPreviewUrl(loadedProfileImage);
-                    setProfileImageValue(loadedProfileImage);
+                    const normalizedProfile = normalizeStoragePath(loadedProfileImage);
+                    setProfileImageValue(normalizedProfile);
+                    resolveStoragePreview(normalizedProfile, setPreviewUrl);
                 }
                 if (loadedSignatureImage) {
-                    setSignatureUrl(loadedSignatureImage);
-                    setSignatureImageValue(loadedSignatureImage);
+                    const normalizedSignature = normalizeStoragePath(loadedSignatureImage);
+                    setSignatureImageValue(normalizedSignature);
+                    resolveStoragePreview(normalizedSignature, setSignatureUrl);
                 }
             })
             .catch(err => console.error("Error loading profile", err));
-    }, [getValues, setValue]);
+    }, [getValues, normalizeStoragePath, resolveStoragePreview, setValue]);
 
     const onSubmit = async (data: ProfileForm) => {
         if (!data.professionalName || data.professionalName.trim().length < 3) {
@@ -146,9 +195,7 @@ export default function ProfileSettings() {
             try {
                 const storageRef = ref(storage, `profiles/${user.uid}/avatar`);
                 await uploadBytes(storageRef, file);
-                const downloadUrl = await getDownloadURL(storageRef);
-                setPreviewUrl(downloadUrl);
-                setProfileImageValue(downloadUrl);
+                setProfileImageValue(storageRef.fullPath);
             } catch (error) {
                 console.error("Error uploading profile image", error);
             }
@@ -164,9 +211,7 @@ export default function ProfileSettings() {
             try {
                 const storageRef = ref(storage, `profiles/${user.uid}/avatar`);
                 await uploadBytes(storageRef, file);
-                const downloadUrl = await getDownloadURL(storageRef);
-                setPreviewUrl(downloadUrl);
-                setProfileImageValue(downloadUrl);
+                setProfileImageValue(storageRef.fullPath);
             } catch (error) {
                 console.error("Error uploading profile image", error);
             }
@@ -183,9 +228,7 @@ export default function ProfileSettings() {
             try {
                 const storageRef = ref(storage, `profiles/${user.uid}/signature`);
                 await uploadBytes(storageRef, file);
-                const downloadUrl = await getDownloadURL(storageRef);
-                setSignatureUrl(downloadUrl);
-                setSignatureImageValue(downloadUrl);
+                setSignatureImageValue(storageRef.fullPath);
             } catch (error) {
                 console.error("Error uploading signature", error);
             }
