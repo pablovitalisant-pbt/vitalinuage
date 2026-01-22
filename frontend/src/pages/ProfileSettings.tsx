@@ -28,7 +28,16 @@ export default function ProfileSettings() {
     const [showPrintSettings, setShowPrintSettings] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-    const { register, handleSubmit, setValue } = useForm<ProfileForm>();
+    const { register, handleSubmit, setValue, setError, clearErrors, formState: { errors } } = useForm<ProfileForm>({
+        defaultValues: {
+            professionalName: '',
+            specialty: '',
+            address: '',
+            phone: '',
+            medicalLicense: '',
+            registrationNumber: ''
+        }
+    });
 
     const authFetch = useAuthFetch();
 
@@ -44,23 +53,29 @@ export default function ProfileSettings() {
             })
             .then(data => {
                 if (!data) return;
-                setValue('professionalName', data.professional_name);
-                setValue('specialty', data.specialty);
+                setValue('professionalName', data.professional_name ?? '');
+                setValue('specialty', data.specialty ?? '');
                 setValue('address', data.address);
                 setValue('phone', data.phone);
-                setValue('medicalLicense', data.medical_license);
-                setValue('registrationNumber', data.registration_number);
+                setValue('medicalLicense', data.medical_license ?? '');
+                setValue('registrationNumber', data.registration_number ?? '');
             })
             .catch(err => console.error("Error loading profile", err));
     }, [setValue]);
 
     const onSubmit = async (data: ProfileForm) => {
+        if (!data.professionalName || data.professionalName.trim().length < 3) {
+            setError('professionalName', { type: 'manual', message: 'Ingresa un nombre profesional valido.' });
+            return;
+        }
+        clearErrors('professionalName');
+
         try {
             const payload = {
-                professional_name: data.professionalName,
-                specialty: data.specialty,
-                medical_license: data.medicalLicense,
-                registration_number: data.registrationNumber
+                professional_name: data.professionalName ?? '',
+                specialty: data.specialty ?? '',
+                medical_license: data.medicalLicense ?? '',
+                registration_number: data.registrationNumber ?? ''
             };
 
             const response = await authFetch(getApiUrl('/api/doctors/profile'), {
@@ -221,10 +236,13 @@ export default function ProfileSettings() {
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-slate-700">Nombre Profesional</label>
                                 <input
-                                    {...register("professionalName")}
+                                    {...register("professionalName", { required: true })}
                                     type="text"
                                     className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none transition-all text-slate-800"
                                 />
+                                {errors.professionalName && (
+                                    <p className="text-xs text-red-600">{errors.professionalName.message || 'Nombre profesional requerido.'}</p>
+                                )}
                             </div>
 
                             <div className="space-y-2">
@@ -261,7 +279,7 @@ export default function ProfileSettings() {
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-slate-700">Matrícula Profesional</label>
                                 <input
-                                    {...register("medicalLicense")}
+                                    {...register("medicalLicense", { required: true })}
                                     type="text"
                                     className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none transition-all text-slate-800"
                                 />
@@ -270,7 +288,7 @@ export default function ProfileSettings() {
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-slate-700">Número de Registro</label>
                                 <input
-                                    {...register("registrationNumber")}
+                                    {...register("registrationNumber", { required: true })}
                                     type="text"
                                     className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none transition-all text-slate-800"
                                 />
