@@ -338,7 +338,13 @@ def create_patient_consultation(
         motivo_consulta=consultation.reason,  # reason -> motivo_consulta
         diagnostico=consultation.diagnosis,    # diagnosis -> diagnostico
         plan_tratamiento=consultation.treatment,  # treatment -> plan_tratamiento
-        examen_fisico=consultation.notes or ""  # notes -> examen_fisico
+        examen_fisico=consultation.notes or "",  # notes -> examen_fisico
+        peso_kg=consultation.peso_kg,
+        estatura_cm=consultation.estatura_cm,
+        imc=consultation.imc,
+        presion_arterial=consultation.presion_arterial,
+        frecuencia_cardiaca=consultation.frecuencia_cardiaca,
+        temperatura_c=consultation.temperatura_c
         # created_at is auto
     )
     

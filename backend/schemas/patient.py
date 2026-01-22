@@ -70,7 +70,12 @@ class ConsultationBase(BaseModel):
         return sanitize_text(v)
 
 class ConsultationCreate(ConsultationBase):
-    pass
+    peso_kg: Optional[float] = None
+    estatura_cm: Optional[float] = None
+    imc: Optional[float] = None
+    presion_arterial: Optional[str] = None
+    frecuencia_cardiaca: Optional[int] = None
+    temperatura_c: Optional[float] = None
 
 class ConsultationItem(ConsultationBase):
     id: int
