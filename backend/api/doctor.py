@@ -96,6 +96,8 @@ def update_profile(
     """
     Updates the professional profile of the authenticated user.
     """
+    payload = data.model_dump() if hasattr(data, "model_dump") else data.dict()
+    print(f"[PROFILE] PUT payload for {current_user.email}: {payload}")
     if data.professional_name:
         current_user.professional_name = data.professional_name
     if data.specialty:
@@ -108,10 +110,22 @@ def update_profile(
         current_user.address = data.address
     if data.phone is not None:
         current_user.phone = data.phone
+    if data.profile_image is not None:
+        current_user.profile_image = data.profile_image
+    if data.signature_image is not None:
+        current_user.signature_image = data.signature_image
         
     db.add(current_user)
     db.commit()
     db.refresh(current_user)
+
+    print(
+        "[PROFILE] Stored values for {email}: profile_image={profile_image} signature_image={signature_image}".format(
+            email=current_user.email,
+            profile_image=current_user.profile_image,
+            signature_image=current_user.signature_image
+        )
+    )
     
     
     return current_user
