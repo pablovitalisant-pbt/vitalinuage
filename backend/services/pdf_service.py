@@ -137,8 +137,8 @@ class PDFService:
             'patient_name': lambda c: f"{c.patient.nombre} {c.patient.apellido_paterno}",
             'patient_dni': lambda c: c.patient.dni or "N/A",
             'date': lambda c: c.created_at.strftime('%d/%m/%Y') if c.created_at else "",
-            'diagnosis': lambda c: c.diagnosis or "",
-            'treatment': lambda c: c.treatment or "",
+            'diagnosis': lambda c: c.diagnostico or "",
+            'treatment': lambda c: c.plan_tratamiento or "",
             'doctor_signature': lambda c: "Firma y Sello MÃ©dico"
         }
         
