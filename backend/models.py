@@ -22,6 +22,8 @@ class User(Base):
     registration_number = Column(String, nullable=True)
     address = Column(String, nullable=True)
     phone = Column(String, nullable=True)
+    profile_image = Column(String, nullable=True)
+    signature_image = Column(String, nullable=True)
 class Patient(Base):
     __tablename__ = "patients"
 

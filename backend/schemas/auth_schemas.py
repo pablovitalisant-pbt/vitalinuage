@@ -20,6 +20,8 @@ class User(UserBase):
     registration_number: Optional[str] = None
     address: Optional[str] = None
     phone: Optional[str] = None
+    profile_image: Optional[str] = None
+    signature_image: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 

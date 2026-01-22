@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Save, Upload, User, Image as ImageIcon, Printer } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 import { useDoctor } from '../context/DoctorContext';
 import { useAuthFetch } from '../hooks/useAuthFetch';
@@ -9,6 +10,7 @@ import { PrintSettingsModal } from '../components/PrintSettingsModal';
 import DataManagement from '../components/DataManagement';
 import DeleteAccountModal from '../components/DeleteAccountModal';
 import { getApiUrl } from '../config/api';
+import { storage } from '../firebase';
 
 interface ProfileForm {
     professionalName: string;
@@ -20,11 +22,13 @@ interface ProfileForm {
 }
 
 export default function ProfileSettings() {
-    const { refreshProfile } = useDoctor();
+    const { refreshProfile, user } = useDoctor();
     const [isSaved, setIsSaved] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
+    const [profileImageValue, setProfileImageValue] = useState<string | null>(null);
+    const [signatureImageValue, setSignatureImageValue] = useState<string | null>(null);
     const [showPrintSettings, setShowPrintSettings] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -60,6 +64,16 @@ export default function ProfileSettings() {
                 setValue('phone', data.phone ?? '');
                 setValue('medicalLicense', data.medical_license ?? data.medicalLicense ?? currentValues.medicalLicense ?? '');
                 setValue('registrationNumber', data.registration_number ?? data.registrationNumber ?? currentValues.registrationNumber ?? '');
+                const loadedProfileImage = data.profile_image ?? data.profileImage ?? null;
+                const loadedSignatureImage = data.signature_image ?? data.signatureImage ?? null;
+                if (loadedProfileImage) {
+                    setPreviewUrl(loadedProfileImage);
+                    setProfileImageValue(loadedProfileImage);
+                }
+                if (loadedSignatureImage) {
+                    setSignatureUrl(loadedSignatureImage);
+                    setSignatureImageValue(loadedSignatureImage);
+                }
             })
             .catch(err => console.error("Error loading profile", err));
     }, [getValues, setValue]);
@@ -79,7 +93,9 @@ export default function ProfileSettings() {
                 medical_license: data.medicalLicense ?? '',
                 registration_number: data.registrationNumber ?? '',
                 address: values.address ?? '',
-                phone: values.phone ?? ''
+                phone: values.phone ?? '',
+                profile_image: profileImageValue ?? '',
+                signature_image: signatureImageValue ?? ''
             };
 
             console.log('PROFILE PUT payload', payload);
@@ -118,7 +134,7 @@ export default function ProfileSettings() {
         setIsDragging(false);
     }, []);
 
-    const handleDrop = useCallback((e: React.DragEvent) => {
+    const handleDrop = useCallback(async (e: React.DragEvent) => {
         e.preventDefault();
         setIsDragging(false);
 
@@ -126,25 +142,55 @@ export default function ProfileSettings() {
         if (file && file.type.startsWith('image/')) {
             const url = URL.createObjectURL(file);
             setPreviewUrl(url);
+            if (!user?.uid) return;
+            try {
+                const storageRef = ref(storage, `profiles/${user.uid}/avatar`);
+                await uploadBytes(storageRef, file);
+                const downloadUrl = await getDownloadURL(storageRef);
+                setPreviewUrl(downloadUrl);
+                setProfileImageValue(downloadUrl);
+            } catch (error) {
+                console.error("Error uploading profile image", error);
+            }
         }
-    }, []);
+    }, [user?.uid]);
 
-    const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
             const url = URL.createObjectURL(file);
             setPreviewUrl(url);
+            if (!user?.uid) return;
+            try {
+                const storageRef = ref(storage, `profiles/${user.uid}/avatar`);
+                await uploadBytes(storageRef, file);
+                const downloadUrl = await getDownloadURL(storageRef);
+                setPreviewUrl(downloadUrl);
+                setProfileImageValue(downloadUrl);
+            } catch (error) {
+                console.error("Error uploading profile image", error);
+            }
         }
-    }, []);
+    }, [user?.uid]);
 
-    const handleSignatureSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleSignatureSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
             // Preview
             const url = URL.createObjectURL(file);
             setSignatureUrl(url);
+            if (!user?.uid) return;
+            try {
+                const storageRef = ref(storage, `profiles/${user.uid}/signature`);
+                await uploadBytes(storageRef, file);
+                const downloadUrl = await getDownloadURL(storageRef);
+                setSignatureUrl(downloadUrl);
+                setSignatureImageValue(downloadUrl);
+            } catch (error) {
+                console.error("Error uploading signature", error);
+            }
         }
-    }, []);
+    }, [user?.uid]);
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans p-6 pt-24">

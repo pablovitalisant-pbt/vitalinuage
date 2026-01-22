@@ -17,6 +17,7 @@ class DoctorProfile(BaseModel):
     address: Optional[str] = None
     bio: Optional[str] = None
     profile_image: Optional[str] = Field(None, alias="profileImage")
+    signature_image: Optional[str] = Field(None, alias="signatureImage")
     
     # System fields
     role: Optional[str] = None

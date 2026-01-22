@@ -16,5 +16,7 @@ class UserUpdate(BaseModel):
     registration_number: str
     address: Optional[str] = None
     phone: Optional[str] = None
+    profile_image: Optional[str] = None
+    signature_image: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)

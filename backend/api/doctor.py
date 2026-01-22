@@ -29,6 +29,8 @@ def get_profile(current_user: User = Depends(get_current_user)):
         "medical_license": current_user.medical_license,
         "address": current_user.address,
         "phone": current_user.phone,
+        "profile_image": current_user.profile_image,
+        "signature_image": current_user.signature_image,
         "is_onboarded": current_user.is_onboarded,
         "is_verified": current_user.is_verified,
         "created_at": current_user.created_at if hasattr(current_user, "created_at") else None
@@ -62,6 +64,10 @@ def create_profile(
         current_user.address = data.address
     if data.phone is not None:
         current_user.phone = data.phone
+    if data.profile_image is not None:
+        current_user.profile_image = data.profile_image
+    if data.signature_image is not None:
+        current_user.signature_image = data.signature_image
         
     # Mark as onboarded
     current_user.is_onboarded = True
