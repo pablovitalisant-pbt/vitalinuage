@@ -56,8 +56,8 @@ export default function ProfileSettings() {
                 const currentValues = getValues();
                 setValue('professionalName', data.professional_name ?? data.professionalName ?? currentValues.professionalName ?? '');
                 setValue('specialty', data.specialty ?? '');
-                setValue('address', data.address);
-                setValue('phone', data.phone);
+                setValue('address', data.address ?? currentValues.address ?? '');
+                setValue('phone', data.phone ?? currentValues.phone ?? '');
                 setValue('medicalLicense', data.medical_license ?? data.medicalLicense ?? currentValues.medicalLicense ?? '');
                 setValue('registrationNumber', data.registration_number ?? data.registrationNumber ?? currentValues.registrationNumber ?? '');
             })
@@ -76,7 +76,9 @@ export default function ProfileSettings() {
                 professional_name: data.professionalName ?? '',
                 specialty: data.specialty ?? '',
                 medical_license: data.medicalLicense ?? '',
-                registration_number: data.registrationNumber ?? ''
+                registration_number: data.registrationNumber ?? '',
+                address: data.address ?? '',
+                phone: data.phone ?? ''
             };
 
             const response = await authFetch(getApiUrl('/api/doctors/profile'), {
@@ -260,10 +262,8 @@ export default function ProfileSettings() {
                                 <input
                                     {...register("address")}
                                     type="text"
-                                    disabled
                                     className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none transition-all text-slate-800"
                                 />
-                                <p className="text-xs text-amber-600">Campo en revisión</p>
                             </div>
 
                             <div className="space-y-2">
@@ -271,10 +271,8 @@ export default function ProfileSettings() {
                                 <input
                                     {...register("phone")}
                                     type="text"
-                                    disabled
                                     className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none transition-all text-slate-800"
                                 />
-                                <p className="text-xs text-amber-600">Campo en revisión</p>
                             </div>
 
                             <div className="space-y-2">

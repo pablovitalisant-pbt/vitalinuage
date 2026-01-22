@@ -18,6 +18,8 @@ class User(UserBase):
     specialty: Optional[str] = None
     medical_license: Optional[str] = None
     registration_number: Optional[str] = None
+    address: Optional[str] = None
+    phone: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 

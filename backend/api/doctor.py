@@ -27,6 +27,8 @@ def get_profile(current_user: User = Depends(get_current_user)):
         "specialty": current_user.specialty or "",
         "registration_number": current_user.registration_number or "",
         "medical_license": current_user.medical_license,
+        "address": current_user.address,
+        "phone": current_user.phone,
         "is_onboarded": current_user.is_onboarded,
         "is_verified": current_user.is_verified,
         "created_at": current_user.created_at if hasattr(current_user, "created_at") else None
@@ -56,6 +58,10 @@ def create_profile(
         current_user.medical_license = data.medical_license
     if data.registration_number:
         current_user.registration_number = data.registration_number
+    if data.address is not None:
+        current_user.address = data.address
+    if data.phone is not None:
+        current_user.phone = data.phone
         
     # Mark as onboarded
     current_user.is_onboarded = True

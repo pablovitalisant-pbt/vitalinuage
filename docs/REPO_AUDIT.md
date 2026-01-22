@@ -104,7 +104,7 @@ Evidencia encontrada (listado parcial del root): `_prod_bundle.js`, `_prod_index
 
 ### Mapa minimo de entidades/dominios (evidencia)
 
-- User (`users`): `email`, `is_verified`, `professional_name`, etc. (`backend/models.py:6-22`).
+- User (`users`): `email`, `is_verified`, `professional_name`, `registration_number`, `address`, `phone`, etc. (`backend/models.py:6-24`).
 - Patient (`patients`): datos personales, `owner_id` (`backend/models.py:23-67`).
 - MedicalBackground (`medical_backgrounds`) (`backend/models.py:69-84`).
 - ClinicalConsultation (`clinical_consultations`) (`backend/models.py:86-114`).

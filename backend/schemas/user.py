@@ -14,5 +14,7 @@ class UserUpdate(BaseModel):
     specialty: str
     medical_license: str
     registration_number: str
+    address: Optional[str] = None
+    phone: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)

@@ -20,6 +20,8 @@ class User(Base):
     medical_license = Column(String, nullable=True)
     is_onboarded = Column(Boolean, default=False)
     registration_number = Column(String, nullable=True)
+    address = Column(String, nullable=True)
+    phone = Column(String, nullable=True)
 class Patient(Base):
     __tablename__ = "patients"
 
