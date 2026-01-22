@@ -7,10 +7,14 @@ export interface DoctorProfile {
     professionalName?: string;
     specialty?: string;
     registrationNumber?: string;
+    profileImage?: string;
+    signatureImage?: string;
     // legacy/snake_case support if needed, though interface handles camelCase
     professional_name?: string;
     registration_number?: string;
     is_onboarded?: boolean;
+    profile_image?: string;
+    signature_image?: string;
 }
 
 /**

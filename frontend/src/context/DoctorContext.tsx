@@ -13,6 +13,8 @@ interface DoctorProfile {
     professionalName?: string;
     specialty?: string;
     registrationNumber?: string;
+    profileImage?: string;
+    signatureImage?: string;
 }
 
 interface DoctorContextType {
@@ -67,6 +69,8 @@ export const DoctorProvider = ({ children }: { children: ReactNode }) => {
                                 professionalName: profileData.professionalName || profileData.professional_name,
                                 specialty: profileData.specialty,
                                 registrationNumber: profileData.registrationNumber || profileData.registration_number,
+                                profileImage: profileData.profileImage || profileData.profile_image,
+                                signatureImage: profileData.signatureImage || profileData.signature_image,
                                 isOnboarded: profileData.isOnboarded !== undefined ? profileData.isOnboarded : (profileData.is_onboarded || false),
                                 email: fbUser.email || "",
                                 isVerified: true
@@ -147,6 +151,8 @@ export const DoctorProvider = ({ children }: { children: ReactNode }) => {
                 professionalName: profileData.professionalName || profileData.professional_name,
                 specialty: profileData.specialty,
                 registrationNumber: profileData.registrationNumber || profileData.registration_number,
+                profileImage: profileData.profileImage || profileData.profile_image,
+                signatureImage: profileData.signatureImage || profileData.signature_image,
                 isOnboarded: profileData.isOnboarded !== undefined ? profileData.isOnboarded : (profileData.is_onboarded || false),
                 email: user.email || "",
                 isVerified: true

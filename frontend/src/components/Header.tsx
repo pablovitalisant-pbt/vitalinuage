@@ -3,11 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { Settings, LogOut, User, ChevronDown } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
 import { useDoctor } from '../context/DoctorContext';
+import { getBlob, ref } from 'firebase/storage';
+import { storage } from '../firebase';
 
 export default function Header() {
     const navigate = useNavigate();
     const { profile, logout } = useDoctor();
     const [isOpen, setIsOpen] = useState(false);
+    const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     // Close dropdown when clicking outside
@@ -22,6 +25,71 @@ export default function Header() {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [dropdownRef]);
+
+    useEffect(() => {
+        let isActive = true;
+        let objectUrl: string | null = null;
+
+        const normalizeStoragePath = (storedValue: string) => {
+            if (!storedValue.startsWith('http')) return storedValue;
+            try {
+                const parsedUrl = new URL(storedValue);
+                if (parsedUrl.hostname.includes('firebasestorage.googleapis.com')) {
+                    const pathMatch = parsedUrl.pathname.match(/\/o\/(.+)$/);
+                    if (pathMatch?.[1]) {
+                        return decodeURIComponent(pathMatch[1]);
+                    }
+                }
+                if (parsedUrl.hostname.includes('storage.googleapis.com')) {
+                    const trimmed = parsedUrl.pathname.replace(/^\//, '');
+                    const [, ...rest] = trimmed.split('/');
+                    if (rest.length) {
+                        return rest.join('/');
+                    }
+                }
+            } catch (error) {
+                console.warn('Error parsing storage URL', error);
+            }
+            return storedValue;
+        };
+
+        const loadProfileImage = async () => {
+            if (!profile?.profileImage) {
+                setProfileImageUrl(null);
+                return;
+            }
+
+            const resolvedPath = normalizeStoragePath(profile.profileImage);
+            try {
+                if (!resolvedPath.startsWith('http')) {
+                    const storageRef = ref(storage, resolvedPath);
+                    const blob = await getBlob(storageRef);
+                    objectUrl = URL.createObjectURL(blob);
+                    if (isActive) {
+                        setProfileImageUrl(objectUrl);
+                    }
+                    return;
+                }
+                if (isActive) {
+                    setProfileImageUrl(resolvedPath);
+                }
+            } catch (error) {
+                console.error('Error loading header profile image', error);
+                if (isActive) {
+                    setProfileImageUrl(null);
+                }
+            }
+        };
+
+        loadProfileImage();
+
+        return () => {
+            isActive = false;
+            if (objectUrl) {
+                URL.revokeObjectURL(objectUrl);
+            }
+        };
+    }, [profile?.profileImage]);
 
     const handleLogout = async () => {
         console.log('[AUTH AUDIT] Header Logout CLICK handler fired');
@@ -49,8 +117,16 @@ export default function Header() {
                     onClick={() => setIsOpen(!isOpen)}
                     className="flex items-center gap-3 p-1.5 pr-3 rounded-full hover:bg-slate-100 transition-colors outline-none focus:ring-2 focus:ring-blue-100"
                 >
-                    <div className="h-9 w-9 bg-blue-100 rounded-full flex items-center justify-center text-[#1e3a8a]">
-                        <User className="h-5 w-5" />
+                    <div className="h-9 w-9 bg-blue-100 rounded-full flex items-center justify-center text-[#1e3a8a] overflow-hidden">
+                        {profileImageUrl ? (
+                            <img
+                                src={profileImageUrl}
+                                alt="Foto de perfil"
+                                className="h-full w-full object-cover"
+                            />
+                        ) : (
+                            <User className="h-5 w-5" />
+                        )}
                     </div>
                     <span className="text-sm font-medium text-slate-700 hidden sm:block">{profile.professionalName}</span>
                     <ChevronDown className={twMerge("h-4 w-4 text-slate-400 transition-transform duration-200", isOpen && "transform rotate-180")} />
