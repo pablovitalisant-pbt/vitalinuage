@@ -54,12 +54,12 @@ export default function ProfileSettings() {
             .then(data => {
                 if (!data) return;
                 const currentValues = getValues();
-                setValue('professionalName', data.professional_name ?? currentValues.professionalName ?? '');
+                setValue('professionalName', data.professional_name ?? data.professionalName ?? currentValues.professionalName ?? '');
                 setValue('specialty', data.specialty ?? '');
                 setValue('address', data.address);
                 setValue('phone', data.phone);
-                setValue('medicalLicense', data.medical_license ?? currentValues.medicalLicense ?? '');
-                setValue('registrationNumber', data.registration_number ?? currentValues.registrationNumber ?? '');
+                setValue('medicalLicense', data.medical_license ?? data.medicalLicense ?? currentValues.medicalLicense ?? '');
+                setValue('registrationNumber', data.registration_number ?? data.registrationNumber ?? currentValues.registrationNumber ?? '');
             })
             .catch(err => console.error("Error loading profile", err));
     }, [getValues, setValue]);
@@ -284,6 +284,9 @@ export default function ProfileSettings() {
                                     type="text"
                                     className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none transition-all text-slate-800"
                                 />
+                                {errors.medicalLicense && (
+                                    <p className="text-xs text-red-600">Matricula profesional requerida.</p>
+                                )}
                             </div>
 
                             <div className="space-y-2">
@@ -293,6 +296,9 @@ export default function ProfileSettings() {
                                     type="text"
                                     className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none transition-all text-slate-800"
                                 />
+                                {errors.registrationNumber && (
+                                    <p className="text-xs text-red-600">Numero de registro requerido.</p>
+                                )}
                             </div>
                         </div>
 
