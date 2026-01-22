@@ -325,8 +325,8 @@ class PDFService:
         
         class MockConsultation:
             def __init__(self, consultation):
-                self.diagnosis = consultation.diagnosis or ""
-                self.treatment = consultation.treatment or ""
+                self.diagnosis = consultation.diagnostico or ""
+                self.treatment = consultation.plan_tratamiento or ""
         
         context = {
             'doctor': MockDoctor(),
