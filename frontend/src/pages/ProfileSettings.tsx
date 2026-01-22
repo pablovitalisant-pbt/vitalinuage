@@ -56,8 +56,8 @@ export default function ProfileSettings() {
                 const currentValues = getValues();
                 setValue('professionalName', data.professional_name ?? data.professionalName ?? currentValues.professionalName ?? '');
                 setValue('specialty', data.specialty ?? '');
-                setValue('address', data.address ?? currentValues.address ?? '');
-                setValue('phone', data.phone ?? currentValues.phone ?? '');
+                setValue('address', data.address ?? '');
+                setValue('phone', data.phone ?? '');
                 setValue('medicalLicense', data.medical_license ?? data.medicalLicense ?? currentValues.medicalLicense ?? '');
                 setValue('registrationNumber', data.registration_number ?? data.registrationNumber ?? currentValues.registrationNumber ?? '');
             })
@@ -72,14 +72,17 @@ export default function ProfileSettings() {
         clearErrors('professionalName');
 
         try {
+            const values = getValues();
             const payload = {
                 professional_name: data.professionalName ?? '',
                 specialty: data.specialty ?? '',
                 medical_license: data.medicalLicense ?? '',
                 registration_number: data.registrationNumber ?? '',
-                address: data.address ?? '',
-                phone: data.phone ?? ''
+                address: values.address ?? '',
+                phone: values.phone ?? ''
             };
+
+            console.log('Profile payload', payload);
 
             const response = await authFetch(getApiUrl('/api/doctors/profile'), {
                 method: 'PUT',
