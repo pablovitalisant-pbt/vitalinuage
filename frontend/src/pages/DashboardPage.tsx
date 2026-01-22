@@ -66,15 +66,17 @@ export default function DashboardPage() {
                         </div>
                     </div>
 
-                    <div className="h-48 flex items-end justify-between gap-2">
+                    <div className="h-48 flex items-stretch justify-between gap-2">
                         {stats.weekly_patient_flow?.map((val, idx) => (
-                            <div key={idx} className="flex-1 flex flex-col items-center gap-2 group">
-                                <div
-                                    className="w-full bg-blue-100 rounded-t-sm hover:bg-blue-200 transition-all relative group-hover:shadow-md"
-                                    style={{ height: `${(val / maxFlow) * 100}%` }}
-                                >
-                                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                                        {val} citas
+                            <div key={idx} className="flex-1 flex flex-col justify-end items-center gap-2 group h-full">
+                                <div className="w-full flex-1 flex items-end">
+                                    <div
+                                        className="w-full bg-blue-100 rounded-t-sm hover:bg-blue-200 transition-all relative group-hover:shadow-md"
+                                        style={{ height: `${(val / maxFlow) * 100}%` }}
+                                    >
+                                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                                            {val} citas
+                                        </div>
                                     </div>
                                 </div>
                                 <span className="text-xs text-slate-500 capitalize">{dayLabels[idx]}</span>
