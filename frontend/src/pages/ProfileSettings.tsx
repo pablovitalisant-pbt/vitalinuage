@@ -8,6 +8,7 @@ import { useAuthFetch } from '../hooks/useAuthFetch';
 import { PrintSettingsModal } from '../components/PrintSettingsModal';
 import DataManagement from '../components/DataManagement';
 import DeleteAccountModal from '../components/DeleteAccountModal';
+import { getApiUrl } from '../config/api';
 
 interface ProfileForm {
     professionalName: string;
@@ -31,25 +32,22 @@ export default function ProfileSettings() {
 
     // Load initial data
     useEffect(() => {
-        authFetch('/api/doctor/profile')
-            .then(res => res.json())
+        authFetch(getApiUrl('/api/doctors/profile'))
+            .then(res => {
+                if (!res.ok) {
+                    console.error("Error loading profile", res.status);
+                    return null;
+                }
+                return res.json();
+            })
             .then(data => {
+                if (!data) return;
                 setValue('professionalName', data.professional_name);
                 setValue('specialty', data.specialty);
                 setValue('address', data.address);
                 setValue('phone', data.phone);
             })
             .catch(err => console.error("Error loading profile", err));
-
-        // Fetch Preferences for Signature
-        authFetch('/api/print/preferences')
-            .then(res => res.json())
-            .then(data => {
-                if (data.signature_url) {
-                    setSignatureUrl(data.signature_url);
-                }
-            })
-            .catch(err => console.error("Error loading signature", err));
     }, [setValue]);
 
     const onSubmit = async (data: ProfileForm) => {
@@ -61,7 +59,7 @@ export default function ProfileSettings() {
                 phone: data.phone
             };
 
-            const response = await authFetch('/api/doctor/profile', {
+            const response = await authFetch(getApiUrl('/api/doctors/profile'), {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -71,6 +69,8 @@ export default function ProfileSettings() {
                 await refreshProfile(); // Sync global context
                 setIsSaved(true);
                 setTimeout(() => setIsSaved(false), 3000);
+            } else {
+                console.error("Error saving profile", response.status);
             }
         } catch (error) {
             console.error("Error saving profile", error);
@@ -106,29 +106,12 @@ export default function ProfileSettings() {
         }
     }, []);
 
-    const handleSignatureSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleSignatureSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
             // Preview
             const url = URL.createObjectURL(file);
             setSignatureUrl(url);
-
-            // Upload immediately
-            const formData = new FormData();
-            formData.append('file', file);
-
-            try {
-                const res = await authFetch('/api/doctor/signature', {
-                    method: 'POST',
-                    body: formData
-                });
-                if (res.ok) {
-                    setIsSaved(true);
-                    setTimeout(() => setIsSaved(false), 3000);
-                }
-            } catch (err) {
-                console.error("Error uploading signature", err);
-            }
         }
     }, []);
 

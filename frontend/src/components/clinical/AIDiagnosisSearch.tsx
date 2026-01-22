@@ -74,7 +74,7 @@ export default function AIDiagnosisSearch({ onSelect }: AIDiagnosisSearchProps) 
     return (
         <div className="relative w-full mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-                Diagnóstico Presuntivo (IA)
+                Diagnóstico Presuntivo (CIE-10)
             </label>
             <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

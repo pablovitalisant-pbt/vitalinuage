@@ -1,6 +1,5 @@
 import { useState, useRef } from 'react';
 import { useDoctor } from '../context/DoctorContext';
-import { useAuthFetch } from '../hooks/useAuthFetch';
 import { Printer, Upload, Check, FileText } from 'lucide-react';
 
 interface PrintSettingsModalProps {
@@ -8,34 +7,16 @@ interface PrintSettingsModalProps {
 }
 
 export function PrintSettingsModal({ onClose }: PrintSettingsModalProps) {
-    const { preferences, updatePreferences, refreshProfile } = useDoctor();
-    const [uploading, setUploading] = useState(false);
+    const { preferences, updatePreferences } = useDoctor();
+    const [notice, setNotice] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const authFetch = useAuthFetch();
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-
-        setUploading(true);
-        const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-            const res = await authFetch('/api/doctor/logo', {
-                method: 'POST',
-                body: formData,
-            });
-
-            if (res.ok) {
-                await refreshProfile(); // Refresh context to get new logo URL
-            } else {
-                console.error("Upload failed");
-            }
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setUploading(false);
+        setNotice('La carga de logo esta en revision.');
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
         }
     };
 
@@ -130,11 +111,10 @@ export function PrintSettingsModal({ onClose }: PrintSettingsModalProps) {
                                 <p className="text-xs text-slate-500 mb-3">Sube tu logo en formato PNG o JPG. Se mostrará en la cabecera de tus recetas.</p>
                                 <button
                                     onClick={() => fileInputRef.current?.click()}
-                                    disabled={uploading}
                                     className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-700 text-sm font-medium transition-colors"
                                 >
                                     <Upload className="h-4 w-4" />
-                                    {uploading ? 'Subiendo...' : 'Subir Imagen'}
+                                    Subir Imagen
                                 </button>
                                 <input
                                     ref={fileInputRef}
@@ -182,12 +162,13 @@ export function PrintSettingsModal({ onClose }: PrintSettingsModalProps) {
 
                 {/* Footer */}
                 <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 flex justify-between items-center">
+                    {notice ? (
+                        <span className="text-xs text-amber-600">{notice}</span>
+                    ) : (
+                        <span className="text-xs text-slate-400">Funciones en revision</span>
+                    )}
                     <button
-                        onClick={() => {
-                            // Open a test PDF with current settings
-                            // We'll use the first consultation available or create a test endpoint
-                            window.open('/api/print/test', '_blank');
-                        }}
+                        onClick={() => setNotice('La vista previa esta en revision.')}
                         className="px-6 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-lg font-medium text-sm shadow-sm transition-colors"
                     >
                         👁️ Ver Vista Previa
