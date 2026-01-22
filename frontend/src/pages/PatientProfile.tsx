@@ -1,6 +1,7 @@
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { FilePlus, ArrowLeft, Printer, Settings, ScrollText, AlertTriangle } from 'lucide-react';
+import { FilePlus, ArrowLeft, Printer, Settings, ScrollText, AlertTriangle, FileText } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
+import { toast } from 'react-hot-toast';
 import { PrintSettingsModal } from '../components/PrintSettingsModal';
 import PrescriptionDelivery from '../components/PrescriptionDelivery';
 import MedicalBackgroundManager from '../components/MedicalBackgroundManager';
@@ -202,6 +203,33 @@ export default function PatientProfile() {
       setPatientSaveError('Error de conexión al guardar el paciente.');
     } finally {
       setIsSavingPatient(false);
+    }
+  };
+
+  const handleDownloadPrescriptionPdf = async (consultationId: number) => {
+    try {
+      const res = await authFetch(getApiUrl(`/api/consultas/${consultationId}/pdf`), {
+        method: 'GET'
+      });
+
+      if (!res.ok) {
+        const errorBody = await res.json().catch(() => ({}));
+        toast.error(errorBody.detail || 'No se pudo descargar la receta.');
+        return;
+      }
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `receta_${consultationId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading prescription PDF', error);
+      toast.error('Error al descargar la receta.');
     }
   };
 
@@ -636,21 +664,65 @@ export default function PatientProfile() {
         )}
 
         {activeTab === 'recipes' && (
-          <div className="animate-in fade-in slide-in-from-left-4 duration-300 bg-white p-12 rounded-xl text-center border border-slate-100 shadow-sm">
-            <div className="bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FilePlus className="h-8 w-8 text-[#1e3a8a]" />
+          <div className="animate-in fade-in slide-in-from-left-4 duration-300">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <h3 className="text-xl font-bold text-slate-800">Recetas del paciente</h3>
+                <p className="text-slate-500 text-sm">{consultations.length} recetas generadas desde consultas.</p>
+              </div>
+              <button
+                onClick={() => navigate(`/patient/${id}/new-consultation`)}
+                className="inline-flex items-center gap-2 bg-[#1e3a8a] text-white px-5 py-2.5 rounded-lg font-medium hover:bg-blue-900 transition-colors shadow-sm"
+              >
+                <FilePlus className="h-5 w-5" />
+                Nueva receta en blanco
+              </button>
             </div>
-            <h3 className="text-xl font-bold text-slate-800 mb-2">Gestión de Recetas</h3>
-            <p className="text-slate-500 max-w-md mx-auto mb-6">
-              Módulo de gestión de recetas electrónicas activado. Aquí podrá visualizar y generar nuevas recetas para el paciente.
-            </p>
-            <button
-              onClick={() => navigate(`/patient/${id}/new-prescription`)}
-              className="inline-flex items-center gap-2 bg-[#1e3a8a] text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-900 transition-colors shadow-md"
-            >
-              <ScrollText className="h-5 w-5" />
-              + Nueva Receta / Licencia
-            </button>
+
+            {consultations.length === 0 ? (
+              <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-10 text-center text-slate-400">
+                <FileText className="h-10 w-10 mx-auto mb-3 opacity-30" />
+                <p>No hay recetas registradas para este paciente.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {consultations.map((consultation) => (
+                  <div
+                    key={consultation.id}
+                    className="bg-white border border-slate-100 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                      <div>
+                        <p className="text-sm text-slate-500">
+                          {consultation.created_at
+                            ? new Date(consultation.created_at).toLocaleDateString('es-ES', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric'
+                              })
+                            : 'Fecha sin registrar'}
+                        </p>
+                        <h4 className="text-lg font-semibold text-slate-900">
+                          {consultation.diagnostico || consultation.motivo_consulta || 'Consulta'}
+                        </h4>
+                        <p className="text-sm text-slate-600 mt-1 line-clamp-2">
+                          {consultation.plan_tratamiento || 'Sin plan de tratamiento registrado.'}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => handleDownloadPrescriptionPdf(consultation.id)}
+                          className="inline-flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-slate-700 font-medium hover:bg-slate-50"
+                        >
+                          <ScrollText className="h-4 w-4" />
+                          Receta PDF
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
