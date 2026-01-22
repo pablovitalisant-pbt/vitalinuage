@@ -1,4 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
+import json
+from pathlib import Path
+
 from backend.schemas import doctor as schemas
 from backend.dependencies import get_current_user
 from backend.models import User, Patient, ClinicalConsultation, PrescriptionVerification
@@ -7,6 +10,8 @@ router = APIRouter(
     # Prefix managed in main.py
     tags=["doctor"]
 )
+
+FEATURE_FLAGS_PATH = Path("config/feature-flags.json")
 
 from typing import Union
 
@@ -275,6 +280,16 @@ def get_preferences(current_user: User = Depends(get_current_user)):
         "footer_text": "",
         "primary_color": "#000000",
         "secondary_color": "#ffffff"
+    }
+
+@router.get("/feature-flags")
+def get_feature_flags(current_user: User = Depends(get_current_user)):
+    if FEATURE_FLAGS_PATH.exists():
+        with FEATURE_FLAGS_PATH.open("r", encoding="utf-8") as flags_file:
+            return json.load(flags_file)
+
+    return {
+        "prescription_coords_v1": False
     }
 
 @router.put("/preferences")

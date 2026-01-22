@@ -45,19 +45,11 @@ const PrescriptionMapEditor: React.FC = () => {
     useEffect(() => {
         const checkFeatureFlag = async () => {
             try {
-                // Static file fetch, using standard fetch is fine, but lets be consistent if possible.
-                // Actually for public/static files standard fetch is okay, but authFetch won't hurt if it just ignores static.
-                // However, authFetch appends Valid Token.
-                const response = await fetch('/config/feature-flags.json');
+                const response = await authFetch(getApiUrl('/api/doctors/feature-flags'));
                 if (response.ok) {
-                    const bodyText = await response.text();
-                    try {
-                        const flags = JSON.parse(bodyText);
-                        setFeatureEnabled(flags.prescription_coords_v1 === true);
-                        return;
-                    } catch (parseError) {
-                        console.warn('Invalid feature flags JSON, using bundled defaults.', parseError);
-                    }
+                    const flags = await response.json();
+                    setFeatureEnabled(flags.prescription_coords_v1 === true);
+                    return;
                 }
                 setFeatureEnabled(localFlags.prescription_coords_v1 === true);
             } catch (error) {
