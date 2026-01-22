@@ -16,10 +16,41 @@ interface PatientData {
   id: number;
   nombre: string;
   apellido_paterno: string;
+  apellido_materno?: string | null;
   dni: string;
   fecha_nacimiento: string;
-  imc: number;
+  sexo?: string | null;
+  telefono?: string | null;
+  direccion?: string | null;
+  ocupacion?: string | null;
+  estado_civil?: string | null;
+  peso?: number | null;
+  talla?: number | null;
+  imc?: number | null;
+  grupo_sanguineo?: string | null;
+  alergias?: string | null;
+  observaciones?: string | null;
   email?: string | null;
+}
+
+interface PatientFormData {
+  nombre: string;
+  apellido_paterno: string;
+  apellido_materno: string;
+  dni: string;
+  fecha_nacimiento: string;
+  sexo: string;
+  telefono: string;
+  email: string;
+  direccion: string;
+  ocupacion: string;
+  estado_civil: string;
+  peso: string;
+  talla: string;
+  imc: string;
+  grupo_sanguineo: string;
+  alergias: string;
+  observaciones: string;
 }
 
 interface MedicalBackgroundData {
@@ -42,6 +73,10 @@ export default function PatientProfile() {
   const [editForm, setEditForm] = useState<any>(null);
   const [showPrintSettings, setShowPrintSettings] = useState(false);
   const [isEditingPatient, setIsEditingPatient] = useState(false);
+  const [patientForm, setPatientForm] = useState<PatientFormData | null>(null);
+  const [isSavingPatient, setIsSavingPatient] = useState(false);
+  const [patientSaveError, setPatientSaveError] = useState<string | null>(null);
+  const [patientSaveSuccess, setPatientSaveSuccess] = useState(false);
 
   // Smart Back: Navigate to origin or fallback to /search
   const handleBack = () => {
@@ -82,6 +117,91 @@ export default function PatientProfile() {
       }
     } catch (err) {
       console.error('Failed to update consultation', err);
+    }
+  };
+
+  useEffect(() => {
+    if (!isEditingPatient || !patient) return;
+
+    setPatientForm({
+      nombre: patient.nombre || '',
+      apellido_paterno: patient.apellido_paterno || '',
+      apellido_materno: patient.apellido_materno || '',
+      dni: patient.dni || '',
+      fecha_nacimiento: patient.fecha_nacimiento || '',
+      sexo: patient.sexo || 'M',
+      telefono: patient.telefono || '',
+      email: patient.email || '',
+      direccion: patient.direccion || '',
+      ocupacion: patient.ocupacion || '',
+      estado_civil: patient.estado_civil || '',
+      peso: patient.peso !== null && patient.peso !== undefined ? String(patient.peso) : '',
+      talla: patient.talla !== null && patient.talla !== undefined ? String(patient.talla) : '',
+      imc: patient.imc !== null && patient.imc !== undefined ? String(patient.imc) : '',
+      grupo_sanguineo: patient.grupo_sanguineo || '',
+      alergias: patient.alergias || '',
+      observaciones: patient.observaciones || ''
+    });
+  }, [isEditingPatient, patient]);
+
+  const handlePatientChange = (field: keyof PatientFormData, value: string) => {
+    setPatientForm((prev) => (prev ? { ...prev, [field]: value } : prev));
+  };
+
+  const handlePatientSave = async () => {
+    if (!patientForm || !id) return;
+    setIsSavingPatient(true);
+    setPatientSaveError(null);
+    setPatientSaveSuccess(false);
+
+    const toNumber = (value: string) => {
+      if (!value) return null;
+      const parsed = Number(value);
+      return Number.isNaN(parsed) ? null : parsed;
+    };
+
+    const payload = {
+      nombre: patientForm.nombre.trim(),
+      apellido_paterno: patientForm.apellido_paterno.trim(),
+      apellido_materno: patientForm.apellido_materno.trim() || null,
+      dni: patientForm.dni.trim(),
+      fecha_nacimiento: patientForm.fecha_nacimiento,
+      sexo: patientForm.sexo,
+      telefono: patientForm.telefono.trim() || null,
+      email: patientForm.email.trim() || null,
+      direccion: patientForm.direccion.trim() || null,
+      ocupacion: patientForm.ocupacion.trim() || null,
+      estado_civil: patientForm.estado_civil.trim() || null,
+      peso: toNumber(patientForm.peso),
+      talla: toNumber(patientForm.talla),
+      imc: toNumber(patientForm.imc),
+      grupo_sanguineo: patientForm.grupo_sanguineo.trim() || null,
+      alergias: patientForm.alergias.trim() || null,
+      observaciones: patientForm.observaciones.trim() || null
+    };
+
+    try {
+      const res = await authFetch(getApiUrl(`/api/patients/${id}`), {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        const errorBody = await res.json().catch(() => ({}));
+        setPatientSaveError(errorBody.detail || 'No se pudo guardar el paciente.');
+        return;
+      }
+
+      const updated = await res.json();
+      setPatient(updated);
+      setPatientSaveSuccess(true);
+      setIsEditingPatient(false);
+    } catch (error) {
+      console.error('Error updating patient', error);
+      setPatientSaveError('Error de conexión al guardar el paciente.');
+    } finally {
+      setIsSavingPatient(false);
     }
   };
 
@@ -142,7 +262,7 @@ export default function PatientProfile() {
   }
 
   // Calculated fields
-  const fullName = `${patient.nombre} ${patient.apellido_paterno}`;
+  const fullName = [patient.nombre, patient.apellido_paterno, patient.apellido_materno].filter(Boolean).join(' ');
   const age = new Date().getFullYear() - new Date(patient.fecha_nacimiento).getFullYear();
 
   return (
@@ -190,6 +310,213 @@ export default function PatientProfile() {
             </button>
           </div>
         </div>
+
+        {isEditingPatient && patientForm && (
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">Editar datos del paciente</h2>
+                <p className="text-sm text-slate-500">Actualiza la informacion principal del paciente.</p>
+              </div>
+              {patientSaveSuccess && (
+                <span className="text-sm text-emerald-600 font-semibold">✓ Guardado</span>
+              )}
+            </div>
+
+            {patientSaveError && (
+              <div className="mb-4 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {patientSaveError}
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Nombre</label>
+                <input
+                  value={patientForm.nombre}
+                  onChange={(e) => handlePatientChange('nombre', e.target.value)}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Apellido paterno</label>
+                <input
+                  value={patientForm.apellido_paterno}
+                  onChange={(e) => handlePatientChange('apellido_paterno', e.target.value)}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Apellido materno</label>
+                <input
+                  value={patientForm.apellido_materno}
+                  onChange={(e) => handlePatientChange('apellido_materno', e.target.value)}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">DNI</label>
+                <input
+                  value={patientForm.dni}
+                  onChange={(e) => handlePatientChange('dni', e.target.value)}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Fecha de nacimiento</label>
+                <input
+                  type="date"
+                  value={patientForm.fecha_nacimiento}
+                  onChange={(e) => handlePatientChange('fecha_nacimiento', e.target.value)}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Sexo</label>
+                <select
+                  value={patientForm.sexo}
+                  onChange={(e) => handlePatientChange('sexo', e.target.value)}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none bg-white"
+                >
+                  <option value="M">Masculino</option>
+                  <option value="F">Femenino</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Telefono</label>
+                <input
+                  value={patientForm.telefono}
+                  onChange={(e) => handlePatientChange('telefono', e.target.value)}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Email</label>
+                <input
+                  type="email"
+                  value={patientForm.email}
+                  onChange={(e) => handlePatientChange('email', e.target.value)}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none"
+                />
+              </div>
+
+              <div className="space-y-1 md:col-span-2">
+                <label className="text-sm font-medium text-slate-700">Direccion</label>
+                <input
+                  value={patientForm.direccion}
+                  onChange={(e) => handlePatientChange('direccion', e.target.value)}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Ocupacion</label>
+                <input
+                  value={patientForm.ocupacion}
+                  onChange={(e) => handlePatientChange('ocupacion', e.target.value)}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Estado civil</label>
+                <input
+                  value={patientForm.estado_civil}
+                  onChange={(e) => handlePatientChange('estado_civil', e.target.value)}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Peso (kg)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={patientForm.peso}
+                  onChange={(e) => handlePatientChange('peso', e.target.value)}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Talla (cm)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={patientForm.talla}
+                  onChange={(e) => handlePatientChange('talla', e.target.value)}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">IMC</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={patientForm.imc}
+                  onChange={(e) => handlePatientChange('imc', e.target.value)}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Grupo sanguineo</label>
+                <input
+                  value={patientForm.grupo_sanguineo}
+                  onChange={(e) => handlePatientChange('grupo_sanguineo', e.target.value)}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none"
+                />
+              </div>
+
+              <div className="space-y-1 md:col-span-2">
+                <label className="text-sm font-medium text-slate-700">Alergias</label>
+                <textarea
+                  rows={2}
+                  value={patientForm.alergias}
+                  onChange={(e) => handlePatientChange('alergias', e.target.value)}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none"
+                />
+              </div>
+
+              <div className="space-y-1 md:col-span-2">
+                <label className="text-sm font-medium text-slate-700">Observaciones</label>
+                <textarea
+                  rows={3}
+                  value={patientForm.observaciones}
+                  onChange={(e) => handlePatientChange('observaciones', e.target.value)}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 mt-6">
+              <button
+                onClick={() => {
+                  setIsEditingPatient(false);
+                  setPatientSaveError(null);
+                }}
+                className="px-4 py-2.5 border border-slate-200 rounded-lg text-slate-600 font-medium hover:bg-slate-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handlePatientSave}
+                disabled={isSavingPatient}
+                className="px-5 py-2.5 bg-[#1e3a8a] text-white rounded-lg font-medium hover:bg-blue-900 transition-colors disabled:opacity-60"
+              >
+                {isSavingPatient ? 'Guardando...' : 'Guardar cambios'}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Allergy Alert Banner - PRIORITY #1 */}
         {allergiesList.length > 0 ? (
