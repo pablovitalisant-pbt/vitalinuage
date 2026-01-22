@@ -7,7 +7,7 @@ from sqlalchemy import text
 from backend.db_core import engine, Base
 from backend import auth
 
-from backend.api import user, patients, consultations, audit, doctor, medical_background
+from backend.api import user, patients, consultations, audit, doctor, medical_background, maps
 from backend.api.endpoints import portability
 from backend.api.endpoints import user_deletion
 from backend.api.endpoints import diagnosis
@@ -97,6 +97,7 @@ app.include_router(consultations.router)
 app.include_router(consultations.verification_router)
 app.include_router(audit.router, prefix="/api/audit", tags=["Audit"])
 app.include_router(doctor.router, prefix="/api/doctors", tags=["Doctor"])
+app.include_router(maps.router)
 app.include_router(medical_background.router, prefix="/api/medical-background", tags=["Medical Background"])
 app.include_router(diagnosis.router)
 app.include_router(portability.router)

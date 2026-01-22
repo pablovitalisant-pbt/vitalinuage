@@ -1,6 +1,9 @@
 from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional
 
+from pydantic import BaseModel, Field
+from pydantic.config import ConfigDict
+
 class FieldConfig(BaseModel):
     field_key: str = Field(..., description="Clave interna del dato (ej: patient_name, diagnosis)")
     x_mm: float = Field(..., description="Posición X desde la izquierda en mm")
