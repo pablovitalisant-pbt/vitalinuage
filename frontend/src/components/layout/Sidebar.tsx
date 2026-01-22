@@ -21,9 +21,8 @@ interface SidebarProps {
 
 export const navItems = [
     { label: 'Inicio', path: '/dashboard', icon: <Home size={20} /> },
-    { label: 'Panel de Control', path: '/metrics', icon: <BarChart2 size={20} /> },
     { label: 'Pacientes', path: '/patients', icon: <Users size={20} /> },
-    { label: 'Citas', path: '/appointments', icon: <Calendar size={20} /> },
+    { label: 'Panel de Control', path: '/metrics', icon: <BarChart2 size={20} /> }
     // Removed Configuración as per Slice 13 Contract
 ];
 
