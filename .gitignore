@@ -61,3 +61,7 @@ Thumbs.db
 # ======================
 *.log
 
+# ======================
+# Local artifacts
+# ======================
+backend/migration_profile_images.sql

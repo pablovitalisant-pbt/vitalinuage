@@ -267,9 +267,8 @@ Backend:
 
 ### Firebase Storage (evidencia manual)
 
-- Consola Firebase > Storage muestra pantalla "Comenzar" (Storage no inicializado en el proyecto). (Evidencia manual, 2026-01-22).
-- Buckets visibles en Cloud Storage: `run-sources-vitalinuage-us-central1`, `vitalinuage_cloudbuild`. (Evidencia manual, 2026-01-22).
-- Requisito de privacidad (decision humana): prohibir lectura publica y permitir read/write solo al owner en `profiles/{uid}/avatar` y `profiles/{uid}/signature`. (Evidencia humana, 2026-01-22).
+- Bucket Firebase Storage activo: `vitalinuage.firebasestorage.app` (consola Firebase Storage, 2026-01-22).
+- Reglas aplicadas: lectura/escritura solo owner en `profiles/{uid}/avatar` y `profiles/{uid}/signature`, con limites de tamano y content-type `image/*`. (consola Firebase Storage, 2026-01-22).
 
 ## CI/CD y despliegue (solo evidencia)
 

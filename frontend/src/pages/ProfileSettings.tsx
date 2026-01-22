@@ -29,6 +29,8 @@ export default function ProfileSettings() {
     const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
     const [profileImageValue, setProfileImageValue] = useState<string | null>(null);
     const [signatureImageValue, setSignatureImageValue] = useState<string | null>(null);
+    const [profileImageError, setProfileImageError] = useState<string | null>(null);
+    const [signatureImageError, setSignatureImageError] = useState<string | null>(null);
     const [showPrintSettings, setShowPrintSettings] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -44,6 +46,128 @@ export default function ProfileSettings() {
     });
 
     const authFetch = useAuthFetch();
+    const profileImageTypes = ['image/jpeg', 'image/png'];
+    const signatureImageTypes = ['image/png'];
+
+    const loadImage = useCallback((file: File) => {
+        return new Promise<HTMLImageElement>((resolve, reject) => {
+            const url = URL.createObjectURL(file);
+            const img = new Image();
+            img.onload = () => {
+                URL.revokeObjectURL(url);
+                resolve(img);
+            };
+            img.onerror = () => {
+                URL.revokeObjectURL(url);
+                reject(new Error('No se pudo leer la imagen.'));
+            };
+            img.src = url;
+        });
+    }, []);
+
+    const canvasToBlob = useCallback((canvas: HTMLCanvasElement, type: string, quality?: number) => {
+        return new Promise<Blob>((resolve, reject) => {
+            canvas.toBlob(
+                blob => {
+                    if (!blob) {
+                        reject(new Error('No se pudo generar la imagen.'));
+                        return;
+                    }
+                    resolve(blob);
+                },
+                type,
+                quality
+            );
+        });
+    }, []);
+
+    const resizeImage = useCallback(async (
+        file: File,
+        options: {
+            maxWidth: number;
+            maxHeight: number;
+            maxBytes: number;
+            outputType: string;
+        }
+    ) => {
+        const image = await loadImage(file);
+        let scale = Math.min(
+            1,
+            options.maxWidth / image.width,
+            options.maxHeight / image.height
+        );
+
+        for (let attempt = 0; attempt < 6; attempt += 1) {
+            const width = Math.max(1, Math.round(image.width * scale));
+            const height = Math.max(1, Math.round(image.height * scale));
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const context = canvas.getContext('2d');
+            if (!context) {
+                throw new Error('No se pudo preparar la imagen.');
+            }
+
+            context.drawImage(image, 0, 0, width, height);
+
+            let quality = options.outputType === 'image/jpeg' ? 0.9 : undefined;
+            let blob = await canvasToBlob(canvas, options.outputType, quality);
+
+            if (options.outputType === 'image/jpeg') {
+                while (blob.size > options.maxBytes && quality && quality > 0.6) {
+                    quality = Math.max(0.6, quality - 0.1);
+                    blob = await canvasToBlob(canvas, options.outputType, quality);
+                }
+            }
+
+            if (blob.size <= options.maxBytes) {
+                return {
+                    blob,
+                    previewUrl: URL.createObjectURL(blob)
+                };
+            }
+
+            scale *= 0.85;
+        }
+
+        throw new Error('La imagen excede el tamano permitido.');
+    }, [canvasToBlob, loadImage]);
+
+    const uploadProfileImage = useCallback(async (file: File) => {
+        setProfileImageError(null);
+        if (!profileImageTypes.includes(file.type)) {
+            throw new Error('La foto debe ser JPG o PNG.');
+        }
+        const { blob, previewUrl } = await resizeImage(file, {
+            maxWidth: 512,
+            maxHeight: 512,
+            maxBytes: 400 * 1024,
+            outputType: 'image/jpeg'
+        });
+        setPreviewUrl(previewUrl);
+        if (!user?.uid) return;
+        const storageRef = ref(storage, `profiles/${user.uid}/avatar`);
+        await uploadBytes(storageRef, blob, { contentType: blob.type });
+        setProfileImageValue(storageRef.fullPath);
+    }, [profileImageTypes, resizeImage, user?.uid]);
+
+    const uploadSignatureImage = useCallback(async (file: File) => {
+        setSignatureImageError(null);
+        if (!signatureImageTypes.includes(file.type)) {
+            throw new Error('La firma debe ser PNG.');
+        }
+        const { blob, previewUrl } = await resizeImage(file, {
+            maxWidth: 600,
+            maxHeight: 200,
+            maxBytes: 300 * 1024,
+            outputType: 'image/png'
+        });
+        setSignatureUrl(previewUrl);
+        if (!user?.uid) return;
+        const storageRef = ref(storage, `profiles/${user.uid}/signature`);
+        await uploadBytes(storageRef, blob, { contentType: blob.type });
+        setSignatureImageValue(storageRef.fullPath);
+    }, [resizeImage, signatureImageTypes, user?.uid]);
 
     const normalizeStoragePath = useCallback((storedValue: string | null) => {
         if (!storedValue) return null;
@@ -143,8 +267,8 @@ export default function ProfileSettings() {
                 registration_number: data.registrationNumber ?? '',
                 address: values.address ?? '',
                 phone: values.phone ?? '',
-                profile_image: profileImageValue ?? '',
-                signature_image: signatureImageValue ?? ''
+                ...(profileImageValue ? { profile_image: profileImageValue } : {}),
+                ...(signatureImageValue ? { signature_image: signatureImageValue } : {})
             };
 
             console.log('PROFILE PUT payload', payload);
@@ -188,52 +312,45 @@ export default function ProfileSettings() {
         setIsDragging(false);
 
         const file = e.dataTransfer.files[0];
-        if (file && file.type.startsWith('image/')) {
-            const url = URL.createObjectURL(file);
-            setPreviewUrl(url);
-            if (!user?.uid) return;
-            try {
-                const storageRef = ref(storage, `profiles/${user.uid}/avatar`);
-                await uploadBytes(storageRef, file);
-                setProfileImageValue(storageRef.fullPath);
-            } catch (error) {
-                console.error("Error uploading profile image", error);
-            }
+        if (!file) return;
+        if (!file.type.startsWith('image/')) {
+            setProfileImageError('El archivo debe ser una imagen.');
+            return;
         }
-    }, [user?.uid]);
+        try {
+            await uploadProfileImage(file);
+        } catch (error) {
+            setProfileImageError(error instanceof Error ? error.message : 'Error al procesar la imagen.');
+        }
+    }, [uploadProfileImage]);
 
     const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            const url = URL.createObjectURL(file);
-            setPreviewUrl(url);
-            if (!user?.uid) return;
-            try {
-                const storageRef = ref(storage, `profiles/${user.uid}/avatar`);
-                await uploadBytes(storageRef, file);
-                setProfileImageValue(storageRef.fullPath);
-            } catch (error) {
-                console.error("Error uploading profile image", error);
-            }
+        if (!e.target.files || !e.target.files[0]) return;
+        const file = e.target.files[0];
+        if (!file.type.startsWith('image/')) {
+            setProfileImageError('El archivo debe ser una imagen.');
+            return;
         }
-    }, [user?.uid]);
+        try {
+            await uploadProfileImage(file);
+        } catch (error) {
+            setProfileImageError(error instanceof Error ? error.message : 'Error al procesar la imagen.');
+        }
+    }, [uploadProfileImage]);
 
     const handleSignatureSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            // Preview
-            const url = URL.createObjectURL(file);
-            setSignatureUrl(url);
-            if (!user?.uid) return;
-            try {
-                const storageRef = ref(storage, `profiles/${user.uid}/signature`);
-                await uploadBytes(storageRef, file);
-                setSignatureImageValue(storageRef.fullPath);
-            } catch (error) {
-                console.error("Error uploading signature", error);
-            }
+        if (!e.target.files || !e.target.files[0]) return;
+        const file = e.target.files[0];
+        if (!file.type.startsWith('image/')) {
+            setSignatureImageError('El archivo debe ser una imagen.');
+            return;
         }
-    }, [user?.uid]);
+        try {
+            await uploadSignatureImage(file);
+        } catch (error) {
+            setSignatureImageError(error instanceof Error ? error.message : 'Error al procesar la imagen.');
+        }
+    }, [uploadSignatureImage]);
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans p-6 pt-24">
@@ -252,6 +369,9 @@ export default function ProfileSettings() {
                         {/* Photo Upload Section */}
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-3">Foto de Perfil</label>
+                            {profileImageError && (
+                                <p className="text-xs text-red-600 mb-2">{profileImageError}</p>
+                            )}
                             <div className="flex gap-6 items-start">
                                 {/* Preview Circle */}
                                 <div className="flex-shrink-0">
@@ -304,6 +424,9 @@ export default function ProfileSettings() {
                         <div className="mt-8">
                             <label className="block text-sm font-medium text-slate-700 mb-3">Firma y Sello (Opcional)</label>
                             <p className="text-xs text-slate-500 mb-2">Sube una imagen (PNG con fondo transparente recomendado) de tu firma y sello.</p>
+                            {signatureImageError && (
+                                <p className="text-xs text-red-600 mb-2">{signatureImageError}</p>
+                            )}
 
                             <div className="flex gap-6 items-start">
                                 {/* Preview Box (Rectangular for signature) */}
