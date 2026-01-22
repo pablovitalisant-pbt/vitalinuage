@@ -28,7 +28,7 @@ export default function ProfileSettings() {
     const [showPrintSettings, setShowPrintSettings] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-    const { register, handleSubmit, setValue, setError, clearErrors, formState: { errors } } = useForm<ProfileForm>({
+    const { register, handleSubmit, setValue, setError, clearErrors, getValues, formState: { errors } } = useForm<ProfileForm>({
         defaultValues: {
             professionalName: '',
             specialty: '',
@@ -53,15 +53,16 @@ export default function ProfileSettings() {
             })
             .then(data => {
                 if (!data) return;
-                setValue('professionalName', data.professional_name ?? '');
+                const currentValues = getValues();
+                setValue('professionalName', data.professional_name ?? currentValues.professionalName ?? '');
                 setValue('specialty', data.specialty ?? '');
                 setValue('address', data.address);
                 setValue('phone', data.phone);
-                setValue('medicalLicense', data.medical_license ?? '');
-                setValue('registrationNumber', data.registration_number ?? '');
+                setValue('medicalLicense', data.medical_license ?? currentValues.medicalLicense ?? '');
+                setValue('registrationNumber', data.registration_number ?? currentValues.registrationNumber ?? '');
             })
             .catch(err => console.error("Error loading profile", err));
-    }, [setValue]);
+    }, [getValues, setValue]);
 
     const onSubmit = async (data: ProfileForm) => {
         if (!data.professionalName || data.professionalName.trim().length < 3) {
