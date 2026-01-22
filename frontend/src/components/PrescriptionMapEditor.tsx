@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Upload, Save, Printer, AlertCircle } from 'lucide-react';
 import { getApiUrl } from '../config/api';
 import { useAuthFetch } from '../hooks/useAuthFetch';
+import localFlags from '../config/feature-flags.json';
 
 // A5 Dimensions in mm
 const A5_WIDTH_MM = 148;
@@ -49,14 +50,19 @@ const PrescriptionMapEditor: React.FC = () => {
                 // However, authFetch appends Valid Token.
                 const response = await fetch('/config/feature-flags.json');
                 if (response.ok) {
-                    const flags = await response.json();
-                    setFeatureEnabled(flags.prescription_coords_v1 === true);
-                } else {
-                    setFeatureEnabled(false);
+                    const bodyText = await response.text();
+                    try {
+                        const flags = JSON.parse(bodyText);
+                        setFeatureEnabled(flags.prescription_coords_v1 === true);
+                        return;
+                    } catch (parseError) {
+                        console.warn('Invalid feature flags JSON, using bundled defaults.', parseError);
+                    }
                 }
+                setFeatureEnabled(localFlags.prescription_coords_v1 === true);
             } catch (error) {
                 console.error('Failed to load feature flags', error);
-                setFeatureEnabled(false);
+                setFeatureEnabled(localFlags.prescription_coords_v1 === true);
             }
         };
         checkFeatureFlag();
