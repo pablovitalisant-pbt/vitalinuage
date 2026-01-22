@@ -15,6 +15,8 @@ interface ProfileForm {
     specialty: string;
     address: string;
     phone: string;
+    medicalLicense: string;
+    registrationNumber: string;
 }
 
 export default function ProfileSettings() {
@@ -46,6 +48,8 @@ export default function ProfileSettings() {
                 setValue('specialty', data.specialty);
                 setValue('address', data.address);
                 setValue('phone', data.phone);
+                setValue('medicalLicense', data.medical_license);
+                setValue('registrationNumber', data.registration_number);
             })
             .catch(err => console.error("Error loading profile", err));
     }, [setValue]);
@@ -55,8 +59,8 @@ export default function ProfileSettings() {
             const payload = {
                 professional_name: data.professionalName,
                 specialty: data.specialty,
-                address: data.address,
-                phone: data.phone
+                medical_license: data.medicalLicense,
+                registration_number: data.registrationNumber
             };
 
             const response = await authFetch(getApiUrl('/api/doctors/profile'), {
@@ -237,14 +241,36 @@ export default function ProfileSettings() {
                                 <input
                                     {...register("address")}
                                     type="text"
+                                    disabled
                                     className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none transition-all text-slate-800"
                                 />
+                                <p className="text-xs text-amber-600">Campo en revisión</p>
                             </div>
 
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-slate-700">Teléfono de Contacto</label>
                                 <input
                                     {...register("phone")}
+                                    type="text"
+                                    disabled
+                                    className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none transition-all text-slate-800"
+                                />
+                                <p className="text-xs text-amber-600">Campo en revisión</p>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-slate-700">Matrícula Profesional</label>
+                                <input
+                                    {...register("medicalLicense")}
+                                    type="text"
+                                    className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none transition-all text-slate-800"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-slate-700">Número de Registro</label>
+                                <input
+                                    {...register("registrationNumber")}
                                     type="text"
                                     className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-[#1e3a8a] outline-none transition-all text-slate-800"
                                 />
