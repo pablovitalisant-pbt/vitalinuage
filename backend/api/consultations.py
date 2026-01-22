@@ -18,15 +18,28 @@ router = APIRouter(
 )
 
 def check_feature_flag():
-    try:
-        config_path = os.path.join(os.path.dirname(__file__), '..', '..', 'config', 'feature-flags.json')
-        with open(config_path, 'r') as f:
-            flags = json.load(f)
-            if not flags.get("clinical_consultations_v1", False):
-                raise HTTPException(status_code=404, detail="Feature disabled")
+    env_flags = os.environ.get("FEATURE_FLAGS_JSON")
+    flags = None
 
-    except FileNotFoundError:
-         raise HTTPException(status_code=404, detail="Configuration missing")
+    if env_flags:
+        try:
+            flags = json.loads(env_flags)
+            print("[FEATURE_FLAGS] Using FEATURE_FLAGS_JSON from environment.")
+        except json.JSONDecodeError:
+            print("[FEATURE_FLAGS] FEATURE_FLAGS_JSON invalid, falling back to file.")
+
+    if flags is None:
+        config_path = os.path.join(os.path.dirname(__file__), '..', '..', 'config', 'feature-flags.json')
+        try:
+            with open(config_path, 'r') as f:
+                flags = json.load(f)
+            print("[FEATURE_FLAGS] Using config/feature-flags.json.")
+        except FileNotFoundError:
+            print("[FEATURE_FLAGS] config/feature-flags.json missing, using defaults.")
+            flags = {"clinical_consultations_v1": True}
+
+    if not flags.get("clinical_consultations_v1", True):
+        raise HTTPException(status_code=404, detail="Feature disabled")
 
 def check_tracking_flag():
     try:
