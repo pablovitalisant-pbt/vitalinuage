@@ -60,7 +60,7 @@ jobs:
             --min-instances 0 \
             --max-instances 10 \
             --timeout 300 \
-            --set-env-vars "ENVIRONMENT=production,RESEND_API_KEY=${{ secrets.RESEND_API_KEY }},EMAIL_FROM_ADDRESS=${{ secrets.EMAIL_FROM_ADDRESS }},FRONTEND_URL=${{ secrets.FRONTEND_URL }}" \
+            --set-env-vars "ENVIRONMENT=production,RESEND_API_KEY=${{ secrets.RESEND_API_KEY }},EMAIL_FROM_ADDRESS=${{ secrets.EMAIL_FROM_ADDRESS }},FRONTEND_URL=${{ secrets.FRONTEND_URL }},FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }}" \
             --quiet
           
           # Ensure 100% traffic goes to latest revision
