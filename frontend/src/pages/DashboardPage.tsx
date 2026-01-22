@@ -41,16 +41,16 @@ export default function DashboardPage() {
                     icon={<Calendar size={24} />}
                 />
                 <StatsCard
-                    title="Recetas Emitidas"
+                    title="Licencias emitidas (mes)"
                     value={stats.total_prescriptions}
                     icon={<FileText size={24} />}
-                    trend="+5 recientes" // Placeholder or we could compute real trend
+                    trend="PDFs generados"
                 />
                 <StatsCard
-                    title="Eficacia"
+                    title="Cobertura recetas"
                     value={`${stats.efficiency_rate}%`}
                     icon={<TrendingUp size={24} />}
-                    trend="Conv. Recetas" // Label
+                    trend="Recetas / pacientes"
                 />
             </div>
 

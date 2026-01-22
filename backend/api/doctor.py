@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from backend.schemas import doctor as schemas
 from backend.dependencies import get_current_user
-from backend.models import User, Patient, ClinicalConsultation, Prescription
+from backend.models import User, Patient, ClinicalConsultation, PrescriptionVerification
 
 router = APIRouter(
     # Prefix managed in main.py
@@ -206,16 +206,20 @@ def get_dashboard_stats(
             
         # Slice 20.0: Analytics
         
-        # 4. Total Prescriptions
-        total_prescriptions = db.query(Prescription).filter(
-            Prescription.doctor_id == current_user.email
+        today = datetime.utcnow().date()
+
+        # 4. Prescriptions issued this month (PDF generation / verification)
+        month_start = datetime.combine(today.replace(day=1), time.min)
+        next_month = (month_start + timedelta(days=32)).replace(day=1)
+        total_prescriptions = db.query(PrescriptionVerification).filter(
+            PrescriptionVerification.doctor_email == current_user.email,
+            PrescriptionVerification.created_at >= month_start,
+            PrescriptionVerification.created_at < next_month
         ).count()
         
         # 5. Weekly Patient Flow (Last 7 days)
         # We want an array of counts for [Today-6, Today-5, ..., Today]
         weekly_patient_flow = []
-        today = datetime.utcnow().date()
-        
         for i in range(6, -1, -1):
             day = today - timedelta(days=i)
             day_start = datetime.combine(day, time.min)
@@ -228,15 +232,12 @@ def get_dashboard_stats(
             ).count()
             weekly_patient_flow.append(count)
             
-        # 6. Efficiency Rate (Prescriptions / Consultations)
-        total_consultations = db.query(ClinicalConsultation).filter(
-            ClinicalConsultation.owner_id == current_user.email
-        ).count()
-        
+        # 6. Coverage Rate (Prescriptions / Patients)
         efficiency_rate = 0.0
-        if total_consultations > 0:
-            efficiency_rate = (total_prescriptions / total_consultations) * 100
-            if efficiency_rate > 100: efficiency_rate = 100.0
+        if total_patients > 0:
+            efficiency_rate = (total_prescriptions / total_patients) * 100
+            if efficiency_rate > 100:
+                efficiency_rate = 100.0
 
         return {
             "total_patients": total_patients,
