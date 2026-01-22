@@ -40,12 +40,24 @@ export default function NewConsultation() {
         setError(null);
 
         try {
+            const toNumber = (value: string | number | undefined) => {
+                if (value === '' || value === null || value === undefined) return undefined;
+                const parsed = typeof value === 'number' ? value : Number(value);
+                return Number.isFinite(parsed) ? parsed : undefined;
+            };
+
             // Prepare payload matching backend schema
             const payload = {
                 reason: formData.reason,
                 diagnosis: formData.diagnosis,
                 treatment: formData.treatment,
-                notes: formData.notes || undefined
+                notes: formData.notes || undefined,
+                peso_kg: toNumber(formData.peso_kg),
+                estatura_cm: toNumber(formData.estatura_cm),
+                presion_arterial: formData.presion_arterial || undefined,
+                frecuencia_cardiaca: toNumber(formData.frecuencia_cardiaca),
+                temperatura_c: toNumber(formData.temperatura_c),
+                imc: toNumber(formData.imc)
             };
 
             const res = await authFetch(getApiUrl(`/api/patients/${patientId}/consultations`), {
