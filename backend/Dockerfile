@@ -23,6 +23,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copiar código del backend
 COPY backend/ /app/backend/
 
+# Copiar feature flags de configuracion
+COPY config/ /app/config/
+
 WORKDIR /app/backend
 
 EXPOSE 8080

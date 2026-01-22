@@ -11,7 +11,21 @@ router = APIRouter(
     tags=["doctor"]
 )
 
-FEATURE_FLAGS_PATH = Path("config/feature-flags.json")
+FEATURE_FLAGS_CANDIDATES = [
+    Path("config/feature-flags.json"),
+    Path("../config/feature-flags.json"),
+    Path("/app/config/feature-flags.json")
+]
+
+
+def load_feature_flags() -> dict:
+    for path in FEATURE_FLAGS_CANDIDATES:
+        if path.exists():
+            with path.open("r", encoding="utf-8") as flags_file:
+                return json.load(flags_file)
+    return {
+        "prescription_coords_v1": False
+    }
 
 from typing import Union
 
@@ -284,13 +298,7 @@ def get_preferences(current_user: User = Depends(get_current_user)):
 
 @router.get("/feature-flags")
 def get_feature_flags(current_user: User = Depends(get_current_user)):
-    if FEATURE_FLAGS_PATH.exists():
-        with FEATURE_FLAGS_PATH.open("r", encoding="utf-8") as flags_file:
-            return json.load(flags_file)
-
-    return {
-        "prescription_coords_v1": False
-    }
+    return load_feature_flags()
 
 @router.put("/preferences")
 def update_preferences(
