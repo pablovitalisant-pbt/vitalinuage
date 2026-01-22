@@ -82,7 +82,7 @@ export default function ProfileSettings() {
                 phone: values.phone ?? ''
             };
 
-            console.log('Profile payload', payload);
+            console.log('PROFILE PUT payload', payload);
 
             const response = await authFetch(getApiUrl('/api/doctors/profile'), {
                 method: 'PUT',
@@ -96,6 +96,12 @@ export default function ProfileSettings() {
                 setTimeout(() => setIsSaved(false), 3000);
             } else {
                 console.error("Error saving profile", response.status);
+                try {
+                    const errorBody = await response.json();
+                    console.error("Profile save error body", errorBody);
+                } catch (parseError) {
+                    console.error("Error parsing profile save response", parseError);
+                }
             }
         } catch (error) {
             console.error("Error saving profile", error);

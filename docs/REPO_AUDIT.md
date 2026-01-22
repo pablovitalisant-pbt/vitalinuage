@@ -79,7 +79,7 @@ Este estado se basa en validacion manual y no en metricas instrumentadas.
 - Evidencia encontrada: Frontend React con React Router (`frontend/src/App.tsx:1-2`).
 - Evidencia encontrada: Auth usa Firebase en frontend y Firebase Admin en backend (`frontend/src/firebase.ts:1-25`, `backend/dependencies.py:6-43`).
 - Evidencia encontrada: CI/CD en GitHub Actions con despliegue a Firebase Hosting y Cloud Run (`.github/workflows/pipeline.yml:8-129`, `.github/workflows/firebase-hosting-merge.yml:1-49`, `.github/workflows/deploy-backend.yml:1-77`).
-- Hipotesis (NO confirmada): Base de datos en produccion es PostgreSQL. Evidencia parcial: `psycopg2-binary` y `DATABASE_URL` (`backend/requirements.txt:5-6`, `.env.example:4-5`).
+- Evidencia humana: Base de datos en produccion es Neon (PostgreSQL). (Confirmacion directa del humano, 2026-01-22).
 
 ### Objetivo del producto (solo evidencia)
 
@@ -279,7 +279,7 @@ Backend:
 
 | Tema | Lo que se sabe (evidencia) | Lo que NO se sabe | Como verificar |
 | --- | --- | --- | --- |
-| DB en produccion | `DATABASE_URL` existe y SQLAlchemy se usa (`.env.example:4-5`, `backend/models.py:1-3`) | Motor exacto en prod | Revisar config de Cloud Run y conexion real |
+| DB en produccion | Neon (PostgreSQL) confirmado por humano (2026-01-22) | Host y permisos exactos en prod | Revisar config de Cloud Run y conexion real |
 | Auth | Firebase Auth + Admin (`frontend/src/firebase.ts:1-25`, `backend/dependencies.py:6-43`) | Proyecto Firebase exacto en prod | Revisar consola Firebase y secrets |
 | Router publico `/v/*` | Router existe (`backend/api/verification.py:7-124`) | Si se expone en prod | Confirmar `include_router`/gateway |
 | Dockerfile usado | Hay dos Dockerfiles (`Dockerfile:1`, `backend/Dockerfile:2`) | Cual se usa en prod | Ver workflow real de build |
@@ -287,7 +287,7 @@ Backend:
 
 ### Cosas que NO se pueden afirmar con evidencia actual
 
-- Proveedor de DB en produccion (solo indicios en deps/env).
+- Host exacto y permisos de la DB en produccion (confirmado Neon, pero no mas detalles).
 - Que `/v/*` esta expuesto en prod (no se incluye en `backend/main.py`).
 - Que `/api/diagnosis/suggest-cie10` exige auth (no hay `Depends` en backend).
 - Que `vitalinuage.db` se usa en runtime (archivo existe pero no hay referencia en codigo).

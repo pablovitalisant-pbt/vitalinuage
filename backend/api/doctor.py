@@ -90,6 +90,8 @@ def update_profile(
     """
     Updates the professional profile of the authenticated user.
     """
+    print(f"[PROFILE] Incoming address: {data.address}")
+    print(f"[PROFILE] Incoming phone: {data.phone}")
     if data.professional_name:
         current_user.professional_name = data.professional_name
     if data.specialty:
@@ -98,6 +100,9 @@ def update_profile(
         current_user.medical_license = data.medical_license
     if data.registration_number:
         current_user.registration_number = data.registration_number
+
+    print(f"[PROFILE] Persist address: {current_user.address}")
+    print(f"[PROFILE] Persist phone: {current_user.phone}")
         
     db.add(current_user)
     db.commit()
