@@ -1,0 +1,19 @@
+{
+  "auth_login": true,
+  "registro_pacientes": true,
+  "busqueda_pacientes": true,
+  "registro_consultas": true,
+  "generacion_recetas": true,
+  "notificaciones_push": true,
+  "importacion_datos": true,
+  "new_consultation_flow": true,
+  "enable_multitenancy": true,
+  "identity_search_v1": true,
+  "medical_record_background_v1": true,
+  "clinical_consultations_v1": true,
+  "prescription_coords_v1": true,
+  "tracking_envios": true,
+  "audit_panel": true,
+  "onboarding_workflow": true,
+  "scoped_dni_uniqueness": false
+}
