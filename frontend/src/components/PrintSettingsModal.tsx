@@ -1,6 +1,9 @@
 import { useState, useRef } from 'react';
-import { useDoctor } from '../context/DoctorContext';
+import { useEffect, useRef, useState } from 'react';
 import { Printer, Upload, Check, FileText } from 'lucide-react';
+import { ref, uploadBytes, getBlob } from 'firebase/storage';
+import { auth, storage } from '../firebase';
+import { useDoctor } from '../context/DoctorContext';
 
 interface PrintSettingsModalProps {
     onClose: () => void;
@@ -10,14 +13,112 @@ export function PrintSettingsModal({ onClose }: PrintSettingsModalProps) {
     const { preferences, updatePreferences } = useDoctor();
     const [notice, setNotice] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
+    const [logoUploading, setLogoUploading] = useState(false);
+
+    useEffect(() => {
+        let isActive = true;
+        let objectUrl: string | null = null;
+
+        const loadLogo = async () => {
+            if (!preferences.logoPath) {
+                setLogoPreviewUrl(null);
+                return;
+            }
+
+            try {
+                const storageRef = ref(storage, preferences.logoPath);
+                const blob = await getBlob(storageRef);
+                objectUrl = URL.createObjectURL(blob);
+                if (isActive) {
+                    setLogoPreviewUrl(objectUrl);
+                }
+            } catch (error) {
+                console.warn('Failed to load logo preview', error);
+                if (isActive) {
+                    setLogoPreviewUrl(null);
+                }
+            }
+        };
+
+        loadLogo();
+
+        return () => {
+            isActive = false;
+            if (objectUrl) {
+                URL.revokeObjectURL(objectUrl);
+            }
+        };
+    }, [preferences.logoPath]);
+
+    const resizeImage = async (file: File, targetWidth: number, targetHeight: number, maxBytes: number) => {
+        const image = new Image();
+        const dataUrl = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsDataURL(file);
+        });
+
+        image.src = dataUrl;
+        await new Promise((resolve, reject) => {
+            image.onload = resolve;
+            image.onerror = reject;
+        });
+
+        const canvas = document.createElement('canvas');
+        const scale = Math.min(targetWidth / image.width, targetHeight / image.height, 1);
+        canvas.width = Math.round(image.width * scale);
+        canvas.height = Math.round(image.height * scale);
+        const ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('Canvas not supported');
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+        let quality = 0.9;
+        let blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', quality));
+        while (blob && blob.size > maxBytes && quality > 0.6) {
+            quality -= 0.1;
+            blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', quality));
+        }
+        if (!blob) throw new Error('No se pudo procesar el logo.');
+
+        return {
+            blob,
+            previewUrl: canvas.toDataURL('image/jpeg', Math.max(quality, 0.7))
+        };
+    };
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-        setNotice('La carga de logo esta en revision.');
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
+        const uid = auth.currentUser?.uid;
+        if (!uid) {
+            setNotice('Debes iniciar sesion para subir el logo.');
+            return;
         }
+
+        setLogoUploading(true);
+        setNotice(null);
+
+        (async () => {
+            try {
+                const { blob, previewUrl } = await resizeImage(file, 600, 200, 200 * 1024);
+                const path = `print-logos/${uid}/logo`;
+                const storageRef = ref(storage, path);
+                await uploadBytes(storageRef, blob, { contentType: 'image/jpeg' });
+                setLogoPreviewUrl(previewUrl);
+                await updatePreferences({ logoPath: path });
+                setNotice('Logo guardado correctamente.');
+            } catch (error) {
+                console.error('Logo upload failed', error);
+                setNotice('No se pudo subir el logo.');
+            } finally {
+                setLogoUploading(false);
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
+            }
+        })();
     };
 
     return (
@@ -92,8 +193,8 @@ export function PrintSettingsModal({ onClose }: PrintSettingsModalProps) {
                         <label className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3 block">Logotipo Personalizado</label>
                         <div className="flex items-center gap-4">
                             <div className="h-20 w-20 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden relative group">
-                                {preferences.logoUrl ? (
-                                    <img src={preferences.logoUrl} alt="Logo" className="w-full h-full object-contain" />
+                                {logoPreviewUrl ? (
+                                    <img src={logoPreviewUrl} alt="Logo" className="w-full h-full object-contain" />
                                 ) : (
                                     <span className="text-xs text-slate-400 text-center px-1">Sin Logo</span>
                                 )}
@@ -111,10 +212,11 @@ export function PrintSettingsModal({ onClose }: PrintSettingsModalProps) {
                                 <p className="text-xs text-slate-500 mb-3">Sube tu logo en formato PNG o JPG. Se mostrará en la cabecera de tus recetas.</p>
                                 <button
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-700 text-sm font-medium transition-colors"
+                                    disabled={logoUploading}
+                                    className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-700 text-sm font-medium transition-colors disabled:opacity-60"
                                 >
                                     <Upload className="h-4 w-4" />
-                                    Subir Imagen
+                                    {logoUploading ? 'Subiendo...' : 'Subir Imagen'}
                                 </button>
                                 <input
                                     ref={fileInputRef}
@@ -162,13 +264,16 @@ export function PrintSettingsModal({ onClose }: PrintSettingsModalProps) {
 
                 {/* Footer */}
                 <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 flex justify-between items-center">
-                    {notice ? (
-                        <span className="text-xs text-amber-600">{notice}</span>
-                    ) : (
-                        <span className="text-xs text-slate-400">Funciones en revision</span>
-                    )}
+                    <span className={`text-xs ${notice ? 'text-amber-600' : 'text-slate-400'}`}>
+                        {notice || 'Cambios guardados automaticamente'}
+                    </span>
                     <button
-                        onClick={() => setNotice('La vista previa esta en revision.')}
+                        onClick={() => {
+                            const consultationId = prompt('Ingresa un ID de consulta para previsualizar el PDF:', '1');
+                            if (consultationId) {
+                                window.open(`/api/consultas/${consultationId}/pdf`, '_blank');
+                            }
+                        }}
                         className="px-6 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-lg font-medium text-sm shadow-sm transition-colors"
                     >
                         👁️ Ver Vista Previa

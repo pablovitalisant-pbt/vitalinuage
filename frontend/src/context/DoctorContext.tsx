@@ -26,8 +26,18 @@ interface DoctorContextType {
     logout: () => Promise<void>;
     completeOnboarding: (data: any) => Promise<void>;
     refreshProfile: () => Promise<void>;
-    preferences: any;
-    updatePreferences: (prefs: any) => void;
+    preferences: PrintPreferences;
+    updatePreferences: (prefs: Partial<PrintPreferences>) => Promise<void>;
+}
+
+interface PrintPreferences {
+    paperSize: string;
+    templateId: string;
+    headerText: string;
+    footerText: string;
+    primaryColor: string;
+    secondaryColor: string;
+    logoPath?: string | null;
 }
 
 export const DoctorContext = createContext<DoctorContextType | undefined>(undefined);
@@ -75,6 +85,16 @@ export const DoctorProvider = ({ children }: { children: ReactNode }) => {
                                 email: fbUser.email || "",
                                 isVerified: true
                             });
+
+                            try {
+                                const prefRes = await authFetch(getApiUrl('/api/doctors/preferences'));
+                                if (prefRes.ok) {
+                                    const prefData = await prefRes.json();
+                                    setPreferences(mapPreferencesFromApi(prefData));
+                                }
+                            } catch (prefError) {
+                                console.warn('Failed to load preferences', prefError);
+                            }
 
                         } catch (e: any) {
                             console.warn(`[AUTH AUDIT] DoctorContext profile sync failed: ${e.message}`);
@@ -162,10 +182,59 @@ export const DoctorProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    // Stub for preferences (to satisfy interface usage in other components)
-    // In a real implementation this would fetch from backend
-    const [preferences, setPreferences] = useState<any>({});
-    const updatePreferences = (newPrefs: any) => setPreferences((prev: any) => ({ ...prev, ...newPrefs }));
+    const [preferences, setPreferences] = useState<PrintPreferences>({
+        paperSize: 'A4',
+        templateId: 'classic',
+        headerText: '',
+        footerText: '',
+        primaryColor: '#1e3a8a',
+        secondaryColor: '#64748b',
+        logoPath: null
+    });
+
+    const mapPreferencesFromApi = (data: any): PrintPreferences => ({
+        paperSize: data.paper_size || 'A4',
+        templateId: data.template_id || 'classic',
+        headerText: data.header_text || '',
+        footerText: data.footer_text || '',
+        primaryColor: data.primary_color || '#1e3a8a',
+        secondaryColor: data.secondary_color || '#64748b',
+        logoPath: data.logo_path || null
+    });
+
+    const updatePreferences = async (newPrefs: Partial<PrintPreferences>) => {
+        setPreferences((prev) => ({ ...prev, ...newPrefs }));
+
+        if (!auth.currentUser) return;
+        try {
+            const authFetch = createAuthFetch(
+                async () => auth.currentUser!.getIdToken(),
+                async () => { await signOut(auth); }
+            );
+
+            const payload: Record<string, string | null> = {};
+            if (newPrefs.paperSize !== undefined) payload.paper_size = newPrefs.paperSize;
+            if (newPrefs.templateId !== undefined) payload.template_id = newPrefs.templateId;
+            if (newPrefs.headerText !== undefined) payload.header_text = newPrefs.headerText;
+            if (newPrefs.footerText !== undefined) payload.footer_text = newPrefs.footerText;
+            if (newPrefs.primaryColor !== undefined) payload.primary_color = newPrefs.primaryColor;
+            if (newPrefs.secondaryColor !== undefined) payload.secondary_color = newPrefs.secondaryColor;
+            if (newPrefs.logoPath !== undefined) payload.logo_path = newPrefs.logoPath;
+
+            const res = await authFetch(getApiUrl('/api/doctors/preferences'), {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                setPreferences(mapPreferencesFromApi(data));
+            }
+        } catch (error) {
+            console.error('Failed to update preferences', error);
+        }
+    };
 
     return (
         <DoctorContext.Provider value={{ user, profile, loading, token, login, logout, completeOnboarding, refreshProfile, preferences, updatePreferences } as any}>

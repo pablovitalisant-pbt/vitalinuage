@@ -32,6 +32,14 @@ def run_hotfix_migrations():
             conn.execute(text("ALTER TABLE clinical_consultations ADD COLUMN IF NOT EXISTS cie10_code VARCHAR(20);"))
             conn.execute(text("ALTER TABLE clinical_consultations ADD COLUMN IF NOT EXISTS cie10_description TEXT;"))
 
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS print_paper_size VARCHAR(20);"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS print_template_id VARCHAR(50);"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS print_header_text TEXT;"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS print_footer_text TEXT;"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS print_primary_color VARCHAR(20);"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS print_secondary_color VARCHAR(20);"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS print_logo_path TEXT;"))
+
             conn.commit()
             print("HOTFIX: Migrations executed successfully.")
     except Exception as e:

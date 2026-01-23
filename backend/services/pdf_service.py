@@ -89,6 +89,43 @@ class PDFService:
 
         signature_base64 = base64.b64encode(signature_bytes).decode("ascii")
         return signature_base64, signature_bytes
+
+    @classmethod
+    def _fetch_logo_base64(
+        cls,
+        doctor_email: str,
+        db: Session
+    ) -> Optional[str]:
+        if not doctor_email or not db:
+            return None
+
+        doctor = db.query(models.User).filter(models.User.email == doctor_email).first()
+        if not doctor or not doctor.print_logo_path:
+            return None
+
+        default_bucket = os.getenv("FIREBASE_STORAGE_BUCKET") or os.getenv("VITE_FIREBASE_STORAGE_BUCKET")
+        bucket_name, object_path = cls._resolve_storage_object(doctor.print_logo_path, default_bucket)
+        if not bucket_name or not object_path:
+            logger.warning("Logo storage bucket or path missing")
+            return None
+
+        try:
+            from backend.core.firebase_app import initialize_firebase
+            initialize_firebase()
+            from firebase_admin import storage as firebase_storage
+
+            bucket = firebase_storage.bucket(bucket_name)
+            blob = bucket.blob(object_path)
+            if not blob.exists():
+                logger.warning("Logo blob not found: %s", object_path)
+                return None
+
+            logo_bytes = blob.download_as_bytes()
+        except Exception as exc:
+            logger.warning("Logo fetch failed: %s", exc)
+            return None
+
+        return base64.b64encode(logo_bytes).decode("ascii")
     
     @staticmethod
     def mm_to_points(millimeters: float) -> float:
@@ -279,7 +316,10 @@ class PDFService:
         cls,
         consultation: models.ClinicalConsultation,
         template_id: str = "modern",
-        signature_base64: Optional[str] = None
+        signature_base64: Optional[str] = None,
+        logo_base64: Optional[str] = None,
+        primary_color: Optional[str] = None,
+        secondary_color: Optional[str] = None
     ) -> bytes:
         """
         Genera PDF usando WeasyPrint con templates HTML/CSS.
@@ -333,10 +373,10 @@ class PDFService:
             'patient': MockPatient(consultation.patient),
             'consultation': MockConsultation(consultation),
             'date': consultation.created_at.strftime('%d/%m/%Y') if consultation.created_at else "",
-            'logo_base64': None,  # No logo for now
+            'logo_base64': logo_base64,
             'signature_base64': signature_base64,
-            'primary_color': '#4a90e2',
-            'secondary_color': '#2c3e50'
+            'primary_color': primary_color or '#4a90e2',
+            'secondary_color': secondary_color or '#2c3e50'
         }
         
         # 3. Renderizar template
@@ -379,6 +419,11 @@ class PDFService:
         consultation: models.ClinicalConsultation,
         verification_uuid: str = "",
         signature_base64: Optional[str] = None,
+        logo_base64: Optional[str] = None,
+        primary_color: Optional[str] = None,
+        secondary_color: Optional[str] = None,
+        header_text: Optional[str] = None,
+        footer_text: Optional[str] = None,
         db: Session = None  # New Argument injected from API
     ) -> bytes:
         """
@@ -462,6 +507,11 @@ class PDFService:
             'treatment': consultation.plan_tratamiento or "",
             'diagnosis': consultation.diagnostico or "",
             'signature_base64': signature_base64,
+            'logo_base64': logo_base64,
+            'primary_color': primary_color or '#1e3a8a',
+            'secondary_color': secondary_color or '#64748b',
+            'header_text': header_text,
+            'footer_text': footer_text,
             'verification_uuid': final_uuid
         }
         
@@ -514,6 +564,8 @@ class PDFService:
         Metodo principal: decide que estrategia usar (coordenadas vs template).
         """
         signature_base64, signature_bytes = cls._fetch_signature_assets(doctor_email, db)
+        logo_base64 = cls._fetch_logo_base64(doctor_email, db)
+        doc_user = db.query(models.User).filter(models.User.email == doctor_email).first()
 
         # 1. Buscar mapa activo del medico
         prescription_map = cls.get_active_map(doctor_email, db)
@@ -554,6 +606,11 @@ class PDFService:
                 consultation,
                 verification_uuid=uuid_str,
                 signature_base64=signature_base64,
+                logo_base64=logo_base64,
+                primary_color=doc_user.print_primary_color if doc_user and doc_user.print_primary_color else None,
+                secondary_color=doc_user.print_secondary_color if doc_user and doc_user.print_secondary_color else None,
+                header_text=doc_user.print_header_text if doc_user and doc_user.print_header_text else None,
+                footer_text=doc_user.print_footer_text if doc_user and doc_user.print_footer_text else None,
                 db=db
             )
 

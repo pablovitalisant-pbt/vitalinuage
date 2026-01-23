@@ -288,12 +288,13 @@ def get_preferences(current_user: User = Depends(get_current_user)):
     Returns default values until implemented.
     """
     return {
-        "paper_size": "A4",
-        "template_id": "classic",
-        "header_text": "",
-        "footer_text": "",
-        "primary_color": "#000000",
-        "secondary_color": "#ffffff"
+        "paper_size": current_user.print_paper_size or "A4",
+        "template_id": current_user.print_template_id or "classic",
+        "header_text": current_user.print_header_text or "",
+        "footer_text": current_user.print_footer_text or "",
+        "primary_color": current_user.print_primary_color or "#000000",
+        "secondary_color": current_user.print_secondary_color or "#ffffff",
+        "logo_path": current_user.print_logo_path
     }
 
 @router.get("/feature-flags")
@@ -310,12 +311,32 @@ def update_preferences(
     Updates the doctor's preferences (e.g., printing templates).
     Currently behaves as a persistent stub (fields not yet in User model).
     """
-    # Logic: For now, since User model lacks these fields, we will just validate input 
-    # and return success, essentially acknowledging the data.
-    # In a full migration, we would add these columns to the User table.
-    
-    # Debug log to verify data reception
-    print(f"[PREFERENCES] Received update for {current_user.email}: {data.dict(exclude_unset=True)}")
-    
-    # Return success
-    return {"status": "success", "received": data.dict(exclude_unset=True)}
+    prefs = data.dict(exclude_unset=True)
+
+    if "paper_size" in prefs:
+        current_user.print_paper_size = prefs["paper_size"]
+    if "template_id" in prefs:
+        current_user.print_template_id = prefs["template_id"]
+    if "header_text" in prefs:
+        current_user.print_header_text = prefs["header_text"]
+    if "footer_text" in prefs:
+        current_user.print_footer_text = prefs["footer_text"]
+    if "primary_color" in prefs:
+        current_user.print_primary_color = prefs["primary_color"]
+    if "secondary_color" in prefs:
+        current_user.print_secondary_color = prefs["secondary_color"]
+    if "logo_path" in prefs:
+        current_user.print_logo_path = prefs["logo_path"]
+
+    db.commit()
+    db.refresh(current_user)
+
+    return {
+        "paper_size": current_user.print_paper_size or "A4",
+        "template_id": current_user.print_template_id or "classic",
+        "header_text": current_user.print_header_text or "",
+        "footer_text": current_user.print_footer_text or "",
+        "primary_color": current_user.print_primary_color or "#000000",
+        "secondary_color": current_user.print_secondary_color or "#ffffff",
+        "logo_path": current_user.print_logo_path
+    }

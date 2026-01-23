@@ -20,7 +20,7 @@
         }
 
         .header {
-            border-bottom: 2px solid #1e3a8a;
+            border-bottom: 2px solid {{ primary_color|default('#1e3a8a') }};
             padding-bottom: 10px;
             margin-bottom: 20px;
             display: flex;
@@ -31,14 +31,20 @@
         .logo {
             font-size: 18pt;
             font-weight: bold;
-            color: #1e3a8a;
+            color: {{ primary_color|default('#1e3a8a') }};
             text-transform: uppercase;
+        }
+
+        .logo-img {
+            max-height: 40px;
+            max-width: 160px;
+            object-fit: contain;
         }
 
         .doctor-info {
             text-align: right;
             font-size: 9pt;
-            color: #666;
+            color: {{ secondary_color|default('#666666') }};
         }
 
         .patient-info {
@@ -73,7 +79,7 @@
         .treatment-title {
             font-size: 11pt;
             font-weight: bold;
-            color: #1e3a8a;
+            color: {{ primary_color|default('#1e3a8a') }};
             margin-bottom: 10px;
             border-bottom: 1px solid #e2e8f0;
             padding-bottom: 5px;
@@ -121,13 +127,25 @@
 
 <body>
     <div class="header">
-        <div class="logo">Vitalinuage</div>
+        <div class="logo">
+            {% if logo_base64 %}
+            <img src="data:image/png;base64,{{ logo_base64 }}" alt="Logo" class="logo-img" />
+            {% else %}
+            Vitalinuage
+            {% endif %}
+        </div>
         <div class="doctor-info">
             <strong>{{ doctor.name }}</strong><br>
             {{ doctor.specialty }}<br>
             {{ date }}
         </div>
     </div>
+
+    {% if header_text %}
+    <div style="margin-bottom: 12px; font-size: 9pt; color: {{ secondary_color|default('#666666') }};">
+        {{ header_text }}
+    </div>
+    {% endif %}
 
     <div class="patient-info">
         <div class="patient-row">
@@ -178,6 +196,9 @@
     <div class="footer">
         {% if qr_base64 %}
         <img src="data:image/png;base64,{{ qr_base64 }}" style="width: 25mm; height: 25mm; margin-bottom: 5px;"><br>
+        {% endif %}
+        {% if footer_text %}
+        {{ footer_text }}<br>
         {% endif %}
         Documento generado electrónicamente por Vitalinuage Platform<br>
         Verifique autenticidad en {{ verification_display_url }}

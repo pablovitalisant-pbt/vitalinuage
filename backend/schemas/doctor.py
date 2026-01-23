@@ -37,4 +37,5 @@ class DoctorPreferencesUpdate(BaseModel):
     footer_text: Optional[str] = Field(None, alias="footer_text")
     primary_color: Optional[str] = Field(None, alias="primary_color")
     secondary_color: Optional[str] = Field(None, alias="secondary_color")
+    logo_path: Optional[str] = Field(None, alias="logo_path")
 

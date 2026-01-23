@@ -24,6 +24,13 @@ class User(Base):
     phone = Column(String, nullable=True)
     profile_image = Column(String, nullable=True)
     signature_image = Column(String, nullable=True)
+    print_paper_size = Column(String, nullable=True)
+    print_template_id = Column(String, nullable=True)
+    print_header_text = Column(String, nullable=True)
+    print_footer_text = Column(String, nullable=True)
+    print_primary_color = Column(String, nullable=True)
+    print_secondary_color = Column(String, nullable=True)
+    print_logo_path = Column(String, nullable=True)
 class Patient(Base):
     __tablename__ = "patients"
 
