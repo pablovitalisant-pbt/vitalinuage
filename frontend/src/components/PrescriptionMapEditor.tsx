@@ -38,6 +38,7 @@ const PrescriptionMapEditor: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const canvasRef = useRef<HTMLDivElement>(null);
+    const showDebug = import.meta.env.DEV;
 
     const authFetch = useAuthFetch();
 
@@ -81,7 +82,7 @@ const PrescriptionMapEditor: React.FC = () => {
                         const savedFields = activeMap.fields_config;
                         const mergedFields = DEFAULT_FIELDS.map(def => {
                             const existing = savedFields.find((f: any) => f.field_key === def.field_key);
-                            return existing || def;
+                            return existing ? { ...def, ...existing, label: def.label } : def;
                         });
                         setFields(mergedFields);
 
@@ -296,7 +297,7 @@ const PrescriptionMapEditor: React.FC = () => {
                             className={`p-2 rounded cursor-pointer border flex justify-between items-center ${selectedField === field.field_key ? 'bg-blue-50 border-blue-500' : 'bg-gray-50 border-gray-200'
                                 }`}
                         >
-                            <span className="text-sm">{field.label}</span>
+                            <span className="text-sm">{field.label || field.field_key}</span>
                             <span className="text-xs text-gray-400">
                                 {field.x_mm.toFixed(1)}, {field.y_mm.toFixed(1)} mm
                             </span>
@@ -311,7 +312,7 @@ const PrescriptionMapEditor: React.FC = () => {
                 >
                     <Save size={20} /> {saving ? 'Guardando...' : 'Guardar Configuración'}
                 </button>
-                {mapId && (
+                {mapId && showDebug && (
                     <button onClick={handleDebugPrint} className="bg-gray-800 text-white p-3 rounded-md flex items-center justify-center gap-2 hover:bg-gray-900">
                         <Printer size={20} /> Prueba de Impresión (Debug)
                     </button>
@@ -356,7 +357,7 @@ const PrescriptionMapEditor: React.FC = () => {
                                     QR
                                 </div>
                             ) : (
-                                field.label
+                                field.label || field.field_key
                             )}
                             <div
                                 className="absolute bottom-0 right-0 w-2 h-2 bg-black opacity-20 cursor-se-resize"

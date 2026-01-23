@@ -6,6 +6,7 @@ from pydantic.config import ConfigDict
 
 class FieldConfig(BaseModel):
     field_key: str = Field(..., description="Clave interna del dato (ej: patient_name, diagnosis)")
+    label: Optional[str] = Field(None, description="Etiqueta legible para UI")
     x_mm: float = Field(..., description="Posición X desde la izquierda en mm")
     y_mm: float = Field(..., description="Posición Y desde arriba en mm")
     font_size_pt: int = Field(10, description="Tamaño de fuente en puntos")
