@@ -102,7 +102,7 @@ export function PrintSettingsModal({ onClose }: PrintSettingsModalProps) {
 
         (async () => {
             try {
-                const { blob, previewUrl } = await resizeImage(file, 600, 200, 200 * 1024);
+                const { blob, previewUrl } = await resizeImage(file, 600, 200, 300 * 1024);
                 const path = `print-logos/${uid}/logo`;
                 const storageRef = ref(storage, path);
                 await uploadBytes(storageRef, blob, { contentType: 'image/jpeg' });
