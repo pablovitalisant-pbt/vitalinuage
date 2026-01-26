@@ -4,6 +4,16 @@ import { useNavigate } from 'react-router-dom';
 import { usePatientsList } from '../../hooks/usePatientsList';
 import { User, ChevronLeft, ChevronRight, Eye, Search } from 'lucide-react';
 
+const PatientRowSkeleton = () => (
+    <tr className="animate-pulse" data-testid="patient-row-skeleton">
+        <td className="px-6 py-4 whitespace-nowrap"><div className="h-4 bg-slate-100 rounded w-3/4"></div></td>
+        <td className="px-6 py-4 whitespace-nowrap"><div className="h-4 bg-slate-100 rounded w-1/2"></div></td>
+        <td className="px-6 py-4 whitespace-nowrap"><div className="h-6 bg-slate-50 rounded-full w-16"></div></td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500"><div className="h-4 bg-slate-100 rounded w-24"></div></td>
+        <td className="px-6 py-4 whitespace-nowrap text-right"><div className="h-4 bg-slate-100 rounded w-12 ml-auto"></div></td>
+    </tr>
+);
+
 export default function PatientTable() {
     const { data, page, setPage, isLoading, error, setSearch, search } = usePatientsList();
     const navigate = useNavigate();
@@ -21,15 +31,14 @@ export default function PatientTable() {
         return () => clearTimeout(delayDebounceFn);
     }, [searchTerm, setSearch, search]);
 
-    if (isLoading && !data && !searchTerm) {
-        return <div className="p-8 text-center text-slate-500">Cargando pacientes...</div>;
-    }
-
-    if (error || !data) {
+    if (error) {
         return <div className="p-8 text-center text-red-500">Error al cargar la lista de pacientes.</div>;
     }
 
-    const { data: patients, total, size } = data;
+    // Prepare variables for rendering shell even when loading
+    const patients = data?.data || [];
+    const total = data?.total || 0;
+    const size = data?.size || 10;
     const totalPages = Math.ceil(total / size);
 
     return (
@@ -48,7 +57,7 @@ export default function PatientTable() {
                 />
             </div>
 
-            {patients.length === 0 && searchTerm === "" ? (
+            {!isLoading && patients.length === 0 && searchTerm === "" ? (
                 <div className="bg-white rounded-xl shadow-sm p-12 text-center border border-slate-200">
                     <User size={48} className="mx-auto text-slate-300 mb-4" />
                     <h3 className="text-lg font-medium text-slate-900">No hay pacientes registrados</h3>
@@ -74,35 +83,42 @@ export default function PatientTable() {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-slate-200">
-                                {patients.length > 0 ? patients.map((patient) => (
-                                    <tr key={patient.id} className="hover:bg-slate-50 transition-colors">
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm font-medium text-slate-900">{patient.full_name}</div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm text-slate-500">{patient.id_number}</div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                {patient.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                                            {patient.last_consultation ?
-                                                new Date(patient.last_consultation).toLocaleDateString() :
-                                                '-'
-                                            }
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <button
-                                                onClick={() => navigate(`/patients/${patient.id}`, { state: { from: '/patients' } })}
-                                                className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1"
-                                            >
-                                                <Eye size={16} /> Ver
-                                            </button>
-                                        </td>
-                                    </tr>
-                                )) : (
+                                {isLoading ? (
+                                    // Show exactly 10 skeleton rows while loading
+                                    Array.from({ length: 10 }).map((_, i) => (
+                                        <PatientRowSkeleton key={`skeleton-${i}`} />
+                                    ))
+                                ) : patients.length > 0 ? (
+                                    patients.map((patient) => (
+                                        <tr key={patient.id} className="hover:bg-slate-50 transition-colors">
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="text-sm font-medium text-slate-900">{patient.full_name}</div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="text-sm text-slate-500">{patient.id_number}</div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                    {patient.status}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                                                {patient.last_consultation ?
+                                                    new Date(patient.last_consultation).toLocaleDateString() :
+                                                    '-'
+                                                }
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                <button
+                                                    onClick={() => navigate(`/patients/${patient.id}`, { state: { from: '/patients' } })}
+                                                    className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1"
+                                                >
+                                                    <Eye size={16} /> Ver
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
                                     <tr>
                                         <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
                                             No se encontraron pacientes para "{searchTerm}"
@@ -118,14 +134,20 @@ export default function PatientTable() {
                         <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                             <div>
                                 <p className="text-sm text-slate-700">
-                                    Mostrando <span className="font-medium">{Math.min((page - 1) * size + 1, total)}</span> a <span className="font-medium">{Math.min(page * size, total)}</span> de <span className="font-medium">{total}</span> resultados
+                                    {total > 0 ? (
+                                        <>
+                                            Mostrando <span className="font-medium">{Math.min((page - 1) * size + 1, total)}</span> a <span className="font-medium">{Math.min(page * size, total)}</span> de <span className="font-medium">{total}</span> resultados
+                                        </>
+                                    ) : (
+                                        "No hay resultados"
+                                    )}
                                 </p>
                             </div>
                             <div>
                                 <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
                                     <button
                                         onClick={() => setPage(p => Math.max(1, p - 1))}
-                                        disabled={page === 1}
+                                        disabled={page === 1 || isLoading}
                                         className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-slate-300 bg-white text-sm font-medium text-slate-500 hover:bg-slate-50 disabled:bg-slate-100 disabled:cursor-not-allowed"
                                     >
                                         <span className="sr-only">Anterior</span>
@@ -133,7 +155,7 @@ export default function PatientTable() {
                                     </button>
                                     <button
                                         onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                                        disabled={page >= totalPages || totalPages === 0}
+                                        disabled={page >= totalPages || totalPages === 0 || isLoading}
                                         className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-slate-300 bg-white text-sm font-medium text-slate-500 hover:bg-slate-50 disabled:bg-slate-100 disabled:cursor-not-allowed"
                                     >
                                         <span className="sr-only">Siguiente</span>
