@@ -351,3 +351,7 @@ Backend:
 - **Sintoma:** Al cambiar a la pagina 2, la UI revertia inmediatamente a la pagina 1.
 - **Causa:** El hook `usePatientsList` devolvia un objeto no memoizado con un callback `setSearch` inestable. Esto disparaba un `useEffect` de busqueda en `PatientTable` tras cada render (incluyendo cambios de pagina), ejecutando un debounce que reseteaba la pagina a 1.
 - **Solucion:** Memoizacion completa del hook `usePatientsList` (`useCallback`, `useMemo`) y guardas en el `useEffect` de `PatientTable` para evitar ejecuciones si el termino de busqueda no ha cambiado. (Solucionado: 2026-01-26).
+
+### Feedback Visual en Paginacion
+- **Objetivo:** Evitar incertidumbre del usuario durante el fetch de datos al cambiar de pagina.
+- **Solucion:** Implementacion de PatientRowSkeleton (+ animate-pulse) que reemplaza las filas reales en PatientTable mientras isLoading es true. Controles de paginacion se deshabilitan inmediatamente para evitar peticiones concurrentes descontroladas. (Implementado: 2026-01-26).
