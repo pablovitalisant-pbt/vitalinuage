@@ -271,10 +271,23 @@ Backend:
 - Reglas aplicadas: lectura/escritura solo owner en `profiles/{uid}/avatar` y `profiles/{uid}/signature`, con limites de tamano y content-type `image/*`. (consola Firebase Storage, 2026-01-22).
 - CORS aplicado en bucket para `https://vitalinuage.web.app` (gsutil cors set, 2026-01-22).
 - Requisito de privacidad (evidencia humana): firma no es publica; solo se usa dentro del PDF generado por el sistema. (Confirmacion directa del humano, 2026-01-22).
+- Logo de impresion guarda en Storage: ruta `print-logos/{uid}/logo` (frontend `PrintSettingsModal`). Regla requerida para upload/lectura solo owner. (UI + reglas, 2026-01-22).
 
 ### Signos vitales en consultas (evidencia manual)
 
 - POST `/api/patients/{id}/consultations` persiste `peso_kg`, `estatura_cm`, `imc`, `presion_arterial`, `frecuencia_cardiaca`, `temperatura_c`. (verificacion manual UI + respuesta API, 2026-01-22).
+
+### Talonario / Mapas de impresion (evidencia manual)
+
+- Editor `/settings/talonario` habilitado por flag `prescription_coords_v1`. (UI + feature flag, 2026-01-22).
+- API de mapas expuesta: `GET /api/maps`, `GET /api/maps/current`, `POST /api/maps`. (backend `backend/api/maps.py`, 2026-01-22).
+- PDF usa mapa activo si existe (ReportLab). (backend `backend/services/pdf_service.py`, 2026-01-22).
+
+### Preferencias de impresion (evidencia manual)
+
+- Persistencia en `users.print_*` (paper_size, template_id, header_text, footer_text, primary_color, secondary_color, logo_path). (backend `backend/models.py`, 2026-01-22).
+- Endpoints `GET/PUT /api/doctors/preferences` guardan y devuelven preferencias. (backend `backend/api/doctor.py`, 2026-01-22).
+- Template HTML usa logo y colores cuando hay preferencias. (backend `backend/templates/recipe_template.html`, 2026-01-22).
 
 ## CI/CD y despliegue (solo evidencia)
 
@@ -293,7 +306,7 @@ Backend:
 | DB en produccion | Neon (PostgreSQL) confirmado por humano (2026-01-22) | Host y permisos exactos en prod | Revisar config de Cloud Run y conexion real |
 | Auth | Firebase Auth + Admin (`frontend/src/firebase.ts:1-25`, `backend/dependencies.py:6-43`) | Proyecto Firebase exacto en prod | Revisar consola Firebase y secrets |
 | Router publico `/v/*` | Router existe (`backend/api/verification.py:7-124`) | Si se expone en prod | Confirmar `include_router`/gateway |
-| Dockerfile usado | Hay dos Dockerfiles (`Dockerfile:1`, `backend/Dockerfile:2`) | Cual se usa en prod | Ver workflow real de build |
+| Dockerfile usado | Hay dos Dockerfiles (`Dockerfile:1`, `backend/Dockerfile:2`) | Cual se usa en prod | Ver workflow real of build |
 | ICD credenciales | `ICD_*` existen (`backend/api/endpoints/diagnosis.py:40,66-67`) | Si estan configuradas | Revisar secretos/env en deploy |
 
 ### Cosas que NO se pueden afirmar con evidencia actual
@@ -331,3 +344,10 @@ Backend:
 - Pytest backend: `pytest` con addopts en `pytest.ini` (`pytest.ini:1-4`).
 - Jest frontend: `npm test` (`frontend/package.json:11`).
 - Lint backend: `flake8 backend` en pipeline (`.github/workflows/pipeline.yml:18-22`).
+
+## Incidencias conocidas y solucionadas
+
+### Paginacion de Pacientes (Loop Infinito)
+- **Sintoma:** Al cambiar a la pagina 2, la UI revertia inmediatamente a la pagina 1.
+- **Causa:** El hook `usePatientsList` devolvia un objeto no memoizado con un callback `setSearch` inestable. Esto disparaba un `useEffect` de busqueda en `PatientTable` tras cada render (incluyendo cambios de pagina), ejecutando un debounce que reseteaba la pagina a 1.
+- **Solucion:** Memoizacion completa del hook `usePatientsList` (`useCallback`, `useMemo`) y guardas en el `useEffect` de `PatientTable` para evitar ejecuciones si el termino de busqueda no ha cambiado. (Solucionado: 2026-01-26).

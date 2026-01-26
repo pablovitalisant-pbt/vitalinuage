@@ -5,17 +5,21 @@ import { usePatientsList } from '../../hooks/usePatientsList';
 import { User, ChevronLeft, ChevronRight, Eye, Search } from 'lucide-react';
 
 export default function PatientTable() {
-    const { data, page, setPage, isLoading, error, setSearch } = usePatientsList();
+    const { data, page, setPage, isLoading, error, setSearch, search } = usePatientsList();
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState("");
 
     useEffect(() => {
+        // Only trigger search if terms are actually different 
+        // to avoid loops when page changes re-trigger this effect
+        if (searchTerm === search) return;
+
         const delayDebounceFn = setTimeout(() => {
             setSearch(searchTerm);
         }, 300);
 
         return () => clearTimeout(delayDebounceFn);
-    }, [searchTerm, setSearch]);
+    }, [searchTerm, setSearch, search]);
 
     if (isLoading && !data && !searchTerm) {
         return <div className="p-8 text-center text-slate-500">Cargando pacientes...</div>;

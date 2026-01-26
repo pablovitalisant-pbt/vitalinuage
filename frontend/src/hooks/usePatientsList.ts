@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { PatientListResponse, PatientListResponseSchema } from '../contracts/patient';
 import { useAuthFetch } from './useAuthFetch';
 import { getApiUrl } from '../config/api';
@@ -11,7 +11,7 @@ export function usePatientsList(initialPage = 1, size = 10) {
     const [error, setError] = useState<string | null>(null);
     const authFetch = useAuthFetch();
 
-    const fetchPatients = async (p: number, s: string) => {
+    const fetchPatients = useCallback(async (p: number, s: string) => {
         setIsLoading(true);
         setError(null);
         try {
@@ -30,9 +30,12 @@ export function usePatientsList(initialPage = 1, size = 10) {
             const parsed = PatientListResponseSchema.parse(raw);
             setData(parsed);
 
-            // Should valid page returned from server be used? Yes.
-            // But if we search, server might return page 1.
-            setPage(parsed.page);
+            // Important: only update page from server if it's different to avoid loops
+            // if we are changing page manually, we want to stay on that page.
+            // But if the server says we are on page X, we should reflect it.
+            if (parsed.page !== p) {
+                setPage(parsed.page);
+            }
         } catch (err: any) {
             if (err.message !== 'AUTH_TOKEN_MISSING' && err.message !== 'AUTH_401') {
                 console.error(err);
@@ -41,21 +44,25 @@ export function usePatientsList(initialPage = 1, size = 10) {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [authFetch, size]);
 
     useEffect(() => {
         fetchPatients(page, search);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page, search]);
+    }, [page, search, fetchPatients]);
 
-    // When search changes, reset page to 1 (optional optimization, but good UX)
-    // We can wrap setSearch to do this.
-    const handleSetSearch = (s: string) => {
-        setSearch(s);
-        setPage(1);
-    };
+    // When search changes, reset page to 1
+    const handleSetSearch = useCallback((s: string) => {
+        // Only reset if search actually changed
+        setSearch(prev => {
+            if (prev !== s) {
+                setPage(1);
+                return s;
+            }
+            return prev;
+        });
+    }, []);
 
-    return {
+    const result = useMemo(() => ({
         data,
         page,
         setPage,
@@ -64,5 +71,7 @@ export function usePatientsList(initialPage = 1, size = 10) {
         isLoading,
         error,
         refresh: () => fetchPatients(page, search)
-    };
+    }), [data, page, search, handleSetSearch, isLoading, error, fetchPatients]);
+
+    return result;
 }
