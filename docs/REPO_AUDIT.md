@@ -356,14 +356,15 @@ Backend:
 - **Objetivo:** Evitar incertidumbre del usuario durante el fetch de datos al cambiar de pagina.
 - **Solucion:** Implementacion de PatientRowSkeleton (+ animate-pulse) que reemplaza las filas reales en PatientTable mientras isLoading es true. Controles de paginacion se deshabilitan inmediatamente para evitar peticiones concurrentes descontroladas. (Implementado: 2026-01-26).
 
-### Busqueda Flexible de Pacientes
-- **Feature Flag:** `patient_search_flexible_v1` (default: `false`) en `config/feature-flags.json`.
-- **Endpoint:** `GET /api/patients/search` (`backend/api/patients.py:110-141`).
-- **Comportamiento Legacy (flag OFF):** Busca solo en `nombre`, `apellido_paterno`, `dni` con `ilike`.
-- **Comportamiento Flexible (flag ON):** 
+### Busqueda Flexible de Pacientes (Alineación Completa)
+- **Feature Flag:** `patient_search_flexible_v1` (habilitado: `true`) en `config/feature-flags.json`.
+- **Endpoints Alineados:** 
+  - `GET /api/patients/search` (Búsqueda global)
+  - `GET /api/patients` (Lista paginada de la sección Pacientes)
+- **Evidencia de Alineación:** Ambos endpoints ahora utilizan `apply_flexible_patient_search()` (`backend/api/patients.py:110-238`).
+- **Comportamiento Flexible (Habilitado):** 
   - Busca en 6 campos: `nombre`, `apellido_paterno`, `apellido_materno`, `dni`, `email`, `telefono`.
-  - Soporte multi-término: divide query por espacios, cada término debe matchear al menos un campo (AND entre términos, OR dentro de cada término).
-  - Case-insensitive con `ilike`.
-- **Helpers:** `is_flexible_search_enabled()` lee flag de env var `FEATURE_FLAGS_JSON` o archivo config. `apply_flexible_patient_search()` aplica lógica de búsqueda flexible.
-- **Verificación:** Todas las pruebas pasando (email, teléfono, multi-término). (Implementado: 2026-02-11).
+  - Soporte multi-término: permite encontrar por apellido materno o combinaciones de términos (AND entre términos).
+- **Estado de Configuración:** `scoped_dni_uniqueness` y `patient_search_flexible_v1` establecidos en `true`.
+- **Verificación:** Pruebas de integración y verificación manual confirman que `/patients` ahora encuentra por apellido materno, igual que el dashboard. (Implementado y alineado: 2026-02-11).
 
