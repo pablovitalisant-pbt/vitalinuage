@@ -216,5 +216,27 @@ class Prescription(Base):
     __tablename__ = "prescriptions"
     
     id = Column(Integer, primary_key=True, index=True)
+    consultation_id = Column(Integer, ForeignKey("clinical_consultations.id"), nullable=False)
+    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
     doctor_id = Column(String, index=True, nullable=False)
+    date = Column(DateTime, default=datetime.datetime.utcnow)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    patient = relationship("Patient")
+    consultation = relationship("ClinicalConsultation")
+    medications = relationship("Medication", back_populates="prescription", cascade="all, delete-orphan")
+
+
+class Medication(Base):
+    __tablename__ = "medications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    prescription_id = Column(Integer, ForeignKey("prescriptions.id", ondelete="CASCADE"), nullable=False, index=True)
+    name = Column(String, nullable=False)
+    dosage = Column(String, nullable=False)
+    frequency = Column(String, nullable=False)
+    duration = Column(String, nullable=False)
+    notes = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    prescription = relationship("Prescription", back_populates="medications")
