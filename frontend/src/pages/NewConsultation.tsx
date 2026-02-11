@@ -6,6 +6,8 @@ import { useAuthFetch } from '../hooks/useAuthFetch';
 import { getApiUrl } from '../config/api';
 import BiometryForm from '../components/clinical/BiometryForm';
 import AIDiagnosisSearch from '../components/clinical/AIDiagnosisSearch';
+import { parseRecetaToMedications } from '../lib/recetaParser';
+import { runRecetaSubmitFlow } from '../lib/recetaSubmitFlow';
 
 export default function NewConsultation() {
     const navigate = useNavigate();
@@ -72,17 +74,47 @@ export default function NewConsultation() {
                 imc: toNumber(formData.imc)
             };
 
-            const res = await authFetch(getApiUrl(`/api/patients/${patientId}/consultations`), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
+            const result = await runRecetaSubmitFlow({
+                recetaText: formData.treatment,
+                parseReceta: parseRecetaToMedications,
+                postConsultation: async () => {
+                    const res = await authFetch(getApiUrl(`/api/patients/${patientId}/consultations`), {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!res.ok) {
+                        const errorData = await res.json().catch(() => ({}));
+                        throw new Error(errorData.detail || "Error al guardar la consulta");
+                    }
+
+                    return res.json();
                 },
-                body: JSON.stringify(payload)
+                postPrescription: async (consultationId, medications) => {
+                    const res = await authFetch(getApiUrl(`/api/patients/consultations/${consultationId}/prescription`), {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            consultation_id: consultationId,
+                            medications
+                        })
+                    });
+
+                    if (!res.ok) {
+                        const errorData = await res.json().catch(() => ({}));
+                        throw new Error(errorData.detail || "Error al guardar la receta");
+                    }
+                }
             });
 
-            if (!res.ok) {
-                const errorData = await res.json().catch(() => ({}));
-                throw new Error(errorData.detail || "Error al guardar la consulta");
+            if (!result.ok) {
+                setError(result.error);
+                return;
             }
 
             // If weight and height provided, update patient IMC
