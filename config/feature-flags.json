@@ -15,5 +15,6 @@
     "tracking_envios": true,
     "audit_panel": true,
     "onboarding_workflow": true,
-    "scoped_dni_uniqueness": false
+    "scoped_dni_uniqueness": false,
+    "patient_search_flexible_v1": false
 }

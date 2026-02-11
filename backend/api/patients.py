@@ -5,6 +5,9 @@ from typing import List
 from backend import models
 import backend.schemas.patients_schema as schemas
 import backend.schemas.patients as search_schemas
+import os
+import json
+from sqlalchemy import or_, cast, String
 from backend.schemas.patient import (
     PatientListResponse, 
     ClinicalRecord,
@@ -46,6 +49,64 @@ def create_patient(
             detail="Ya tienes un paciente registrado con este DNI"
         )
 
+# Helper for Feature Flag
+def is_flexible_search_enabled() -> bool:
+    # 1. Env Var
+    flags_json = os.getenv("FEATURE_FLAGS_JSON")
+    if flags_json:
+        try:
+            flags = json.loads(flags_json)
+            return flags.get("patient_search_flexible_v1", False)
+        except json.JSONDecodeError:
+            pass
+            
+    # 2. Local File
+    try:
+        config_path = os.path.join(
+            os.path.dirname(__file__), "..", "..", "config", "feature-flags.json"
+        )
+        if os.path.exists(config_path):
+            with open(config_path, "r") as f:
+                flags = json.load(f)
+                return flags.get("patient_search_flexible_v1", False)
+    except Exception:
+        pass
+        
+    return False
+
+def apply_flexible_patient_search(query, search_term: str):
+    """
+    Apply flexible search filter:
+    - Split terms by space
+    - For each term: OR across (nombre, apellidos, dni, email, telefono)
+    - Combine terms with AND
+    """
+    if not search_term:
+        return query
+        
+    terms = search_term.split()
+    if not terms:
+        return query
+        
+    for term in terms:
+        # Case insensitive pattern
+        pattern = f"%{term}%"
+        
+        # Build OR filter for this term
+        term_filter = or_(
+            models.Patient.nombre.ilike(pattern),
+            models.Patient.apellido_paterno.ilike(pattern),
+            models.Patient.apellido_materno.ilike(pattern),
+            models.Patient.dni.ilike(pattern),
+            models.Patient.email.ilike(pattern),
+            models.Patient.telefono.ilike(pattern)
+        )
+        
+        # Combine with main query (AND)
+        query = query.filter(term_filter)
+        
+    return query
+
 @router.get("/search", response_model=search_schemas.PatientSearchResponse)
 def search_patients(
     q: str,
@@ -57,21 +118,22 @@ def search_patients(
     
     IMPORTANT: This route MUST be defined BEFORE /{patient_id} to avoid route conflicts.
     """
-    # SlicePolish: Enforced strict consistent length with frontend (>=3)
-    # The previous value was 2, which allowed backend to work but tests expected 3.
-    # While frontend checks for <3, backend should mirror this or be safer.
-    # We update logic to be consistent: if len < 3, return empty result to save DB hits.
     if len(q) < 3:
         return {"results": []}
 
     query = db.query(models.Patient).filter(models.Patient.owner_id == current_user.email)
     
-    search_filter = or_(
-        models.Patient.nombre.ilike(f"%{q}%"),
-        models.Patient.apellido_paterno.ilike(f"%{q}%"),
-        models.Patient.dni.ilike(f"%{q}%")
-    )
-    query = query.filter(search_filter)
+    # Flexible Search (Feature Flag)
+    if is_flexible_search_enabled():
+        query = apply_flexible_patient_search(query, q)
+    else:
+        # Legacy Search
+        search_filter = or_(
+            models.Patient.nombre.ilike(f"%{q}%"),
+            models.Patient.apellido_paterno.ilike(f"%{q}%"),
+            models.Patient.dni.ilike(f"%{q}%")
+        )
+        query = query.filter(search_filter)
     
     ps = query.all()
     
@@ -88,7 +150,6 @@ def search_patients(
             "imc": p.imc
         })
         
-
     return {"results": mapped_results}
 
 @router.get("/{patient_id}", response_model=schemas.Patient)
