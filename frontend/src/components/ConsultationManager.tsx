@@ -8,6 +8,52 @@ import { getApiUrl } from '../config/api';
 import { useDoctor } from '../context/DoctorContext';
 import { useAuthFetch } from '../hooks/useAuthFetch';
 
+type AntecedentesSnapshot = {
+    alergias?: string | null;
+    patologicos?: string | null;
+    no_patologicos?: string | null;
+    heredofamiliares?: string | null;
+    quirurgicos?: string | null;
+    medicamentos_actuales?: string | null;
+};
+
+const SNAPSHOT_LABELS: Record<keyof AntecedentesSnapshot, string> = {
+    alergias: 'Alergias',
+    patologicos: 'Patológicos',
+    no_patologicos: 'No patológicos',
+    heredofamiliares: 'Heredofamiliares',
+    quirurgicos: 'Quirúrgicos',
+    medicamentos_actuales: 'Medicamentos actuales',
+};
+
+function extractAntecedentesSnapshot(examenFisico?: string | null): { snapshot: AntecedentesSnapshot | null; cleanText: string } {
+    if (typeof examenFisico !== 'string') {
+        return { snapshot: null, cleanText: '' };
+    }
+
+    const marker = '[ANTECEDENTES_SNAPSHOT_V1]';
+    const markerIndex = examenFisico.indexOf(marker);
+
+    if (markerIndex === -1) {
+        return { snapshot: null, cleanText: examenFisico };
+    }
+
+    const jsonPart = examenFisico.slice(markerIndex + marker.length).trim();
+    const cleanText = examenFisico.slice(0, markerIndex).trim();
+
+    try {
+        const parsed = JSON.parse(jsonPart);
+        if (parsed && typeof parsed === 'object') {
+            return { snapshot: parsed as AntecedentesSnapshot, cleanText };
+        }
+    } catch (err) {
+        // Fallback silencioso: no romper UI, mantener texto original
+        return { snapshot: null, cleanText: examenFisico };
+    }
+
+    return { snapshot: null, cleanText };
+}
+
 interface Props {
     patientId: number;
 }
@@ -260,12 +306,43 @@ export default function ConsultationManager({ patientId }: Props) {
                                     <p className="font-semibold text-xs text-slate-400 mb-1">TRATAMIENTO</p>
                                     {c.plan_tratamiento}
                                 </div>
-                                {c.examen_fisico && (
-                                    <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                        <p className="font-semibold text-xs text-slate-400 mb-1">EXAMEN FÍSICO</p>
-                                        <p className="text-sm text-slate-700 whitespace-pre-line">{c.examen_fisico || 'No registrado'}</p>
-                                    </div>
-                                )}
+                                {(() => {
+                                    const { snapshot, cleanText } = extractAntecedentesSnapshot(c.examen_fisico);
+                                    const hasCleanText = !!cleanText;
+                                    const entries = snapshot
+                                        ? (Object.entries(snapshot) as [keyof AntecedentesSnapshot, string | null | undefined][])
+                                            .filter(([, value]) => !!(value && String(value).trim()))
+                                        : [];
+
+                                    if (!hasCleanText && entries.length === 0) return null;
+
+                                    return (
+                                        <div className="bg-slate-50 p-3 rounded-lg border border-slate-100 space-y-3">
+                                            {hasCleanText && (
+                                                <div>
+                                                    <p className="font-semibold text-xs text-slate-400 mb-1">EXAMEN FÍSICO</p>
+                                                    <p className="text-sm text-slate-700 whitespace-pre-line">{cleanText || 'No registrado'}</p>
+                                                </div>
+                                            )}
+
+                                            {entries.length > 0 && (
+                                                <div className="border border-blue-100 bg-blue-50 rounded-lg p-3">
+                                                    <p className="font-semibold text-xs text-blue-700 uppercase tracking-wider mb-2">
+                                                        Antecedentes registrados en esta consulta
+                                                    </p>
+                                                    <div className="space-y-2">
+                                                        {entries.map(([key, value]) => (
+                                                            <div key={key} className="text-sm text-slate-700">
+                                                                <span className="font-semibold text-slate-800">{SNAPSHOT_LABELS[key]}: </span>
+                                                                <span className="whitespace-pre-line">{value}</span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })()}
                             </div>
                         </div>
                     ))
