@@ -37,21 +37,21 @@ export default function VitalSignsCards({ imc, bloodPressure, weight, height, la
 
             {/* IMC Card - Compact */}
             <div
-                className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all p-3 flex flex-col"
+                className="bg-white rounded-xl border border-slate-200 p-3 flex flex-col"
                 data-testid="imc-card"
             >
                 <div className="flex items-center justify-between mb-2">
-                    <div className={`p-1.5 rounded-lg ${getIMCIconColor(imc)}`}>
-                        <Activity size={16} strokeWidth={2.5} />
+                    <div className={`p-1.5 rounded-md ${getIMCIconColor(imc)}`}>
+                        <Activity size={14} strokeWidth={2} />
                     </div>
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">IMC</span>
+                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">IMC</span>
                 </div>
                 <div className="mt-auto">
-                    <div className="text-xl font-black text-slate-900 mb-1.5 tracking-tight">
+                    <div className="text-lg font-semibold text-slate-800 mb-1 tracking-tight">
                         {imc ? imc.toFixed(1) : '--'}
                     </div>
                     <div
-                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide border ${getIMCColor(imc)}`}
+                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wide border ${getIMCColor(imc)}`}
                         data-testid="imc-indicator"
                     >
                         {getIMCLabel(imc)}
@@ -61,39 +61,39 @@ export default function VitalSignsCards({ imc, bloodPressure, weight, height, la
 
             {/* Blood Pressure Card - Compact */}
             <div
-                className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all p-3 flex flex-col"
+                className="bg-white rounded-xl border border-slate-200 p-3 flex flex-col"
                 data-testid="vital-card-bp"
             >
                 <div className="flex items-center justify-between mb-2">
-                    <div className="p-1.5 bg-rose-100 rounded-lg text-rose-600">
-                        <Heart size={16} strokeWidth={2.5} />
+                    <div className="p-1.5 bg-slate-100 rounded-md text-slate-500">
+                        <Heart size={14} strokeWidth={2} />
                     </div>
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Presión</span>
+                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Presión</span>
                 </div>
                 <div className="mt-auto">
-                    <div className="text-lg font-black text-slate-900 tracking-tight">
+                    <div className="text-base font-semibold text-slate-800 tracking-tight">
                         {bloodPressure || '--/--'}
                     </div>
-                    <div className="text-[9px] text-slate-500 mt-0.5 font-semibold">mmHg</div>
+                    <div className="text-[9px] text-slate-500 mt-0.5 font-medium">mmHg</div>
                 </div>
             </div>
 
             {/* Weight/Height Card - Compact */}
             <div
-                className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all p-3 flex flex-col"
+                className="bg-white rounded-xl border border-slate-200 p-3 flex flex-col"
                 data-testid="vital-card-weight"
             >
                 <div className="flex items-center justify-between mb-2">
-                    <div className="p-1.5 bg-violet-100 rounded-lg text-violet-600">
-                        <Weight size={16} strokeWidth={2.5} />
+                    <div className="p-1.5 bg-slate-100 rounded-md text-slate-500">
+                        <Weight size={14} strokeWidth={2} />
                     </div>
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Peso</span>
+                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Peso</span>
                 </div>
                 <div className="mt-auto">
-                    <div className="text-lg font-black text-slate-900 tracking-tight">
+                    <div className="text-base font-semibold text-slate-800 tracking-tight">
                         {weight ? `${weight} kg` : '--'}
                     </div>
-                    <div className="text-[9px] text-slate-600 mt-0.5 font-semibold">
+                    <div className="text-[9px] text-slate-500 mt-0.5 font-medium">
                         {height ? `${height} cm` : '--'}
                     </div>
                 </div>
@@ -101,17 +101,17 @@ export default function VitalSignsCards({ imc, bloodPressure, weight, height, la
 
             {/* Last Consultation Card - Compact */}
             <div
-                className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all p-3 flex flex-col"
+                className="bg-white rounded-xl border border-slate-200 p-3 flex flex-col"
                 data-testid="vital-card-last"
             >
                 <div className="flex items-center justify-between mb-2">
-                    <div className="p-1.5 bg-sky-100 rounded-lg text-sky-600">
-                        <Calendar size={16} strokeWidth={2.5} />
+                    <div className="p-1.5 bg-slate-100 rounded-md text-slate-500">
+                        <Calendar size={14} strokeWidth={2} />
                     </div>
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Última</span>
+                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Última</span>
                 </div>
                 <div className="mt-auto">
-                    <div className="text-xs font-black text-slate-900 tracking-tight">
+                    <div className="text-xs font-semibold text-slate-800 tracking-tight">
                         {lastConsultationDate
                             ? new Date(lastConsultationDate).toLocaleDateString('es-ES', {
                                 day: '2-digit',

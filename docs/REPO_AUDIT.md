@@ -368,3 +368,6 @@ Backend:
 - **Estado de Configuración:** `scoped_dni_uniqueness` y `patient_search_flexible_v1` establecidos en `true`.
 - **Verificación:** Pruebas de integración y verificación manual confirman que `/patients` ahora encuentra por apellido materno, igual que el dashboard. (Implementado y alineado: 2026-02-11).
 
+### Antecedentes por consulta en historial
+- **Evidencia:** UI del historial de consultas parsea `[ANTECEDENTES_SNAPSHOT_V1]` desde `examen_fisico` y muestra panel "Antecedentes registrados en esta consulta" (solo display, sin persistencia). (`frontend/src/components/ConsultationManager.tsx:10-120,286-332`). (Implementado: 2026-02-11).
+

@@ -4,7 +4,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { PrintSettingsModal } from '../components/PrintSettingsModal';
 import PrescriptionDelivery from '../components/PrescriptionDelivery';
-import MedicalBackgroundManager from '../components/MedicalBackgroundManager';
 import ConsultationManager from '../components/ConsultationManager';
 import VitalSignsCards from '../components/patients/VitalSignsCards';
 import { getApiUrl } from '../config/api';
@@ -234,7 +233,7 @@ export default function PatientProfile() {
   };
 
   // Tab State
-  const [activeTab, setActiveTab] = useState<'consultations' | 'background' | 'recipes'>('consultations');
+  const [activeTab, setActiveTab] = useState<'consultations' | 'recipes'>('consultations');
 
   useEffect(() => {
     if (!id) return;
@@ -549,22 +548,21 @@ export default function PatientProfile() {
         {/* Allergy Alert Banner - PRIORITY #1 */}
         {allergiesList.length > 0 ? (
           <div
-            className="bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 p-6 mb-8 rounded-3xl shadow-lg flex items-start gap-4 animate-pulse-slow"
+            className="bg-white border border-slate-200 p-4 mb-6 rounded-xl flex items-start gap-3"
             data-testid="allergy-alert-banner"
           >
-            <div className="p-3 bg-red-100 rounded-2xl">
-              <AlertTriangle className="h-6 w-6 text-red-600" strokeWidth={2.5} />
+            <div className="p-2 bg-slate-100 rounded-lg">
+              <AlertTriangle className="h-4 w-4 text-slate-500" strokeWidth={2} />
             </div>
             <div className="flex-1">
-              <h3 className="text-red-900 font-black text-base mb-2 uppercase tracking-wide flex items-center gap-2">
-                <span className="text-2xl">⚠️</span>
+              <h3 className="text-slate-700 font-semibold text-sm mb-2 flex items-center gap-2">
                 ALERGIAS REGISTRADAS
               </h3>
               <div className="flex flex-wrap gap-2">
                 {allergiesList.map((allergy, idx) => (
                   <span
                     key={idx}
-                    className="px-4 py-2 bg-red-100 text-red-800 rounded-full text-sm font-bold border-2 border-red-200"
+                    className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-semibold border border-slate-200"
                   >
                     {allergy}
                   </span>
@@ -609,14 +607,6 @@ export default function PatientProfile() {
           Consultas & Historial
         </button>
         <button
-          onClick={() => setActiveTab('background')}
-          className={`pb-3 text-sm font-medium transition-colors border-b-2 ${
-            activeTab === 'background' ? 'border-[#1e3a8a] text-[#1e3a8a]' : 'border-transparent text-slate-500 hover:text-slate-700'
-          }`}
-        >
-          Antecedentes
-        </button>
-        <button
           onClick={() => setActiveTab('recipes')}
           className={`pb-3 text-sm font-medium transition-colors border-b-2 ${
             activeTab === 'recipes' ? 'border-[#1e3a8a] text-[#1e3a8a]' : 'border-transparent text-slate-500 hover:text-slate-700'
@@ -654,12 +644,6 @@ export default function PatientProfile() {
                 </button>
               </div>
             </div>
-          </div>
-        )}
-
-        {activeTab === 'background' && (
-          <div className="animate-in fade-in slide-in-from-left-4 duration-300">
-            <MedicalBackgroundManager patientId={parseInt(id || '0')} />
           </div>
         )}
 
