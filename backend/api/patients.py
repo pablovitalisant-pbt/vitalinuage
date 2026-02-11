@@ -230,12 +230,15 @@ def read_patients(
     
     # Apply Search
     if search:
-        search_filter = or_(
-            models.Patient.nombre.ilike(f"%{search}%"),
-            models.Patient.apellido_paterno.ilike(f"%{search}%"),
-            models.Patient.dni.ilike(f"%{search}%")
-        )
-        query = query.filter(search_filter)
+        if is_flexible_search_enabled():
+            query = apply_flexible_patient_search(query, search)
+        else:
+            search_filter = or_(
+                models.Patient.nombre.ilike(f"%{search}%"),
+                models.Patient.apellido_paterno.ilike(f"%{search}%"),
+                models.Patient.dni.ilike(f"%{search}%")
+            )
+            query = query.filter(search_filter)
     
     # 2. Total Count
     total = query.count()
