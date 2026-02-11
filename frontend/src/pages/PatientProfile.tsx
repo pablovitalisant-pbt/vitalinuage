@@ -319,6 +319,11 @@ export default function PatientProfile() {
               <span>•</span>
               <span>{patient.email || 'Sin email'}</span>
             </div>
+            {medicalBackground?.alergias?.trim() && (
+              <div className="mt-2 text-sm text-slate-500">
+                <span className="font-medium">Alergias:</span> {medicalBackground.alergias}
+              </div>
+            )}
           </div>
           <div className="flex gap-2">
             <button
@@ -542,37 +547,6 @@ export default function PatientProfile() {
                 {isSavingPatient ? 'Guardando...' : 'Guardar cambios'}
               </button>
             </div>
-          </div>
-        )}
-
-        {/* Allergy Alert Banner - PRIORITY #1 */}
-        {allergiesList.length > 0 ? (
-          <div
-            className="bg-white border border-slate-200 p-4 mb-6 rounded-xl flex items-start gap-3"
-            data-testid="allergy-alert-banner"
-          >
-            <div className="p-2 bg-slate-100 rounded-lg">
-              <AlertTriangle className="h-4 w-4 text-slate-500" strokeWidth={2} />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-slate-700 font-semibold text-sm mb-2 flex items-center gap-2">
-                ALERGIAS REGISTRADAS
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {allergiesList.map((allergy, idx) => (
-                  <span
-                    key={idx}
-                    className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-semibold border border-slate-200"
-                  >
-                    {allergy}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="bg-slate-50 border border-slate-200 p-4 mb-8 rounded-2xl text-center">
-            <p className="text-slate-500 text-sm font-semibold">✓ Sin alergias registradas</p>
           </div>
         )}
 
