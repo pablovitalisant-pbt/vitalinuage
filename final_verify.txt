@@ -1,0 +1,39 @@
+C:\Users\pablo\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\_internal\_config.py:383: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+Starting verification_script.py...
+DEBUG: Mocks configured. Verify ID Token function: <function mock_verify_id_token at 0x000001D714417D80>
+WARNING: frontend/dist not found. API only mode.
+DEBUG: Creating tables...
+DEBUG: Tables created.
+DEBUG: Created user doc_97c5327e-bea1-43bc-bcb7-0ad2f1f6cd30@vital.com
+DEBUG: Committing P1(DNI1-5b364fd6) and P2(DNI2-5b364fd6)
+DEBUG: Created patients P1 and P2
+
+[TEST 1] Flag OFF (Legacy Behavior)...
+[AUTH AUDIT] Raw Authorization header: Bearer legacy_token_disabled
+DEBUG: mock_verify_id_token called with legacy_token_disabled
+[AUTH AUDIT] Token Received. UID_PREFIX=test_u...
+[AUTH AUDIT] Existing User Found -> ID: 1
+P1-LEGACY: OK
+
+[TEST 2] Flag ON (Search by Email)...
+[AUTH AUDIT] Raw Authorization header: Bearer legacy_token_disabled
+DEBUG: mock_verify_id_token called with legacy_token_disabled
+[AUTH AUDIT] Token Received. UID_PREFIX=test_u...
+[AUTH AUDIT] Existing User Found -> ID: 1
+P2-EMAIL: OK
+
+[TEST 3] Flag ON (Search by Phone)...
+[AUTH AUDIT] Raw Authorization header: Bearer legacy_token_disabled
+DEBUG: mock_verify_id_token called with legacy_token_disabled
+[AUTH AUDIT] Token Received. UID_PREFIX=test_u...
+[AUTH AUDIT] Existing User Found -> ID: 1
+P3-PHONE: OK
+
+[TEST 4] Flag ON (Multi-term P1)...
+[AUTH AUDIT] Raw Authorization header: Bearer legacy_token_disabled
+DEBUG: mock_verify_id_token called with legacy_token_disabled
+[AUTH AUDIT] Token Received. UID_PREFIX=test_u...
+[AUTH AUDIT] Existing User Found -> ID: 1
+P4-MULTI: OK

@@ -12,12 +12,12 @@ from backend.schemas.patient import (
     PatientListResponse, 
     ClinicalRecord,
     ConsultationItem,
-    ConsultationCreate,
     PrescriptionCreate,
     PrescriptionResponse,
     MedicationItem,
     ConsultationItemSpanish # Added for SP-02
 )
+from backend.schemas.consultations import ConsultationCreate
 from backend.database import get_db
 
 router = APIRouter(
@@ -395,6 +395,23 @@ def create_patient_consultation(
     if not patient:
         raise HTTPException(status_code=404, detail="Patient not found")
         
+    snapshot_fields = {
+        "alergias": (consultation.alergias or "").strip(),
+        "patologicos": (consultation.patologicos or "").strip(),
+        "no_patologicos": (consultation.no_patologicos or "").strip(),
+        "heredofamiliares": (consultation.heredofamiliares or "").strip(),
+        "quirurgicos": (consultation.quirurgicos or "").strip(),
+        "medicamentos_actuales": (consultation.medicamentos_actuales or "").strip(),
+    }
+    snapshot_data = {k: v for k, v in snapshot_fields.items() if v}
+    base_exam = consultation.notes or ""
+    if snapshot_data:
+        marker = "[ANTECEDENTES_SNAPSHOT_V1]"
+        snapshot_block = f"{marker}{json.dumps(snapshot_data, ensure_ascii=False)}"
+        exam_text = f"{base_exam}\n{snapshot_block}" if base_exam else snapshot_block
+    else:
+        exam_text = base_exam
+
     # 2. Create Consultation (map English schema to Spanish model columns)
     db_consultation = models.ClinicalConsultation(
         patient_id=patient_id,
@@ -402,7 +419,7 @@ def create_patient_consultation(
         motivo_consulta=consultation.reason,  # reason -> motivo_consulta
         diagnostico=consultation.diagnosis,    # diagnosis -> diagnostico
         plan_tratamiento=consultation.treatment,  # treatment -> plan_tratamiento
-        examen_fisico=consultation.notes or "",  # notes -> examen_fisico
+        examen_fisico=exam_text,  # notes + optional antecedentes snapshot
         peso_kg=consultation.peso_kg,
         estatura_cm=consultation.estatura_cm,
         imc=consultation.imc,
@@ -413,6 +430,15 @@ def create_patient_consultation(
     )
     
     db.add(db_consultation)
+    if snapshot_data:
+        background = db.query(models.MedicalBackground).filter(
+            models.MedicalBackground.patient_id == patient_id
+        ).first()
+        if not background:
+            background = models.MedicalBackground(patient_id=patient_id)
+            db.add(background)
+        for key, value in snapshot_data.items():
+            setattr(background, key, value)
     db.commit()
     db.refresh(db_consultation)
     

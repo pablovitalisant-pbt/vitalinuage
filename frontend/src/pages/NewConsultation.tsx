@@ -17,6 +17,12 @@ export default function NewConsultation() {
         notes: '',
         diagnosis: '',
         treatment: '',
+        alergias: '',
+        patologicos: '',
+        no_patologicos: '',
+        heredofamiliares: '',
+        quirurgicos: '',
+        medicamentos_actuales: '',
         weight: '',
         height: '',
         peso_kg: undefined as number | undefined,
@@ -52,6 +58,12 @@ export default function NewConsultation() {
                 diagnosis: formData.diagnosis,
                 treatment: formData.treatment,
                 notes: formData.notes || undefined,
+                alergias: formData.alergias,
+                patologicos: formData.patologicos,
+                no_patologicos: formData.no_patologicos,
+                heredofamiliares: formData.heredofamiliares,
+                quirurgicos: formData.quirurgicos,
+                medicamentos_actuales: formData.medicamentos_actuales,
                 peso_kg: toNumber(formData.peso_kg),
                 estatura_cm: toNumber(formData.estatura_cm),
                 presion_arterial: formData.presion_arterial || undefined,
@@ -206,6 +218,79 @@ export default function NewConsultation() {
                                     cie10_description: desc
                                 })}
                             />
+                        </div>
+
+                        {/* Sección de Antecedentes (captura UI, persistencia en Slice 2) */}
+                        <div className="space-y-4 rounded-lg border border-slate-200 bg-slate-50/50 p-5">
+                            <h3 className="text-lg font-medium text-slate-800">Antecedentes</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-1">
+                                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Alergias</label>
+                                    <textarea
+                                        name="alergias"
+                                        value={formData.alergias}
+                                        onChange={handleChange}
+                                        rows={3}
+                                        className="w-full rounded-md border-slate-200 focus:border-[#1e3a8a] focus:ring-[#1e3a8a] bg-white"
+                                        placeholder="Sin datos registrados..."
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Antecedentes Patológicos</label>
+                                    <textarea
+                                        name="patologicos"
+                                        value={formData.patologicos}
+                                        onChange={handleChange}
+                                        rows={3}
+                                        className="w-full rounded-md border-slate-200 focus:border-[#1e3a8a] focus:ring-[#1e3a8a] bg-white"
+                                        placeholder="Sin datos registrados..."
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">No Patológicos</label>
+                                    <textarea
+                                        name="no_patologicos"
+                                        value={formData.no_patologicos}
+                                        onChange={handleChange}
+                                        rows={3}
+                                        className="w-full rounded-md border-slate-200 focus:border-[#1e3a8a] focus:ring-[#1e3a8a] bg-white"
+                                        placeholder="Sin datos registrados..."
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Heredofamiliares</label>
+                                    <textarea
+                                        name="heredofamiliares"
+                                        value={formData.heredofamiliares}
+                                        onChange={handleChange}
+                                        rows={3}
+                                        className="w-full rounded-md border-slate-200 focus:border-[#1e3a8a] focus:ring-[#1e3a8a] bg-white"
+                                        placeholder="Sin datos registrados..."
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Quirúrgicos</label>
+                                    <textarea
+                                        name="quirurgicos"
+                                        value={formData.quirurgicos}
+                                        onChange={handleChange}
+                                        rows={3}
+                                        className="w-full rounded-md border-slate-200 focus:border-[#1e3a8a] focus:ring-[#1e3a8a] bg-white"
+                                        placeholder="Sin datos registrados..."
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Medicamentos Actuales</label>
+                                    <textarea
+                                        name="medicamentos_actuales"
+                                        value={formData.medicamentos_actuales}
+                                        onChange={handleChange}
+                                        rows={3}
+                                        className="w-full rounded-md border-slate-200 focus:border-[#1e3a8a] focus:ring-[#1e3a8a] bg-white"
+                                        placeholder="Sin datos registrados..."
+                                    />
+                                </div>
+                            </div>
                         </div>
 
                         {/* Tratamiento (Area Grande) */}
