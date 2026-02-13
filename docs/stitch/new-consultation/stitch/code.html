@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nueva Consulta - Software Médico</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0f49bd",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#111318] min-h-screen"><aside class="fixed left-0 top-0 h-screen w-20 bg-white border-r border-slate-200 flex flex-col items-center py-8 z-[60] transition-all duration-300" id="sidebar">
+<div class="mb-12">
+<span class="material-symbols-outlined text-3xl text-primary font-black">V</span>
+</div>
+<nav class="flex flex-col gap-8">
+<a class="p-3 rounded-xl hover:bg-primary/5 text-slate-400 hover:text-primary transition-all group relative" href="#" title="Inicio">
+<span class="material-symbols-outlined text-3xl">home</span>
+<span class="absolute left-full ml-4 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Inicio</span>
+</a>
+<a class="p-3 rounded-xl bg-primary/10 text-primary transition-all group relative" href="#" title="Pacientes">
+<span class="material-symbols-outlined text-3xl">group</span>
+<span class="absolute left-full ml-4 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Pacientes</span>
+</a>
+<a class="p-3 rounded-xl hover:bg-primary/5 text-slate-400 hover:text-primary transition-all group relative" href="#" title="Estadísticas">
+<span class="material-symbols-outlined text-3xl">bar_chart</span>
+<span class="absolute left-full ml-4 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Estadísticas</span>
+</a>
+</nav>
+<div class="mt-auto">
+<button class="p-3 rounded-xl hover:bg-slate-100 text-slate-400 transition-all">
+<span class="material-symbols-outlined text-3xl">chevron_right</span>
+</button>
+</div>
+</aside>
+<!-- Simple Top Navigation Bar -->
+<header class="bg-white dark:bg-background-dark border-b border-primary/10 sticky top-0 z-50 pl-20">
+<div class="max-w-5xl mx-auto px-6 h-20 flex items-center justify-between"><div class="text-slate-500 font-medium">
+    Miércoles, 11 de febrero de 2026
+</div>
+<div class="flex items-center gap-8">
+</div>
+<div class="flex items-center gap-4">
+<div class="text-right mr-2">
+<p class="text-sm font-bold text-[#111318]">Dr. Alberto Rossi</p>
+<p class="text-xs text-slate-500">Cardiología</p>
+</div>
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center border-2 border-primary/20 overflow-hidden">
+<img alt="Doctor profile" class="w-full h-full object-cover" data-alt="Portrait of an older professional doctor" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxgjOiwmvV29LT-JUcHthBsm5dp6dLDmqwiGi3s8ky1ClmBLLxXfZYErw-0HfQFvODrUvV_epQFvJHe2VoJLYbeg9GMd0V0fFvIAcWWG4y0LjGOsDA3sk5BuvVjjOtxr9NyZtuAEhi7Duv9DJ4oxvKVmSbasy6OTIKMzEnI3nR1WNf5qORTPqOerUb4fu2BLuj2sAXo6FARO0t9_gIZzwzf_-_6wFWXp2a4TdGk0a_fF8J1etGTP1z-PzlQXbzvlIIEqSwXFD-Wl9P"/>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-4xl mx-auto px-6 py-12 pl-20">
+<!-- Ultra-Minimalist Header -->
+<div class="mb-12"><div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+<div>
+<div class="flex flex-wrap items-baseline gap-3">
+<span class="text-slate-400 text-3xl font-light">Paciente:</span>
+<h2 class="text-5xl font-black text-[#111318] tracking-tight">Pablo Mármol</h2>
+</div>
+</div>
+<div class="bg-primary/5 p-6 rounded-2xl border-2 border-primary/10 text-center min-w-[200px]">
+<p class="text-sm uppercase tracking-widest font-bold text-primary mb-1">Fecha de Consulta</p>
+<p class="text-3xl font-black text-primary">24 Mayo 2024</p>
+<p class="text-lg font-bold text-primary/60">10:30 AM</p>
+</div>
+</div></div><section class="mb-16 bg-white p-8 rounded-2xl border-2 border-slate-100 shadow-sm">
+<h3 class="text-xl font-black text-slate-400 uppercase tracking-widest mb-8 flex items-center gap-3">
+<span class="material-symbols-outlined">person</span> Información del Paciente
+    </h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div>
+<label class="block text-sm font-bold text-slate-400 uppercase mb-2">Edad</label>
+<p class="text-2xl font-bold text-[#111318]">45 años</p>
+</div>
+<div>
+<label class="block text-sm font-bold text-slate-400 uppercase mb-2">Sexo</label>
+<p class="text-2xl font-bold text-[#111318]">Masculino</p>
+</div>
+<div>
+<label class="block text-sm font-bold text-slate-400 uppercase mb-2">RUT o DNI</label>
+<p class="text-2xl font-bold text-[#111318]">12.345.678-9</p>
+</div>
+<div>
+<label class="block text-sm font-bold text-slate-400 uppercase mb-2">Fecha de Nacimiento</label>
+<p class="text-2xl font-bold text-[#111318]">15 de Marzo, 1979</p>
+</div>
+<div>
+<label class="block text-sm font-bold text-slate-400 uppercase mb-2">Número de Celular</label>
+<p class="text-2xl font-bold text-primary">+56 9 8765 4321</p>
+</div>
+<div>
+<label class="block text-sm font-bold text-slate-400 uppercase mb-2">Nacionalidad</label>
+<p class="text-2xl font-bold text-[#111318]">Chilena</p>
+</div>
+<div class="md:col-span-2">
+<label class="block text-sm font-bold text-slate-400 uppercase mb-2">Domicilio</label>
+<p class="text-2xl font-bold text-[#111318]">Calle Falsa 123, Depto 404</p>
+</div>
+<div>
+<label class="block text-sm font-bold text-slate-400 uppercase mb-2">Comuna</label>
+<p class="text-2xl font-bold text-[#111318]">Providencia</p>
+</div>
+</div>
+</section>
+<!-- Consultation Form with High Legibility -->
+<div class="space-y-16 pb-32"><!-- Section: Padecimiento -->
+<section class="group">
+<label class="flex items-center gap-4 text-3xl font-black text-[#111318] mb-6 group-focus-within:text-primary transition-colors" for="padecimiento">
+<span class="bg-primary/10 text-primary w-12 h-12 rounded-xl flex items-center justify-center text-xl">1</span>
+        Padecimiento Actual
+    </label>
+<textarea class="w-full text-2xl p-8 rounded-2xl border-2 border-slate-200 focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none placeholder:text-slate-300 bg-white" id="padecimiento" placeholder="Describa el motivo y evolución de la molestia..." rows="4"></textarea>
+</section>
+<!-- Section: Examen Físico -->
+<section class="group">
+<label class="flex items-center gap-4 text-3xl font-black text-[#111318] mb-6 group-focus-within:text-primary transition-colors" for="examen">
+<span class="bg-primary/10 text-primary w-12 h-12 rounded-xl flex items-center justify-center text-xl">2</span>
+        Examen Físico
+    </label>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+<div class="bg-white p-6 rounded-2xl border-2 border-slate-200 focus-within:border-primary transition-all">
+<label class="block text-sm font-bold text-slate-400 uppercase mb-2">Estatura (cm)</label>
+<input class="w-full text-3xl font-black border-none p-0 focus:ring-0" placeholder="175" type="number"/>
+</div>
+<div class="bg-white p-6 rounded-2xl border-2 border-slate-200 focus-within:border-primary transition-all">
+<label class="block text-sm font-bold text-slate-400 uppercase mb-2">Peso (kg)</label>
+<input class="w-full text-3xl font-black border-none p-0 focus:ring-0" placeholder="80" type="number"/>
+</div>
+<div class="bg-slate-50 p-6 rounded-2xl border-2 border-slate-100">
+<label class="block text-sm font-bold text-slate-400 uppercase mb-2">IMC</label>
+<p class="text-3xl font-black text-slate-400">--.-</p>
+</div>
+</div>
+<textarea class="w-full text-2xl p-8 rounded-2xl border-2 border-slate-200 focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none placeholder:text-slate-300 bg-white" id="examen" placeholder="Observaciones generales, signos vitales, etc." rows="4"></textarea>
+</section>
+<!-- Section: Impresión Diagnóstica -->
+<section class="group">
+<label class="flex items-center gap-4 text-3xl font-black text-[#111318] mb-6 group-focus-within:text-primary transition-colors" for="diagnostico">
+<span class="bg-primary/10 text-primary w-12 h-12 rounded-xl flex items-center justify-center text-xl">3</span>
+        Impresión Diagnóstica
+    </label>
+<textarea class="w-full text-2xl p-8 rounded-2xl border-2 border-slate-200 focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none placeholder:text-slate-300 bg-white font-mono" id="diagnostico" placeholder="Diagnóstico principal y CIE-10..." rows="3"></textarea>
+</section>
+<!-- Section: Tratamiento -->
+<section class="group">
+<label class="flex items-center gap-4 text-3xl font-black text-[#111318] mb-6 group-focus-within:text-primary transition-colors" for="tratamiento"><span class="bg-primary/10 text-primary w-12 h-12 rounded-xl flex items-center justify-center text-xl">4</span> Plan de Tratamiento</label>
+<textarea class="w-full text-2xl p-8 rounded-2xl border-2 border-slate-200 focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none placeholder:text-slate-300 bg-white" id="tratamiento" placeholder="Escriba el plan de tratamiento detallado..." rows="5"></textarea>
+</section><section class="group">
+<label class="flex items-center gap-4 text-3xl font-black text-[#111318] mb-6 group-focus-within:text-primary transition-colors" for="receta">
+<span class="bg-primary/10 text-primary w-12 h-12 rounded-xl flex items-center justify-center text-xl">5</span>
+        Receta
+    </label>
+<textarea class="w-full text-2xl p-8 rounded-2xl border-2 border-slate-200 focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none placeholder:text-slate-300 bg-white" id="receta" placeholder="Medicamentos, dosis, frecuencia y duración..." rows="4"></textarea>
+</section>
+<!-- Section: Interconsulta y Licencia -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-16">
+<section class="group">
+<label class="flex items-center gap-4 text-3xl font-black text-[#111318] mb-6 group-focus-within:text-primary transition-colors" for="interconsulta"><span class="bg-primary/10 text-primary w-12 h-12 rounded-xl flex items-center justify-center text-xl">6</span> Interconsulta</label>
+<textarea class="w-full text-2xl p-8 rounded-2xl border-2 border-slate-200 focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none placeholder:text-slate-300 bg-white" id="interconsulta" placeholder="Derivaciones..." rows="3"></textarea>
+</section>
+<section class="group">
+<label class="flex items-center gap-4 text-3xl font-black text-[#111318] mb-6 group-focus-within:text-primary transition-colors" for="licencia"><span class="bg-primary/10 text-primary w-12 h-12 rounded-xl flex items-center justify-center text-xl">7</span> Licencia Médica</label>
+<textarea class="w-full text-2xl p-8 rounded-2xl border-2 border-slate-200 focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none placeholder:text-slate-300 bg-white" id="licencia" placeholder="Días, reposo, etc." rows="3"></textarea>
+</section>
+</div>
+<!-- Section: Exámenes -->
+<section class="group">
+<label class="flex items-center gap-4 text-3xl font-black text-[#111318] mb-6 group-focus-within:text-primary transition-colors" for="examenes-pedidos"><span class="bg-primary/10 text-primary w-12 h-12 rounded-xl flex items-center justify-center text-xl">8</span> Exámenes Solicitados</label>
+<textarea class="w-full text-2xl p-8 rounded-2xl border-2 border-slate-200 focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none placeholder:text-slate-300 bg-white" id="examenes-pedidos" placeholder="Laboratorio, imagenología, etc." rows="3"></textarea>
+</section>
+<!-- Section: Próximo Control -->
+<section class="group">
+<label class="flex items-center gap-4 text-3xl font-black text-[#111318] mb-6 group-focus-within:text-primary transition-colors" for="proximo-control"><span class="bg-primary/10 text-primary w-12 h-12 rounded-xl flex items-center justify-center text-xl">9</span> Fecha del Próximo Control</label>
+<div class="max-w-md">
+<input class="w-full text-3xl font-black p-8 rounded-2xl border-2 border-slate-200 focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none bg-white text-primary" id="proximo-control" type="date"/>
+</div>
+</section></div>
+</main>
+<!-- Fixed Footer Action Bar -->
+<footer class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-slate-200 p-6 z-40 pl-20">
+<div class="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+<div class="flex items-center gap-3 text-slate-500 font-medium">
+<span class="material-symbols-outlined text-green-500">check_circle</span>
+                Guardado automáticamente hace 2 min
+            </div>
+<div class="flex items-center gap-4 w-full md:w-auto">
+<button class="flex-1 md:flex-none px-10 py-5 text-xl font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors">
+                    Cancelar
+                </button>
+<button class="flex-1 md:flex-none bg-primary hover:bg-primary/90 text-white px-12 py-5 rounded-xl text-2xl font-black shadow-xl shadow-primary/20 flex items-center justify-center gap-3 transition-all active:scale-95">
+<span class="material-symbols-outlined text-3xl">save</span>
+                    Guardar Consulta
+                </button>
+</div>
+</div>
+</footer>
+</body></html>
