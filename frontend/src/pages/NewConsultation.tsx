@@ -43,6 +43,11 @@ export default function NewConsultation() {
         notes: '',
         diagnosis: '',
         treatment: '',
+        receta: '',
+        interconsulta: '',
+        licencia_medica: '',
+        examenes_solicitados: '',
+        proximo_control: '',
         alergias: '',
         patologicos: '',
         no_patologicos: '',
@@ -66,7 +71,7 @@ export default function NewConsultation() {
     const [patientLoading, setPatientLoading] = useState(false);
     const [patientError, setPatientError] = useState<string | null>(null);
     const [patient, setPatient] = useState<any | null>(null);
-    const [formStatus, setFormStatus] = useState<'idle' | 'dirty' | 'submitting' | 'success' | 'error'>('idle');
+    const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 
     const authFetch = useAuthFetch();
 
@@ -88,6 +93,11 @@ export default function NewConsultation() {
                 reason: formData.reason,
                 diagnosis: formData.diagnosis,
                 treatment: formData.treatment,
+                receta: formData.receta || undefined,
+                interconsulta: formData.interconsulta || undefined,
+                licencia_medica: formData.licencia_medica || undefined,
+                examenes_solicitados: formData.examenes_solicitados || undefined,
+                proximo_control: formData.proximo_control || undefined,
                 notes: formData.notes || undefined,
                 alergias: formData.alergias,
                 patologicos: formData.patologicos,
@@ -104,7 +114,7 @@ export default function NewConsultation() {
             };
 
             const result = await runRecetaSubmitFlow({
-                recetaText: formData.treatment,
+                recetaText: formData.receta,
                 parseReceta: parseRecetaToMedications,
                 postConsultation: async () => {
                     const res = await authFetch(getApiUrl(`/api/patients/${patientId}/consultations`), {
@@ -176,9 +186,6 @@ export default function NewConsultation() {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-        if (formStatus !== 'submitting') {
-            setFormStatus('dirty');
-        }
     };
 
     useEffect(() => {
@@ -206,16 +213,16 @@ export default function NewConsultation() {
 
     const getPatientField = (value: any) => {
         if (patientLoading) return 'Cargando...';
-        if (!value) return 'N/D';
+        if (!value) return '—';
         return String(value);
     };
 
     const getPatientAge = () => {
         if (patientLoading) return 'Cargando...';
         const birth = patient?.fecha_nacimiento;
-        if (!birth) return 'N/D';
+        if (!birth) return '—';
         const date = new Date(birth);
-        if (Number.isNaN(date.getTime())) return 'N/D';
+        if (Number.isNaN(date.getTime())) return '—';
         const nowDate = new Date();
         let age = nowDate.getFullYear() - date.getFullYear();
         const m = nowDate.getMonth() - date.getMonth();
@@ -240,7 +247,7 @@ export default function NewConsultation() {
                                 <div className="flex flex-wrap items-baseline gap-3 mt-2">
                                     <span className="text-slate-400 text-2xl font-light">Paciente:</span>
                                     <h2 className="text-4xl font-black text-[#111318] tracking-tight">
-                                        {patientLoading ? 'Cargando...' : patientName || `ID ${patientId}`}
+                                        {patientLoading ? 'Cargando...' : patientName || '—'}
                                     </h2>
                                 </div>
                             </div>
@@ -331,9 +338,6 @@ export default function NewConsultation() {
                             <BiometryForm
                                 onChange={(data) => {
                                     setFormData({ ...formData, ...data });
-                                    if (formStatus !== 'submitting') {
-                                        setFormStatus('dirty');
-                                    }
                                 }}
                             />
                         </div>
@@ -387,9 +391,15 @@ export default function NewConsultation() {
                             <span className="bg-primary/10 text-primary w-12 h-12 rounded-xl flex items-center justify-center text-xl">5</span>
                             Receta
                         </label>
-                        <div className="w-full text-xl p-6 rounded-2xl border-2 border-slate-200 bg-white text-slate-500">
-                            La receta se genera desde el Plan de Tratamiento.
-                        </div>
+                        <textarea
+                            id="receta"
+                            name="receta"
+                            value={formData.receta}
+                            onChange={handleChange}
+                            rows={4}
+                            placeholder="Medicamentos, dosis, frecuencia y duración..."
+                            className="w-full text-2xl p-8 rounded-2xl border-2 border-slate-200 focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none placeholder:text-slate-300 bg-white"
+                        />
                     </section>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
@@ -398,18 +408,30 @@ export default function NewConsultation() {
                                 <span className="bg-primary/10 text-primary w-12 h-12 rounded-xl flex items-center justify-center text-xl">6</span>
                                 Interconsulta
                             </label>
-                            <div className="w-full text-xl p-6 rounded-2xl border-2 border-slate-200 bg-white text-slate-400">
-                                Sin datos en este formulario.
-                            </div>
+                            <textarea
+                                id="interconsulta"
+                                name="interconsulta"
+                                value={formData.interconsulta}
+                                onChange={handleChange}
+                                rows={3}
+                                placeholder="Derivaciones..."
+                                className="w-full text-2xl p-8 rounded-2xl border-2 border-slate-200 focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none placeholder:text-slate-300 bg-white"
+                            />
                         </section>
                         <section className="group">
                             <label className="flex items-center gap-4 text-3xl font-black text-[#111318] mb-6 group-focus-within:text-primary transition-colors">
                                 <span className="bg-primary/10 text-primary w-12 h-12 rounded-xl flex items-center justify-center text-xl">7</span>
                                 Licencia Médica
                             </label>
-                            <div className="w-full text-xl p-6 rounded-2xl border-2 border-slate-200 bg-white text-slate-400">
-                                Sin datos en este formulario.
-                            </div>
+                            <textarea
+                                id="licencia"
+                                name="licencia_medica"
+                                value={formData.licencia_medica}
+                                onChange={handleChange}
+                                rows={3}
+                                placeholder="Días, reposo, etc."
+                                className="w-full text-2xl p-8 rounded-2xl border-2 border-slate-200 focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none placeholder:text-slate-300 bg-white"
+                            />
                         </section>
                     </div>
 
@@ -418,9 +440,15 @@ export default function NewConsultation() {
                             <span className="bg-primary/10 text-primary w-12 h-12 rounded-xl flex items-center justify-center text-xl">8</span>
                             Exámenes Solicitados
                         </label>
-                        <div className="w-full text-xl p-6 rounded-2xl border-2 border-slate-200 bg-white text-slate-400">
-                            Sin datos en este formulario.
-                        </div>
+                        <textarea
+                            id="examenes-pedidos"
+                            name="examenes_solicitados"
+                            value={formData.examenes_solicitados}
+                            onChange={handleChange}
+                            rows={3}
+                            placeholder="Laboratorio, imagenología, etc."
+                            className="w-full text-2xl p-8 rounded-2xl border-2 border-slate-200 focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none placeholder:text-slate-300 bg-white"
+                        />
                     </section>
 
                     <section className="group">
@@ -428,14 +456,21 @@ export default function NewConsultation() {
                             <span className="bg-primary/10 text-primary w-12 h-12 rounded-xl flex items-center justify-center text-xl">9</span>
                             Fecha del Próximo Control
                         </label>
-                        <div className="w-full text-xl p-6 rounded-2xl border-2 border-slate-200 bg-white text-slate-400 max-w-md">
-                            Sin datos en este formulario.
+                        <div className="max-w-md">
+                            <input
+                                id="proximo-control"
+                                name="proximo_control"
+                                type="date"
+                                value={formData.proximo_control}
+                                onChange={handleChange}
+                                className="w-full text-xl font-bold p-4 rounded-2xl border-2 border-slate-200 focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none bg-white text-primary"
+                            />
                         </div>
                     </section>
                 </form>
             </main>
 
-            <footer className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-slate-200 p-3 z-40">
+            <footer className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-slate-200 p-2 z-40">
                 <div className="max-w-4xl mx-auto grid grid-cols-3 items-center gap-4">
                     <div className="flex items-center gap-3 text-slate-500 font-medium">
                         {formStatus !== 'idle' && (
@@ -445,8 +480,7 @@ export default function NewConsultation() {
                                 </span>
                                 <span>
                                     {formStatus === 'submitting' && 'Guardando...'}
-                                    {formStatus === 'dirty' && 'Listo para guardar'}
-                                    {formStatus === 'success' && 'Guardado correctamente'}
+                                    {formStatus === 'success' && 'Listo para guardar'}
                                     {formStatus === 'error' && 'Error al guardar'}
                                 </span>
                             </>
@@ -456,7 +490,7 @@ export default function NewConsultation() {
                         <button
                             type="button"
                             onClick={() => navigate(-1)}
-                            className="px-8 py-3 text-lg font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+                            className="px-8 py-2 text-base font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
                         >
                             Cancelar
                         </button>
@@ -466,7 +500,7 @@ export default function NewConsultation() {
                             type="submit"
                             form="new-consultation-form"
                             disabled={saving}
-                            className="bg-primary hover:bg-primary/90 text-white px-10 py-3 rounded-xl text-xl font-black shadow-xl shadow-primary/20 flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50"
+                            className="bg-primary hover:bg-primary/90 text-white px-10 py-2 rounded-xl text-lg font-black shadow-xl shadow-primary/20 flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50"
                         >
                             <Save className="h-6 w-6" />
                             {saving ? 'Guardando...' : 'Guardar Consulta'}
