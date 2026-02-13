@@ -49,6 +49,7 @@ jobs:
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
           VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_APP_COMMIT_SHA: ${{ github.sha }}
         run: |
           npm ci
           npm run build
@@ -56,6 +57,12 @@ jobs:
       - name: Verify Build Config
         working-directory: ./frontend
         run: |
+          if ! grep -q "$GITHUB_SHA" dist/assets/index-*.js; then
+            echo "❌ Critical: Build does not contain current commit SHA."
+            echo "   This indicates the deployed bundle is NOT from this commit."
+            exit 1
+          fi
+
           if ! grep -q "vitalinuage" dist/assets/index-*.js; then
             echo "❌ Critical: 'vitalinuage' (Project ID) not found in build bundle."
             echo "   This indicates VITE_FIREBASE_PROJECT_ID was not injected."
@@ -75,7 +82,7 @@ jobs:
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_VITALINUAGE }}'
-          projectId: ${{ secrets.GCP_PROJECT_ID }}
+          projectId: vitalinuage
           channelId: live
 
 
