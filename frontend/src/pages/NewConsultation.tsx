@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Save } from 'lucide-react';
 import { useAuthFetch } from '../hooks/useAuthFetch';
@@ -63,6 +63,10 @@ export default function NewConsultation() {
 
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [patientLoading, setPatientLoading] = useState(false);
+    const [patientError, setPatientError] = useState<string | null>(null);
+    const [patient, setPatient] = useState<any | null>(null);
+    const [formStatus, setFormStatus] = useState<'idle' | 'dirty' | 'submitting' | 'success' | 'error'>('idle');
 
     const authFetch = useAuthFetch();
 
@@ -70,6 +74,7 @@ export default function NewConsultation() {
         e.preventDefault();
         setSaving(true);
         setError(null);
+        setFormStatus('submitting');
 
         try {
             const toNumber = (value: string | number | undefined) => {
@@ -138,6 +143,7 @@ export default function NewConsultation() {
 
             if (!result.ok) {
                 setError(result.error);
+                setFormStatus('error');
                 return;
             }
 
@@ -159,8 +165,10 @@ export default function NewConsultation() {
 
             // Success
             navigate(`/patient/${patientId}`);
+            setFormStatus('success');
         } catch (err: any) {
             setError(err.message || 'Error desconocido');
+            setFormStatus('error');
         } finally {
             setSaving(false);
         }
@@ -168,7 +176,58 @@ export default function NewConsultation() {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+        if (formStatus !== 'submitting') {
+            setFormStatus('dirty');
+        }
     };
+
+    useEffect(() => {
+        if (!patientId) return;
+        setPatientLoading(true);
+        setPatientError(null);
+
+        authFetch(getApiUrl(`/api/patients/${patientId}`))
+            .then((res) => {
+                if (!res.ok) throw new Error('No se pudo cargar el paciente.');
+                return res.json();
+            })
+            .then((data) => {
+                setPatient(data);
+            })
+            .catch((err) => {
+                if (err.message !== 'AUTH_TOKEN_MISSING' && err.message !== 'AUTH_401') {
+                    setPatientError('Error al cargar el paciente.');
+                }
+            })
+            .finally(() => {
+                setPatientLoading(false);
+            });
+    }, [patientId]);
+
+    const getPatientField = (value: any) => {
+        if (patientLoading) return 'Cargando...';
+        if (!value) return 'N/D';
+        return String(value);
+    };
+
+    const getPatientAge = () => {
+        if (patientLoading) return 'Cargando...';
+        const birth = patient?.fecha_nacimiento;
+        if (!birth) return 'N/D';
+        const date = new Date(birth);
+        if (Number.isNaN(date.getTime())) return 'N/D';
+        const nowDate = new Date();
+        let age = nowDate.getFullYear() - date.getFullYear();
+        const m = nowDate.getMonth() - date.getMonth();
+        if (m < 0 || (m === 0 && nowDate.getDate() < date.getDate())) {
+            age -= 1;
+        }
+        return `${age} años`;
+    };
+
+    const patientName = patient
+        ? [patient.nombre, patient.apellido_paterno, patient.apellido_materno].filter(Boolean).join(' ')
+        : null;
 
     return (
         <div className="text-[#111318] min-h-screen">
@@ -181,7 +240,7 @@ export default function NewConsultation() {
                                 <div className="flex flex-wrap items-baseline gap-3 mt-2">
                                     <span className="text-slate-400 text-2xl font-light">Paciente:</span>
                                     <h2 className="text-4xl font-black text-[#111318] tracking-tight">
-                                        ID {patientId}
+                                        {patientLoading ? 'Cargando...' : patientName || `ID ${patientId}`}
                                     </h2>
                                 </div>
                             </div>
@@ -210,37 +269,40 @@ export default function NewConsultation() {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             <div>
                                 <label className="block text-sm font-bold text-slate-400 uppercase mb-2">Edad</label>
-                                <p className="text-2xl font-bold text-[#111318]">N/D</p>
+                                <p className="text-2xl font-bold text-[#111318]">{getPatientAge()}</p>
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-slate-400 uppercase mb-2">Sexo</label>
-                                <p className="text-2xl font-bold text-[#111318]">N/D</p>
+                                <p className="text-2xl font-bold text-[#111318]">{getPatientField(patient?.sexo)}</p>
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-slate-400 uppercase mb-2">RUT o DNI</label>
-                                <p className="text-2xl font-bold text-[#111318]">ID {patientId}</p>
+                                <p className="text-2xl font-bold text-[#111318]">{getPatientField(patient?.dni || `ID ${patientId}`)}</p>
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-slate-400 uppercase mb-2">Fecha de Nacimiento</label>
-                                <p className="text-2xl font-bold text-[#111318]">N/D</p>
+                                <p className="text-2xl font-bold text-[#111318]">{getPatientField(patient?.fecha_nacimiento)}</p>
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-slate-400 uppercase mb-2">Número de Celular</label>
-                                <p className="text-2xl font-bold text-primary">N/D</p>
+                                <p className="text-2xl font-bold text-primary">{getPatientField(patient?.telefono)}</p>
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-slate-400 uppercase mb-2">Nacionalidad</label>
-                                <p className="text-2xl font-bold text-[#111318]">N/D</p>
+                                <p className="text-2xl font-bold text-[#111318]">{getPatientField(patient?.nacionalidad)}</p>
                             </div>
                             <div className="md:col-span-2">
                                 <label className="block text-sm font-bold text-slate-400 uppercase mb-2">Domicilio</label>
-                                <p className="text-2xl font-bold text-[#111318]">N/D</p>
+                                <p className="text-2xl font-bold text-[#111318]">{getPatientField(patient?.direccion)}</p>
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-slate-400 uppercase mb-2">Comuna</label>
-                                <p className="text-2xl font-bold text-[#111318]">N/D</p>
+                                <p className="text-2xl font-bold text-[#111318]">{getPatientField(patient?.comuna)}</p>
                             </div>
                         </div>
+                        {patientError && (
+                            <p className="mt-6 text-sm text-red-600">{patientError}</p>
+                        )}
                     </section>
 
                     <section className="group">
@@ -266,7 +328,14 @@ export default function NewConsultation() {
                             Examen Físico
                         </label>
                         <div className="bg-white p-6 rounded-2xl border-2 border-slate-200 focus-within:border-primary transition-all mb-6">
-                            <BiometryForm onChange={(data) => setFormData({ ...formData, ...data })} />
+                            <BiometryForm
+                                onChange={(data) => {
+                                    setFormData({ ...formData, ...data });
+                                    if (formStatus !== 'submitting') {
+                                        setFormStatus('dirty');
+                                    }
+                                }}
+                            />
                         </div>
                         <textarea
                             id="examen"
@@ -366,17 +435,28 @@ export default function NewConsultation() {
                 </form>
             </main>
 
-            <footer className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-slate-200 p-6 z-40">
+            <footer className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-slate-200 p-3 z-40">
                 <div className="max-w-4xl mx-auto grid grid-cols-3 items-center gap-4">
                     <div className="flex items-center gap-3 text-slate-500 font-medium">
-                        <span className="text-green-500">check_circle</span>
-                        {saving ? 'Guardando...' : 'Listo para guardar'}
+                        {formStatus !== 'idle' && (
+                            <>
+                                <span className={formStatus === 'success' ? 'text-green-500' : 'text-slate-400'}>
+                                    check_circle
+                                </span>
+                                <span>
+                                    {formStatus === 'submitting' && 'Guardando...'}
+                                    {formStatus === 'dirty' && 'Listo para guardar'}
+                                    {formStatus === 'success' && 'Guardado correctamente'}
+                                    {formStatus === 'error' && 'Error al guardar'}
+                                </span>
+                            </>
+                        )}
                     </div>
                     <div className="flex justify-center">
                         <button
                             type="button"
                             onClick={() => navigate(-1)}
-                            className="px-10 py-5 text-xl font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+                            className="px-8 py-3 text-lg font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
                         >
                             Cancelar
                         </button>
@@ -386,10 +466,10 @@ export default function NewConsultation() {
                             type="submit"
                             form="new-consultation-form"
                             disabled={saving}
-                            className="bg-primary hover:bg-primary/90 text-white px-12 py-5 rounded-xl text-2xl font-black shadow-xl shadow-primary/20 flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50"
+                            className="bg-primary hover:bg-primary/90 text-white px-10 py-3 rounded-xl text-xl font-black shadow-xl shadow-primary/20 flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50"
                         >
                             <Save className="h-6 w-6" />
-                            Guardar Consulta
+                            {saving ? 'Guardando...' : 'Guardar Consulta'}
                         </button>
                     </div>
                 </div>
