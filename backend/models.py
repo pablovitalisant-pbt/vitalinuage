@@ -110,7 +110,12 @@ class ClinicalConsultation(Base):
     examen_fisico = Column(String, nullable=True)
     diagnostico = Column(String, nullable=False)
     plan_tratamiento = Column(String, nullable=False)
+    receta = Column(String, nullable=True)
+    interconsulta = Column(String, nullable=True)
+    licencia_medica = Column(String, nullable=True)
+    examenes_solicitados = Column(String, nullable=True)
     proxima_cita = Column(String, nullable=True)
+    proximo_control = Column(String, nullable=True)
 
     # Slice 34: Biometrics & Diagnosis
     peso_kg = Column(Float, nullable=True)

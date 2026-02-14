@@ -419,6 +419,11 @@ def create_patient_consultation(
         motivo_consulta=consultation.reason,  # reason -> motivo_consulta
         diagnostico=consultation.diagnosis,    # diagnosis -> diagnostico
         plan_tratamiento=consultation.treatment,  # treatment -> plan_tratamiento
+        receta=consultation.receta,
+        interconsulta=consultation.interconsulta,
+        licencia_medica=consultation.licencia_medica,
+        examenes_solicitados=consultation.examenes_solicitados,
+        proximo_control=consultation.proximo_control,
         examen_fisico=exam_text,  # notes + optional antecedentes snapshot
         peso_kg=consultation.peso_kg,
         estatura_cm=consultation.estatura_cm,
@@ -557,4 +562,3 @@ def get_prescription(
             notes=m.notes
         ) for m in presc.medications]
     )
-

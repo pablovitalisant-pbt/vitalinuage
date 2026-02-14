@@ -6,6 +6,11 @@ class ConsultationBase(BaseModel):
     reason: str
     diagnosis: str
     treatment: Optional[str] = None
+    receta: Optional[str] = None
+    interconsulta: Optional[str] = None
+    licencia_medica: Optional[str] = None
+    examenes_solicitados: Optional[str] = None
+    proximo_control: Optional[str] = None
     notes: Optional[str] = None
 
 class ConsultationCreate(ConsultationBase):

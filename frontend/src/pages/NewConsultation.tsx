@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Save } from 'lucide-react';
 import { useAuthFetch } from '../hooks/useAuthFetch';
 import { getApiUrl } from '../config/api';
 import BiometryForm from '../components/clinical/BiometryForm';
@@ -77,6 +76,14 @@ export default function NewConsultation() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!patientId) {
+            setError('Paciente inválido.');
+            setFormStatus('error');
+            if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development') {
+                console.warn('NewConsultation: submit blocked (missing patientId)');
+            }
+            return;
+        }
         setSaving(true);
         setError(null);
         setFormStatus('submitting');
@@ -187,6 +194,15 @@ export default function NewConsultation() {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
     };
+    const handleInvalid = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        setSaving(false);
+        setError('Completa los campos obligatorios.');
+        setFormStatus('error');
+        if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development') {
+            console.warn('NewConsultation: submit blocked by validation');
+        }
+    };
 
     useEffect(() => {
         if (!patientId) return;
@@ -239,7 +255,12 @@ export default function NewConsultation() {
     return (
         <div className="text-[#111318] min-h-screen">
             <main className="max-w-4xl mx-auto space-y-16 pb-32">
-                <form onSubmit={handleSubmit} id="new-consultation-form" className="space-y-16">
+                <form
+                    onSubmit={handleSubmit}
+                    onInvalidCapture={handleInvalid}
+                    id="new-consultation-form"
+                    className="space-y-16"
+                >
                     <div className="mb-12">
                         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
                             <div>
@@ -470,12 +491,16 @@ export default function NewConsultation() {
                 </form>
             </main>
 
-            <footer className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-slate-200 p-2 z-40">
-                <div className="max-w-4xl mx-auto grid grid-cols-3 items-center gap-4">
+            <footer className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-slate-200 p-3 z-40">
+                <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
                     <div className="flex items-center gap-3 text-slate-500 font-medium">
                         {formStatus !== 'idle' && (
                             <>
-                                <span className={formStatus === 'success' ? 'text-green-500' : 'text-slate-400'}>
+                                <span
+                                    className={`material-symbols-outlined ${
+                                        formStatus === 'success' ? 'text-green-500' : 'text-slate-400'
+                                    }`}
+                                >
                                     check_circle
                                 </span>
                                 <span>
@@ -486,23 +511,21 @@ export default function NewConsultation() {
                             </>
                         )}
                     </div>
-                    <div className="flex justify-center">
+                    <div className="flex items-center gap-4 w-full md:w-auto">
                         <button
                             type="button"
                             onClick={() => navigate(-1)}
-                            className="px-8 py-2 text-base font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+                            className="flex-1 md:flex-none px-8 py-2 text-base font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
                         >
                             Cancelar
                         </button>
-                    </div>
-                    <div className="flex justify-end">
                         <button
                             type="submit"
                             form="new-consultation-form"
                             disabled={saving}
-                            className="bg-primary hover:bg-primary/90 text-white px-10 py-2 rounded-xl text-lg font-black shadow-xl shadow-primary/20 flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50"
+                            className="flex-1 md:flex-none bg-primary hover:bg-primary/90 text-white px-10 py-2 rounded-xl text-lg font-black shadow-xl shadow-primary/20 flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50"
                         >
-                            <Save className="h-6 w-6" />
+                            <span className="material-symbols-outlined text-2xl">save</span>
                             {saving ? 'Guardando...' : 'Guardar Consulta'}
                         </button>
                     </div>
